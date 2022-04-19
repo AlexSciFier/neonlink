@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import NavBar from "../../components/NavBar";
 import PageBody from "../../components/PageBody";
 import { debounce } from "lodash";
@@ -11,17 +11,19 @@ export default function AddPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [formData, setFormData] = useState({ title: "", desc: "", icon: "" });
+  const [url, setUrl] = useState("");
   const [complete, setComplete] = useState(false);
   const [error, setError] = useState();
+  const [urlError, setUrlError] = useState();
 
   const urlRef = useRef(null);
 
   var debounced = debounce(fetchUrl, 500);
 
-  const urlHandler = (e) => {
-    let url = urlRef.current.value;
+  useEffect(() => {
     debounced(url);
-  };
+    if (url === "") setFormData({ desc: "", title: "", icon: "" });
+  }, [url]);
 
   const refreshHandler = (e) => {
     e.preventDefault();
@@ -31,9 +33,20 @@ export default function AddPage() {
 
   async function fetchUrl(url) {
     if (url === "") return;
+
+    try {
+      setUrlError(undefined);
+      url = new URL(url).toString();
+    } catch (error) {
+      console.error(error.message);
+      setUrlError(error.message);
+      return;
+    }
+
     setIsLoading(true);
     let res;
     try {
+      setError(undefined);
       res = await fetch(url);
     } catch (error) {
       setError(error);
@@ -52,7 +65,7 @@ export default function AddPage() {
       setFormData({ ...parsedData });
       setIsLoading(false);
     } else {
-      console.log("error");
+      console.error("error");
       setError(await res.json());
       setIsLoading(false);
     }
@@ -82,6 +95,12 @@ export default function AddPage() {
     }
   };
 
+  function isButtonDisabled() {
+    return error || urlError || sending || isLoading || url === ""
+      ? true
+      : false;
+  }
+
   if (complete) return <Navigate to={"/"} />;
 
   return (
@@ -97,8 +116,9 @@ export default function AddPage() {
               type={"url"}
               name={"url"}
               placeholder="URL"
-              onChange={urlHandler}
+              onChange={(e) => setUrl(e.target.value)}
               refreshHandler={refreshHandler}
+              value={url}
               icon={formData.icon}
               ref={urlRef}
               isLoading={isLoading}
@@ -120,10 +140,13 @@ export default function AddPage() {
               onChange={inputHandler}
             ></textarea>
             <div className="flex justify-between">
-              <div className="text-red-600">{error?.message || ""}</div>
+              <div className="text-red-600">
+                {error?.message || urlError || ""}
+              </div>
               <button
-                className="inline-flex items-center px-6 py-2 rounded focus:outline-none focus:ring-cyan-400 focus:ring hover:bg-cyan-400 bg-cyan-500 text-white"
+                className="inline-flex items-center px-6 py-2 rounded focus:outline-none disabled:bg-gray-400 focus:ring-cyan-400 focus:ring hover:bg-cyan-400 bg-cyan-500 text-white"
                 type="submit"
+                disabled={isButtonDisabled()}
               >
                 {sending ? (
                   <>
