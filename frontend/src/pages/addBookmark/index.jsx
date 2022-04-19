@@ -1,0 +1,162 @@
+import React, { useRef, useState } from "react";
+import NavBar from "../../components/NavBar";
+import PageBody from "../../components/PageBody";
+import { debounce } from "lodash";
+import { postJSON } from "../../helpers/fetch";
+import InputBox from "./components/InputBox";
+import { parseHtml } from "../../helpers/htmlParser";
+import { Navigate } from "react-router";
+
+export default function AddPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [formData, setFormData] = useState({ title: "", desc: "", icon: "" });
+  const [complete, setComplete] = useState(false);
+  const [error, setError] = useState();
+
+  const urlRef = useRef(null);
+
+  var debounced = debounce(fetchUrl, 500);
+
+  const urlHandler = (e) => {
+    let url = urlRef.current.value;
+    debounced(url);
+  };
+
+  const refreshHandler = (e) => {
+    e.preventDefault();
+    let url = urlRef.current.value;
+    fetchUrl(url);
+  };
+
+  async function fetchUrl(url) {
+    if (url === "") return;
+    setIsLoading(true);
+    let res;
+    try {
+      res = await fetch(url);
+    } catch (error) {
+      setError(error);
+      setIsLoading(false);
+    }
+
+    if (res.ok) {
+      let ctype = res.headers.get("content-type");
+      let encoding = ctype.match(/charset=(.+)/)[1];
+      let decoder = new TextDecoder(encoding);
+
+      let htmlBuffer = await res.arrayBuffer();
+      let html = decoder.decode(htmlBuffer);
+      let parsedData = await parseHtml(html, url);
+
+      setFormData({ ...parsedData });
+      setIsLoading(false);
+    } else {
+      console.log("error");
+      setError(await res.json());
+      setIsLoading(false);
+    }
+  }
+
+  function inputHandler(e) {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSending(true);
+    let submitData = { ...formData, url: urlRef.current.value };
+    let res;
+    try {
+      res = await postJSON("http://localhost:3333/api/bookmarks", submitData);
+    } catch (error) {
+      setError(error);
+      setSending(false);
+    }
+
+    if (res.ok) {
+      setComplete(true);
+    } else {
+      setError(await res.json());
+      setSending(false);
+    }
+  };
+
+  if (complete) return <Navigate to={"/"} />;
+
+  return (
+    <div>
+      <NavBar />
+      <PageBody>
+        <div className="flex justify-center w-full">
+          <form
+            className="w-1/2 flex flex-col gap-3 my-3"
+            onSubmit={handleSubmit}
+          >
+            <InputBox
+              type={"url"}
+              name={"url"}
+              placeholder="URL"
+              onChange={urlHandler}
+              refreshHandler={refreshHandler}
+              icon={formData.icon}
+              ref={urlRef}
+              isLoading={isLoading}
+            ></InputBox>
+            <input
+              className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
+              type={"text"}
+              placeholder="Title"
+              name={"title"}
+              value={formData.title}
+              onChange={inputHandler}
+            ></input>
+            <textarea
+              className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
+              type={"text"}
+              placeholder="Description"
+              name={"desc"}
+              value={formData.desc}
+              onChange={inputHandler}
+            ></textarea>
+            <div className="flex justify-between">
+              <div className="text-red-600">{error?.message || ""}</div>
+              <button
+                className="inline-flex items-center px-6 py-2 rounded focus:outline-none focus:ring-cyan-400 focus:ring hover:bg-cyan-400 bg-cyan-500 text-white"
+                type="submit"
+              >
+                {sending ? (
+                  <>
+                    <svg
+                      class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Sending ...
+                  </>
+                ) : (
+                  "Add"
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </PageBody>
+    </div>
+  );
+}
