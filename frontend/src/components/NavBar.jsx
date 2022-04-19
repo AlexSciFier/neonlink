@@ -2,9 +2,19 @@ import { LogoutIcon, PlusIcon } from "@heroicons/react/outline";
 import React from "react";
 import { Link } from "react-router-dom";
 import { useIsloggedIn } from "../context/isLoggedIn";
+import { postJSON } from "../helpers/fetch";
 
 export default function NavBar() {
   const { profile } = useIsloggedIn();
+
+  function logoutHandler() {
+    postJSON("http://localhost:3333/api/users/logout", JSON.stringify({})).then(
+      (res) => {
+        window.location.reload();
+      }
+    );
+  }
+
   return (
     <div className="flex justify-between text-white py-3 px-6">
       <Link to="/" className="text-2xl font-light ">
@@ -21,9 +31,9 @@ export default function NavBar() {
         <Link className="leading-loose" to={"/settings"}>
           {profile.username}
         </Link>
-        <Link to={"/logout"}>
+        <button onClick={logoutHandler}>
           <LogoutIcon className="w-6 h-6" />
-        </Link>
+        </button>
       </div>
     </div>
   );

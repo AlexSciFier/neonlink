@@ -7,7 +7,6 @@ import SettingsPage from "./pages/settings";
 import AddPage from "./pages/addBookmark";
 import { Navigate, Outlet } from "react-router";
 import { useEffect } from "react";
-import Logout from "./pages/logout";
 import { getJSON } from "./helpers/fetch";
 
 function PrivateWrapper({ profile }) {
@@ -50,8 +49,6 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-
-          <Route path="/logout" element={<Logout />} />
 
           <Route element={<PrivateWrapper profile={profile} />}>
             <Route path="/" element={<MainPage />} />
