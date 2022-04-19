@@ -16,7 +16,7 @@ export default function NavBar() {
           className="bg-cyan-500 text-white px-4 h-full rounded flex items-center gap-1"
         >
           <PlusIcon className="w-6 h-6" />
-          Add bookmark
+          <span className="hidden md:inline">Add bookmark</span>
         </Link>
         <Link className="leading-loose" to={"/settings"}>
           {profile.username}
