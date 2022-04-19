@@ -65,8 +65,7 @@ export default function AddPage() {
       setFormData({ ...parsedData });
       setIsLoading(false);
     } else {
-      console.error("error");
-      setError(await res.json());
+      console.error("error", res.statusText, res.status);
       setIsLoading(false);
     }
   }
