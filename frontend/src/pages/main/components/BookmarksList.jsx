@@ -38,7 +38,7 @@ export default function BookmarksList() {
         <SceletalBokmarkList />
       ) : response.bookmarks?.length > 0 ? (
         <>
-          <div className="flex flex-col gap-3 divide-y">
+          <div className="flex flex-col divide-y overflow-hidden">
             {response.bookmarks.map((bookmark, idx) => (
               <LinkTemplate bookmark={bookmark} key={idx} />
             ))}
