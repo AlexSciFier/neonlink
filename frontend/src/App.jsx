@@ -40,7 +40,10 @@ function App() {
     fetchProfile();
   }, []);
 
-  if (isProfileLoading) return <div>Loading</div>;
+  if (isProfileLoading)
+    return (
+      <div className="w-screen h-screen gradient-animate overflow-auto"></div>
+    );
 
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-cyan-600 to-fuchsia-600 overflow-auto">
