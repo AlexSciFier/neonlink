@@ -15,7 +15,7 @@ export default function BookmarksList() {
     setIsLoading(true);
     async function fetchData() {
       let limit = searchParams.get("limit") || 10;
-      let page = searchParams.get("page") ?? 1 - 1;
+      let page = searchParams.get("page") - 1 ?? 0;
       let offset = page * limit;
       let res = await getJSON(
         `http://localhost:3333/api/bookmarks/?offset=${offset}&limit=${limit}`
