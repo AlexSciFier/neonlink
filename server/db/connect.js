@@ -95,7 +95,7 @@ function findBookmark(query, limit = 10, offset = 0) {
  * @returns {boolean} Deleted succsessfuly
  */
 function deleteBookmarkById(id) {
-  return db.prepare("DELETE FROM bookmark WHERE id = ?").run(id).changes > 0
+  return db.prepare("DELETE FROM bookmarks WHERE id = ?").run(id).changes > 0
     ? true
     : false;
 }
