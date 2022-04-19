@@ -58,4 +58,4 @@ profile*
 *flamegraph*
 
 #db
-db\*.sqlite
+db/*sqlite
