@@ -47,22 +47,14 @@ export default function AddPage() {
     let res;
     try {
       setError(undefined);
-      res = await fetch(url);
+      res = await postJSON("http://localhost:3333/api/utils/urlinfo", { url });
     } catch (error) {
       setError(error);
       setIsLoading(false);
     }
 
     if (res.ok) {
-      let ctype = res.headers.get("content-type");
-      let encoding = ctype.match(/charset=(.+)/)[1];
-      let decoder = new TextDecoder(encoding);
-
-      let htmlBuffer = await res.arrayBuffer();
-      let html = decoder.decode(htmlBuffer);
-      let parsedData = await parseHtml(html, url);
-
-      setFormData({ ...parsedData });
+      setFormData(await res.json());
       setIsLoading(false);
     } else {
       console.error("error", res.statusText, res.status);
