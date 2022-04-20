@@ -42,12 +42,12 @@ export default function LinkTemplate({ bookmark }) {
           : "",
       }}
     >
-      <div className="flex-1 flex justify-between items-center text-gray-400">
+      <div className="flex-auto overflow-hidden flex justify-between items-center text-gray-400">
         <a
           href={bookmark.url}
-          className="flex gap-3 items-center hover:underline"
+          className="flex flex-auto overflow-hidden gap-3 items-center group "
         >
-          <div>
+          <div className="flex-none">
             <div
               className="w-8 h-8 bg-contain bg-no-repeat bg-center"
               style={{
@@ -57,12 +57,17 @@ export default function LinkTemplate({ bookmark }) {
               }}
             ></div>
           </div>
-          <div>
-            <div className="text-lg text-cyan-700">{bookmark.title}</div>
-            <div className="font-light text-gray-700">{bookmark.desc}</div>
+          <div className="flex-auto overflow-hidden">
+            <div className="text-lg text-cyan-700 truncate group-hover:underline">
+              {bookmark.title}
+            </div>
+            <div className="font-light text-gray-700 ">{bookmark.desc}</div>
           </div>
         </a>
-        <button onClick={() => setShowOptions(!showOptions)}>
+        <button
+          className="flex-none"
+          onClick={() => setShowOptions(!showOptions)}
+        >
           {showOptions ? (
             <ChevronLeftIcon className="w-8 h-8" />
           ) : (
