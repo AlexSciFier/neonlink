@@ -61,6 +61,10 @@ function App() {
           <Route element={<PrivateWrapper profile={profile} />}>
             <Route path="/add" element={<AddPage />} />
           </Route>
+
+          <Route element={<PrivateWrapper profile={profile} />}>
+            <Route path="/edit/:id" element={<AddPage />} />
+          </Route>
         </Routes>
       </Router>
     </div>

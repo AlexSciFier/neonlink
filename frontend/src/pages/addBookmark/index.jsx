@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import NavBar from "../../components/NavBar";
 import PageBody from "../../components/PageBody";
 import { debounce } from "lodash";
-import { postJSON } from "../../helpers/fetch";
+import { getJSON, postJSON } from "../../helpers/fetch";
 import InputBox from "./components/InputBox";
 import { parseHtml } from "../../helpers/htmlParser";
-import { Navigate } from "react-router";
+import { Navigate, useParams } from "react-router";
 
 export default function AddPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,9 +16,25 @@ export default function AddPage() {
   const [error, setError] = useState();
   const [urlError, setUrlError] = useState();
 
+  const { id } = useParams();
+
   const urlRef = useRef(null);
 
-  var debounced = debounce(fetchUrl, 500);
+  var debounced = debounce(fetchUrl, 800);
+
+  useEffect(() => {
+    async function fetchBookamrks() {
+      if (id) {
+        let res = await getJSON(`http://localhost:3333/api/bookmarks/${id}`);
+        if (res.ok) {
+          let data = await res.json();
+          setFormData({ title: data.title, desc: data.desc, icon: data.icon });
+          // setUrl(data.url);
+        }
+      }
+    }
+    fetchBookamrks();
+  }, [id]);
 
   useEffect(() => {
     debounced(url);
