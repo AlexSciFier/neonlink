@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import NavBar from "../../components/NavBar";
 import PageBody from "../../components/PageBody";
 import { debounce } from "lodash";
@@ -20,7 +20,7 @@ export default function AddPage() {
 
   const urlRef = useRef(null);
 
-  var debounced = debounce(fetchUrl, 800);
+  const debounced = useCallback(debounce(fetchUrl, 800), [url]);
 
   useEffect(() => {
     async function fetchBookamrks() {
@@ -39,7 +39,8 @@ export default function AddPage() {
   useEffect(() => {
     debounced(url);
     if (url === "") setFormData({ desc: "", title: "", icon: "" });
-  }, [url]);
+    return debounced.cancel;
+  }, [debounced, url]);
 
   const refreshHandler = (e) => {
     e.preventDefault();
