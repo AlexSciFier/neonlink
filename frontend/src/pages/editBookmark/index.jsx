@@ -26,10 +26,7 @@ export default function EditBookmark() {
     e.preventDefault();
     setSending(true);
     setError(undefined);
-    let res = await putJSON(
-      `http://localhost:3333/api/bookmarks/${id}`,
-      formData
-    );
+    let res = await putJSON(`/api/bookmarks/${id}`, formData);
     setSending(false);
     if (res.ok) {
     } else {

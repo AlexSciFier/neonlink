@@ -14,7 +14,7 @@ export default function LoginPage() {
     e.preventDefault();
     let username = usernameRef.current.value;
     let password = passwordRef.current.value;
-    postJSON("http://localhost:3333/api/users/login", { username, password })
+    postJSON("/api/users/login", { username, password })
       .then((res) => {
         res.json().then((json) => {
           if (res.ok) {

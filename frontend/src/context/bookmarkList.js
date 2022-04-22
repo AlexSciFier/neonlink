@@ -1,6 +1,6 @@
 import { includes } from "lodash";
 import React, { createContext, useContext, useState } from "react";
-import { getJSON } from "../helpers/fetch";
+import { deleteJSON, getJSON } from "../helpers/fetch";
 
 const BookMarkList = createContext();
 
@@ -26,13 +26,7 @@ export function BookMarkListProvider({ children }) {
     searchParams.append("offset", offset);
     searchParams.append("limit", limit);
     query && searchParams.append("q", query);
-
-    let url = new URL(
-      `/api/bookmarks/?${searchParams}`,
-      "http://localhost:3333"
-    ).toString();
-    let res = await getJSON(url);
-    console.log(url);
+    let res = await getJSON(`/api/bookmarks/?${searchParams}`);
     if (res.ok) {
       let json = await res.json();
       setBookmarkList(json.bookmarks);
@@ -45,7 +39,7 @@ export function BookMarkListProvider({ children }) {
   }
 
   async function deleteBookmark(id) {
-    let res = await fetch(`http://localhost:3333/api/bookmarks/${id}`, {
+    let res = await deleteJSON(`/api/bookmarks/${id}`, {
       credentials: "include",
       method: "DELETE",
     });

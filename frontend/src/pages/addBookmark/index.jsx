@@ -25,11 +25,10 @@ export default function AddPage() {
   useEffect(() => {
     async function fetchBookamrks() {
       if (id) {
-        let res = await getJSON(`http://localhost:3333/api/bookmarks/${id}`);
+        let res = await getJSON(`/api/bookmarks/${id}`);
         if (res.ok) {
           let data = await res.json();
           setFormData({ title: data.title, desc: data.desc, icon: data.icon });
-          // setUrl(data.url);
         }
       }
     }
@@ -64,7 +63,7 @@ export default function AddPage() {
     let res;
     try {
       setError(undefined);
-      res = await postJSON("http://localhost:3333/api/utils/urlinfo", { url });
+      res = await postJSON("/api/utils/urlinfo", { url });
     } catch (error) {
       setError(error);
       setIsLoading(false);
@@ -89,7 +88,7 @@ export default function AddPage() {
     let submitData = { ...formData, url: urlRef.current.value };
     let res;
     try {
-      res = await postJSON("http://localhost:3333/api/bookmarks", submitData);
+      res = await postJSON("/api/bookmarks", submitData);
     } catch (error) {
       setError(error);
       setSending(false);
