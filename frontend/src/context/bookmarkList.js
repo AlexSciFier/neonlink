@@ -1,4 +1,3 @@
-import { includes } from "lodash";
 import React, { createContext, useContext, useState } from "react";
 import { deleteJSON, getJSON } from "../helpers/fetch";
 
@@ -15,10 +14,7 @@ export function BookMarkListProvider({ children }) {
   const [maxPage, setMaxPage] = useState(10);
   const [errorBookmarks, setErrorBookmarks] = useState();
 
-  const [position, setPosition] = useState({ offset: 0, limit: 0 });
-
   async function fetchBookmarks(offset, limit, query) {
-    setPosition({ offset, limit });
     setIsBookmarksLoading(true);
     setErrorBookmarks(undefined);
 
@@ -55,6 +51,7 @@ export function BookMarkListProvider({ children }) {
     <BookMarkList.Provider
       value={{
         bookmarkList,
+        errorBookmarks,
         currentPage,
         maxPage,
         isBookmarksLoading,
