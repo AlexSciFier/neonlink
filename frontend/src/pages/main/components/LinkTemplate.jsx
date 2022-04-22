@@ -51,6 +51,8 @@ export default function LinkTemplate({ bookmark }) {
       <div className="flex-auto overflow-hidden flex justify-between items-center text-gray-400">
         <a
           href={bookmark.url}
+          target="_blank"
+          rel="noreferrer"
           className="flex flex-auto overflow-hidden gap-3 items-center group "
         >
           <div className="flex-none">
