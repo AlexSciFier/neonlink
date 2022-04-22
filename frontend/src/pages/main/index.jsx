@@ -10,7 +10,7 @@ export default function MainPage() {
     <div>
       <NavBar />
       <PageBody>
-        <div className="flex flex-col justify-center w-full md:flex-row">
+        <div className="flex flex-col justify-center w-full md:flex-row px-20">
           <BookMarkListProvider>
             <BookmarksList />
             <RightPanel />

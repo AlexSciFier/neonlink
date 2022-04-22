@@ -1,3 +1,5 @@
+const Database = require("better-sqlite3");
+let db = new Database("./db/bookmarks.sqlite");
 /**
  * @typedef {Object} User
  * @property {number} id
