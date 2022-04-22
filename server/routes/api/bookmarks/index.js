@@ -71,6 +71,7 @@ module.exports = async function (fastify, opts) {
     },
     async function (request) {
       let { url, title, desc, icon } = request.body;
+      if (url === "") throw new Error("url shoud not be empty string");
       let existingBookmark = db.getBookmarkByUrl(url);
       if (existingBookmark) {
         return db.updateBookmarkById(
@@ -86,15 +87,14 @@ module.exports = async function (fastify, opts) {
   );
 
   fastify.put(
-    "/",
+    "/:id",
     {
       preHandler: requestForbidden,
       schema: {
         body: {
           type: "object",
-          required: ["id"],
+          required: ["url"],
           properties: {
-            id: { type: "number" },
             url: { type: "string" },
             title: { type: "string" },
             desc: { type: "string" },
@@ -103,7 +103,9 @@ module.exports = async function (fastify, opts) {
       },
     },
     async function (request, reply) {
-      let { id, url, title, desc } = request.body;
+      let { id } = request.params;
+      let { url, title, desc } = request.body;
+      if (url === "") throw new Error("Url shoud not be empty string");
       if (db.updateBookmarkById(id, url, title, desc))
         return { url, title, desc };
       throw fastify.httpErrors.notFound();
