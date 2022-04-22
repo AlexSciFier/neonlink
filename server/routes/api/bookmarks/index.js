@@ -36,7 +36,7 @@ module.exports = async function (fastify, opts) {
       let offset = query.get("offset") ?? undefined;
       let limit = query.get("limit") ?? undefined;
       let q = query.get("q") ?? undefined;
-      if (q !== undefined) return db.findBookmark(q, offset, limit);
+      if (q !== undefined) return db.findBookmark(q, limit, offset);
       return db.getAllBookmarks(offset, limit);
     }
   );

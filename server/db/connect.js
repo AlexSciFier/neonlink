@@ -78,12 +78,17 @@ function getBookmarkByUrl(url) {
  * @returns {Bookmark[]} Array of bookmarks
  */
 function findBookmark(query, limit = 10, offset = 0) {
-  let total = db.prepare("SELECT COUNT(*) FROM bookmarks").get()["COUNT(*)"];
+  let total = db
+    .prepare(
+      "SELECT COUNT(*) FROM bookmarks WHERE title LIKE :query OR desc LIKE :query OR url LIKE :query"
+    )
+    .get({ query: `%${query}%` })["COUNT(*)"];
   let maxPage = Math.ceil(total / limit);
   let currentPage = offset / limit + 1;
+  console.log({ total, limit, offset, query, maxPage, currentPage });
   let bookmarks = db
     .prepare(
-      "SELECT * FROM bookmarks WHERE title LIKE :query OR desc LIKE :query OR url LIKE :query OFFSET :offset LIMIT :limit"
+      "SELECT * FROM bookmarks WHERE title LIKE :query OR desc LIKE :query OR url LIKE :query LIMIT :limit OFFSET :offset"
     )
     .all({ query: `%${query}%`, limit, offset });
   return { bookmarks, currentPage, maxPage };

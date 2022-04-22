@@ -17,13 +17,22 @@ export function BookMarkListProvider({ children }) {
 
   const [position, setPosition] = useState({ offset: 0, limit: 0 });
 
-  async function fetchBookmarks(offset, limit) {
+  async function fetchBookmarks(offset, limit, query) {
     setPosition({ offset, limit });
     setIsBookmarksLoading(true);
     setErrorBookmarks(undefined);
-    let res = await getJSON(
-      `http://localhost:3333/api/bookmarks/?offset=${offset}&limit=${limit}`
-    );
+
+    let searchParams = new URLSearchParams();
+    searchParams.append("offset", offset);
+    searchParams.append("limit", limit);
+    query && searchParams.append("q", query);
+
+    let url = new URL(
+      `/api/bookmarks/?${searchParams}`,
+      "http://localhost:3333"
+    ).toString();
+    let res = await getJSON(url);
+    console.log(url);
     if (res.ok) {
       let json = await res.json();
       setBookmarkList(json.bookmarks);
@@ -36,7 +45,6 @@ export function BookMarkListProvider({ children }) {
   }
 
   async function deleteBookmark(id) {
-    console.log("delete", id);
     let res = await fetch(`http://localhost:3333/api/bookmarks/${id}`, {
       credentials: "include",
       method: "DELETE",
