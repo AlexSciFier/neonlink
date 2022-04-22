@@ -3,6 +3,7 @@ import BookmarksList from "./components/BookmarksList";
 import NavBar from "../../components/NavBar";
 import RightPanel from "./components/RightPanel";
 import PageBody from "../../components/PageBody";
+import { BookMarkListProvider } from "../../context/bookmarkList";
 
 export default function MainPage() {
   return (
@@ -10,8 +11,10 @@ export default function MainPage() {
       <NavBar />
       <PageBody>
         <div className="flex flex-col justify-center w-full md:flex-row">
-          <BookmarksList />
-          <RightPanel />
+          <BookMarkListProvider>
+            <BookmarksList />
+            <RightPanel />
+          </BookMarkListProvider>
         </div>
       </PageBody>
     </div>

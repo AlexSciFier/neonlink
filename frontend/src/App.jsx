@@ -8,6 +8,7 @@ import AddPage from "./pages/addBookmark";
 import { Navigate, Outlet } from "react-router";
 import { useEffect } from "react";
 import { getJSON } from "./helpers/fetch";
+import EditBookmark from "./pages/editBookmark";
 
 function PrivateWrapper({ profile }) {
   return profile ? <Outlet /> : <Navigate to="/login" />;
@@ -63,7 +64,7 @@ function App() {
           </Route>
 
           <Route element={<PrivateWrapper profile={profile} />}>
-            <Route path="/edit/:id" element={<AddPage />} />
+            <Route path="/edit/:id" element={<EditBookmark />} />
           </Route>
         </Routes>
       </Router>

@@ -11,3 +11,13 @@ export async function postJSON(url, json) {
 export async function getJSON(url) {
   return await fetch(url, { credentials: "include" });
 }
+export async function putJSON(url, json) {
+  return await fetch(url, {
+    method: "PUT",
+    body: JSON.stringify(json),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+}
