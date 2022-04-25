@@ -2,6 +2,8 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/outline";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useBookMarkList } from "../../../context/bookmarkList";
+import { getDomain } from "../../../helpers/url";
+import { prettyfyDate } from "../../../helpers/date";
 
 function Options({ className, bookmarkId, setShowOptions }) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -39,10 +41,6 @@ export default function LinkTemplate({ bookmark }) {
   const [showOptions, setShowOptions] = useState(false);
   const optionBlock = useRef(null);
 
-  function getDomain(url) {
-    return new URL(url).host;
-  }
-
   return (
     <div
       className={`flex relative transition-transform py-3`}
@@ -77,6 +75,7 @@ export default function LinkTemplate({ bookmark }) {
               </span>
             </div>
             <div className="font-light text-gray-700 ">{bookmark.desc}</div>
+            <div>{prettyfyDate(bookmark.created)}</div>
           </div>
         </a>
         <button

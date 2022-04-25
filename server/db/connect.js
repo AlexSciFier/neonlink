@@ -24,7 +24,9 @@ function init() {
     title TEXT,
     desc TEXT,
     icon TEXT,
-    tags TEXT
+    tags TEXT,
+    created TIMESTAMP
+    DEFAULT CURRENT_TIMESTAMP
   )`
     )
     .run().changes;
