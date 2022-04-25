@@ -39,6 +39,10 @@ export default function LinkTemplate({ bookmark }) {
   const [showOptions, setShowOptions] = useState(false);
   const optionBlock = useRef(null);
 
+  function getDomain(url) {
+    return new URL(url).host;
+  }
+
   return (
     <div
       className={`flex relative transition-transform py-3`}
@@ -68,6 +72,9 @@ export default function LinkTemplate({ bookmark }) {
           <div className="flex-auto overflow-hidden">
             <div className="text-lg text-cyan-700 truncate group-hover:underline">
               {bookmark.title}
+              <span className="bg-cyan-700/50 text-white rounded ml-3 px-1">
+                {getDomain(bookmark.url)}
+              </span>
             </div>
             <div className="font-light text-gray-700 ">{bookmark.desc}</div>
           </div>

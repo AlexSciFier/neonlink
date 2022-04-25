@@ -26,7 +26,7 @@ export default function BookmarksList() {
   }, [searchParams]);
 
   return (
-    <div className="lg:w-2/3 my-3 space-y-6">
+    <div className="lg:w-2/4 my-3 space-y-6">
       <BookmarksHeader />
       {isBookmarksLoading ? (
         <SceletalBokmarkList />
