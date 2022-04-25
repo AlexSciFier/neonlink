@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { useTagsList } from "../../../context/tagsList";
+import { useTagsList } from "../../../../context/tagsList";
+import TagItem from "./TagItem";
 
 export default function TagList() {
   const { tags, fetchTags } = useTagsList();
@@ -10,9 +11,9 @@ export default function TagList() {
 
   if (tags.length === 0) return <div>No tags</div>;
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       {tags.map((tag) => (
-        <div key={tag.id}>{tag.name}</div>
+        <TagItem key={tag.id} tag={tag} />
       ))}
     </div>
   );
