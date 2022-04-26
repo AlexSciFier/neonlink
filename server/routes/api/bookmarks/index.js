@@ -65,13 +65,15 @@ module.exports = async function (fastify, opts) {
             title: { type: "string" },
             desc: { type: "string" },
             icon: { type: "string" },
+            tags: { type: "array", items: { type: "integer" }, maxItems: 10 },
           },
         },
       },
     },
-    async function (request) {
-      let { url, title, desc, icon } = request.body;
-      if (url === "") throw new Error("url shoud not be empty string");
+    async function (request, reply) {
+      let { url, title, desc, icon, tags } = request.body;
+      if (url === "")
+        throw fastify.httpErrors.notAcceptable("url shoud not be empty string");
       let existingBookmark = db.getBookmarkByUrl(url);
       if (existingBookmark) {
         return db.updateBookmarkById(
@@ -79,10 +81,12 @@ module.exports = async function (fastify, opts) {
           url,
           title,
           desc,
-          icon
+          icon,
+          tags
         );
       }
-      return db.addBookmark(url, title, desc, icon);
+      reply.statusCode = 201;
+      return db.addBookmark(url, title, desc, icon, tags);
     }
   );
 

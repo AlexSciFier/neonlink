@@ -8,39 +8,40 @@ const tags = require("./tags");
 
 function init() {
   console.log("Starting up...");
-  db
-    .prepare(
-      `CREATE TABLE IF NOT EXISTS tags (
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS tags (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT
   )`
-    )
-    .run().changes;
-  db
-    .prepare(
-      `CREATE TABLE IF NOT EXISTS bookmarks (
+  ).run();
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS bookmarksTags (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bookmarkId INTEGER,
+    tagId INTEGER,
+    UNIQUE (bookmarkId,tagId) ON CONFLICT IGNORE
+  )`
+  ).run();
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS bookmarks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     url TEXT,
     title TEXT,
     desc TEXT,
     icon TEXT,
-    tags TEXT,
     created TIMESTAMP
     DEFAULT CURRENT_TIMESTAMP
   )`
-    )
-    .run().changes;
-  db
-    .prepare(
-      `CREATE TABLE IF NOT EXISTS users (
+  ).run();
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT,
     passwordhash TEXT,
     usergroup INTEGER,
     uuid TEXT
   )`
-    )
-    .run().changes;
+  ).run();
 }
 
 module.exports = {

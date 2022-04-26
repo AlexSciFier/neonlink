@@ -9,7 +9,17 @@ function getTagById(id) {
   return db.prepare(`SELECT * FROM tags WHERE id=:id`).all({ id });
 }
 
+function findTags(query) {
+  return db
+    .prepare(`SELECT * FROM tags WHERE name LIKE :query`)
+    .all({ query: `${query}%` });
+}
+
 function addTag(name) {
+  let existingTag = db
+    .prepare(`SELECT * FROM tags WHERE name = :name`)
+    .get({ name });
+  if (existingTag) throw Error("This tag is already exist");
   return db.prepare(`INSERT INTO tags (name) VALUES(?)`).run(name)
     .lastInsertRowid;
 }
@@ -39,6 +49,7 @@ function deleteTagById(id) {
 module.exports = {
   getAllTags,
   getTagById,
+  findTags,
   addTag,
   updateTagById,
   deleteTagById,

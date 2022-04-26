@@ -4,13 +4,18 @@ import PageBody from "../../components/PageBody";
 import { debounce } from "lodash";
 import { getJSON, postJSON } from "../../helpers/fetch";
 import InputBox from "./components/InputBox";
-import { parseHtml } from "../../helpers/htmlParser";
 import { Navigate, useParams } from "react-router";
+import TagInput from "./components/TagInput";
 
 export default function AddPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [sending, setSending] = useState(false);
-  const [formData, setFormData] = useState({ title: "", desc: "", icon: "" });
+  const [formData, setFormData] = useState({
+    title: "",
+    desc: "",
+    icon: "",
+    tags: [],
+  });
   const [url, setUrl] = useState("");
   const [complete, setComplete] = useState(false);
   const [error, setError] = useState();
@@ -28,7 +33,12 @@ export default function AddPage() {
         let res = await getJSON(`/api/bookmarks/${id}`);
         if (res.ok) {
           let data = await res.json();
-          setFormData({ title: data.title, desc: data.desc, icon: data.icon });
+          setFormData({
+            title: data.title,
+            desc: data.desc,
+            icon: data.icon,
+            tags: JSON.parse(data.tags) || [],
+          });
         }
       }
     }
@@ -37,7 +47,7 @@ export default function AddPage() {
 
   useEffect(() => {
     debounced(url);
-    if (url === "") setFormData({ desc: "", title: "", icon: "" });
+    if (url === "") setFormData({ desc: "", title: "", icon: "", tags: [] });
     return debounced.cancel;
   }, [debounced, url]);
 
@@ -70,7 +80,7 @@ export default function AddPage() {
     }
 
     if (res.ok) {
-      setFormData(await res.json());
+      setFormData({ ...(await res.json()), tags: formData.tags });
       setIsLoading(false);
     } else {
       console.error("error", res.statusText, res.status);
@@ -138,6 +148,10 @@ export default function AddPage() {
               value={formData.title}
               onChange={inputHandler}
             ></input>
+            <TagInput
+              tags={formData.tags}
+              setTags={(tags) => setFormData({ ...formData, tags })}
+            />
             <textarea
               className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
               type={"text"}

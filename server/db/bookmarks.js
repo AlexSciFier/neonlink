@@ -17,12 +17,23 @@ let db = new Database("./db/bookmarks.sqlite");
  * @param {string} title
  * @param {string} desc
  * @param {string} icon
+ * @param {number[]} tags
  * @returns {number} Number of changes
  */
-function addBookmark(url, title, desc, icon) {
-  return db
+function addBookmark(url, title, desc, icon, tags) {
+  let bookmarkId = db
     .prepare("INSERT INTO bookmarks (url,title,desc,icon) VALUES(?,?,?,?)")
-    .run(url, title, desc, icon).changes;
+    .run(url, title, desc, icon).lastInsertRowid;
+  let stmt = db.prepare(
+    "INSERT INTO bookmarksTags (bookmarkId, tagId) VALUES(:bookmarkId,:tagId)"
+  );
+  let transaction = db.transaction((tags) => {
+    for (const tagId of tags) {
+      stmt.run({ bookmarkId, tagId });
+    }
+  });
+  transaction(tags);
+  return bookmarkId;
 }
 
 /**
@@ -102,7 +113,18 @@ function deleteBookmarkById(id) {
  * @param {string} desc
  * @returns {boolean}
  */
-function updateBookmarkById(id, url, title, desc, icon) {
+function updateBookmarkById(id, url, title, desc, icon, tags) {
+  db.prepare("DELETE FROM bookmarksTags WHERE bookmarkId = ?").run(id);
+  let stmt = db.prepare(
+    "INSERT INTO bookmarksTags (bookmarkId, tagId) VALUES(:bookmarkId,:tagId)"
+  );
+  let transaction = db.transaction((tags) => {
+    for (const tagId of tags) {
+      stmt.run({ bookmarkId: id, tagId });
+    }
+  });
+  transaction(tags);
+
   return db
     .prepare(
       `UPDATE bookmarks SET 

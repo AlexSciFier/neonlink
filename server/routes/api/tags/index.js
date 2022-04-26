@@ -6,6 +6,7 @@ const {
   getTagById,
   addTag,
   updateTagById,
+  findTags,
 } = require("../../../db/tags");
 
 const postOptions = {
@@ -27,6 +28,8 @@ const postOptions = {
  */
 module.exports = async function (fastify, opts) {
   fastify.get("/", async function (request, reply) {
+    let { q } = request.query;
+    if (q) return findTags(q);
     return getAllTags();
   });
 
