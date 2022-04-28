@@ -65,7 +65,7 @@ module.exports = async function (fastify, opts) {
             title: { type: "string" },
             desc: { type: "string" },
             icon: { type: "string" },
-            tags: { type: "array", items: { type: "integer" }, maxItems: 10 },
+            tags: { type: "array", items: { type: "string" }, maxItems: 10 },
           },
         },
       },

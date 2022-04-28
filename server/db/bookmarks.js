@@ -24,14 +24,22 @@ function addBookmark(url, title, desc, icon, tags) {
   let bookmarkId = db
     .prepare("INSERT INTO bookmarks (url,title,desc,icon) VALUES(?,?,?,?)")
     .run(url, title, desc, icon).lastInsertRowid;
+  let ids = db
+    .prepare(
+      `SELECT id FROM tags WHERE name IN (${new Array(tags.length)
+        .fill("?")
+        .join(",")})`
+    )
+    .all(...tags);
   let stmt = db.prepare(
     "INSERT INTO bookmarksTags (bookmarkId, tagId) VALUES(:bookmarkId,:tagId)"
   );
-  let transaction = db.transaction((tags) => {
-    for (const tagId of tags) {
+  let transaction = db.transaction((ids) => {
+    for (const tagId of ids.map((value) => value.id)) {
       stmt.run({ bookmarkId, tagId });
     }
   });
+  transaction(ids);
   transaction(tags);
   return bookmarkId;
 }
@@ -47,8 +55,25 @@ function getAllBookmarks(offset = 0, limit = 10) {
   let maxPage = Math.ceil(total / limit);
   let currentPage = offset / limit + 1;
   let bookmarks = db
-    .prepare("SELECT * FROM bookmarks LIMIT :limit OFFSET :offset")
-    .all({ offset, limit });
+    .prepare(
+      `SELECT 
+        bookmarks.id,
+        url,
+        title,
+        desc,
+        icon,
+        created,
+        group_concat(tags.name, ',') as tags
+      FROM bookmarks 
+        INNER JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
+        INNER JOIN tags ON bookmarksTags.tagId = tags.id
+      GROUP BY bookmarks.id
+      LIMIT :limit OFFSET :offset`
+    )
+    .all({ offset, limit })
+    .map((bookmark) => {
+      return { ...bookmark, tags: bookmark.tags.split(",") };
+    });
   return { bookmarks, currentPage, maxPage };
 }
 
@@ -88,9 +113,25 @@ function findBookmark(query, limit = 10, offset = 0) {
   console.log({ total, limit, offset, query, maxPage, currentPage });
   let bookmarks = db
     .prepare(
-      "SELECT * FROM bookmarks WHERE title LIKE :query OR desc LIKE :query OR url LIKE :query LIMIT :limit OFFSET :offset"
+      `SELECT 
+      bookmarks.id,
+      url,
+      title,
+      desc,
+      icon,
+      created,
+      group_concat(tags.name, ',') as tags
+    FROM bookmarks 
+      INNER JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
+      INNER JOIN tags ON bookmarksTags.tagId = tags.id
+    WHERE bookmarks.title LIKE :query OR bookmarks.desc LIKE :query OR bookmarks.url LIKE :query 
+    GROUP BY bookmarks.id
+    LIMIT :limit OFFSET :offset`
     )
-    .all({ query: `%${query}%`, limit, offset });
+    .all({ query: `%${query}%`, limit, offset })
+    .map((bookmark) => {
+      return { ...bookmark, tags: bookmark.tags.split(",") };
+    });
   return { bookmarks, currentPage, maxPage };
 }
 
@@ -115,15 +156,23 @@ function deleteBookmarkById(id) {
  */
 function updateBookmarkById(id, url, title, desc, icon, tags) {
   db.prepare("DELETE FROM bookmarksTags WHERE bookmarkId = ?").run(id);
+  let ids = db
+    .prepare(
+      `SELECT id FROM tags WHERE name IN (${new Array(tags.length)
+        .fill("?")
+        .join(",")})`
+    )
+    .all(...tags);
+  console.log(ids);
   let stmt = db.prepare(
     "INSERT INTO bookmarksTags (bookmarkId, tagId) VALUES(:bookmarkId,:tagId)"
   );
-  let transaction = db.transaction((tags) => {
-    for (const tagId of tags) {
+  let transaction = db.transaction((ids) => {
+    for (const tagId of ids.map((value) => value.id)) {
       stmt.run({ bookmarkId: id, tagId });
     }
   });
-  transaction(tags);
+  transaction(ids);
 
   return db
     .prepare(
