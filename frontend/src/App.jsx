@@ -9,6 +9,7 @@ import { Navigate, Outlet } from "react-router";
 import { useEffect } from "react";
 import { getJSON } from "./helpers/fetch";
 import EditBookmark from "./pages/editBookmark";
+import NotFound from "./pages/notFound";
 
 function PrivateWrapper({ profile }) {
   return profile ? <Outlet /> : <Navigate to="/login" />;
@@ -66,6 +67,8 @@ function App() {
           <Route element={<PrivateWrapper profile={profile} />}>
             <Route path="/edit/:id" element={<EditBookmark />} />
           </Route>
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </div>
