@@ -5,7 +5,7 @@ import TagList from "./TagList";
 export default function RightPanel() {
   return (
     <div className="flex flex-col gap-3 p-3 w-1/4">
-      <h3 className="text-xl">Categories</h3>
+      <h3 className="text-xl">Tags</h3>
       <TagsListProvider>
         <TagList />
       </TagsListProvider>

@@ -15,7 +15,6 @@ export default function BookmarksHeader() {
   }, [delayedQuery, query]);
 
   function updateBookmarkList() {
-    console.log(query);
     fetchBookmarks(0, 10, query);
   }
 
@@ -26,7 +25,7 @@ export default function BookmarksHeader() {
   return (
     <div className="flex gap-3">
       <input
-        className="py-2 px-4 flex-1 border rounded"
+        className="py-2 px-4 flex-1 border rounded focus:outline-none focus:ring-cyan-600 focus:ring"
         type={"search"}
         placeholder={"Search"}
         value={query}

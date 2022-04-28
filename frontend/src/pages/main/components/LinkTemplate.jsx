@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { useBookMarkList } from "../../../context/bookmarkList";
 import { getDomain } from "../../../helpers/url";
 import { prettyfyDate } from "../../../helpers/date";
+import { Link } from "react-router-dom";
 
 function Options({ className, bookmarkId, setShowOptions }) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -51,12 +52,7 @@ export default function LinkTemplate({ bookmark }) {
       }}
     >
       <div className="flex-auto overflow-hidden flex justify-between items-center text-gray-400">
-        <a
-          href={bookmark.url}
-          target="_blank"
-          rel="noreferrer"
-          className="flex flex-auto overflow-hidden gap-3 items-center group "
-        >
+        <div className="flex flex-auto overflow-hidden gap-3 items-center">
           <div className="flex-none">
             <div
               className="w-8 h-8 bg-contain bg-no-repeat bg-center"
@@ -68,19 +64,38 @@ export default function LinkTemplate({ bookmark }) {
             ></div>
           </div>
           <div className="flex-auto overflow-hidden">
-            <div className="text-lg text-cyan-700 truncate group-hover:underline">
+            <a
+              href={bookmark.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-lg text-cyan-700 truncate hover:underline"
+            >
               {bookmark.title}
               <span className="bg-cyan-700/50 text-white rounded ml-3 px-1">
                 {getDomain(bookmark.url)}
               </span>
-            </div>
+            </a>
             <div className="font-light text-gray-700 ">{bookmark.desc}</div>
-            <div>{prettyfyDate(bookmark.created)}</div>
+            <div className="flex justify-between">
+              <div className="flex gap-3 font-light">
+                {bookmark.tags.map((tag, idx) => (
+                  <Link
+                    key={idx}
+                    className="hover:underline"
+                    to={`/tag/${tag}`}
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
+              <div>{prettyfyDate(bookmark.created)}</div>
+            </div>
           </div>
-        </a>
+        </div>
         <button
           className="flex-none"
-          onClick={() => setShowOptions(!showOptions)}
+          onFocus={(e) => setShowOptions(true)}
+          onBlur={(e) => setShowOptions(false)}
         >
           {showOptions ? (
             <ChevronLeftIcon className="w-8 h-8" />
