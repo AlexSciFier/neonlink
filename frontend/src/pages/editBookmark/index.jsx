@@ -13,7 +13,7 @@ export default function EditBookmark() {
 
   useEffect(() => {
     async function fetchData() {
-      let res = await getJSON(`http://localhost:3333/api/bookmarks/${id}`);
+      let res = await getJSON(`/api/bookmarks/${id}`);
       if (res.ok) {
         let json = await res.json();
         setFormData({ url: json.url, title: json.title, desc: json.desc });

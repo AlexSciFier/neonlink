@@ -24,7 +24,7 @@ function App() {
       setIsProfileLoading(true);
       var res;
       try {
-        res = await getJSON("http://localhost:3333/api/users/me");
+        res = await getJSON("/api/users/me");
       } catch (error) {
         setProfile(undefined);
         setIsProfileLoading(false);
