@@ -41,7 +41,7 @@ export default function TagInput({ tags, setTags }) {
   }
 
   return (
-    <div className="flex items-center rounded border focus-within:ring-cyan-600 focus-within:ring">
+    <div className="flex items-center rounded border focus-within:ring-cyan-600 focus-within:ring bg-transparent dark:text-white">
       <div className="flex gap-2 px-2">
         {tags.map((tag, idx) => (
           <div
@@ -56,7 +56,7 @@ export default function TagInput({ tags, setTags }) {
         ))}
       </div>
       <input
-        className="w-full focus:outline-none py-2"
+        className="w-full focus:outline-none py-2 bg-transparent dark:text-white"
         type={"text"}
         list={"tags"}
         placeholder="Tags"

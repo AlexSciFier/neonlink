@@ -68,12 +68,14 @@ export default function LinkTemplate({ bookmark }) {
               href={bookmark.url}
               target="_blank"
               rel="noreferrer"
-              className="text-lg text-cyan-700 truncate hover:underline"
+              className="text-lg text-cyan-700 truncate hover:underline dark:text-cyan-300"
             >
               {bookmark.title}
               <span className="pl-3 font-light">{getDomain(bookmark.url)}</span>
             </a>
-            <div className="font-light text-gray-700 ">{bookmark.desc}</div>
+            <div className="font-light text-gray-700 dark:text-gray-200">
+              {bookmark.desc}
+            </div>
             <div className="flex justify-between">
               <div className="flex gap-3 font-light">
                 {bookmark.tags?.map((tag, idx) => (

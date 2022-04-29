@@ -47,7 +47,7 @@ function App() {
     );
 
   return (
-    <div className="w-screen h-screen bg-gradient-to-br from-cyan-600 to-fuchsia-600 overflow-auto">
+    <div className="w-screen h-screen bg-gradient-to-br from-cyan-600 to-fuchsia-600 overflow-auto dark:from-cyan-900 dark:to-fuchsia-900">
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />

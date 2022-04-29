@@ -21,7 +21,7 @@ const InputBox = React.forwardRef(
     return (
       <div className="relative">
         <input
-          className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
+          className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
           type={type}
           placeholder={placeholder}
           onChange={onChange}

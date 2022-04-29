@@ -25,7 +25,7 @@ export default function BookmarksHeader() {
   return (
     <div className="flex gap-3">
       <input
-        className="py-2 px-4 flex-1 border rounded focus:outline-none focus:ring-cyan-600 focus:ring"
+        className="py-2 px-4 flex-1 border rounded focus:outline-none focus:ring-cyan-600 focus:ring bg-transparent dark:text-white"
         type={"search"}
         placeholder={"Search"}
         value={query}

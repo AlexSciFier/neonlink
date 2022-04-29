@@ -141,7 +141,7 @@ export default function AddPage() {
               isLoading={isLoading}
             ></InputBox>
             <input
-              className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
+              className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
               type={"text"}
               placeholder="Title"
               name={"title"}
@@ -153,7 +153,7 @@ export default function AddPage() {
               setTags={(tags) => setFormData({ ...formData, tags })}
             />
             <textarea
-              className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
+              className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
               type={"text"}
               placeholder="Description"
               name={"desc"}

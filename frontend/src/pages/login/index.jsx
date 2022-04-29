@@ -35,16 +35,16 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col justify-center w-full h-full">
       <div className="flex justify-center">
-        <form className="border flex flex-col items-center sm:w-1/4 w-4/5 px-6 py-4 rounded-xl space-y-3 bg-white">
-          <h1 className="text-4xl my-3">Bookmarker</h1>
+        <form className="border flex flex-col items-center sm:w-1/4 w-4/5 px-6 py-4 rounded-xl space-y-3 bg-white dark:bg-black/30 dark:backdrop-blur-xl dark:border-0">
+          <h1 className="text-4xl my-3 dark:text-white">Bookmarker</h1>
           <input
-            className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 mx-2"
+            className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 mx-2 bg-transparent dark:text-white"
             type="text"
             placeholder="Username"
             ref={usernameRef}
           ></input>
           <input
-            className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 mx-2"
+            className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 mx-2 bg-transparent dark:text-white"
             type="password"
             placeholder="Password"
             ref={passwordRef}
