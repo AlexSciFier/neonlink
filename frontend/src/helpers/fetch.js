@@ -1,4 +1,5 @@
 const BASE_URL = "http://localhost:3333";
+//window.location.protocol + "//" + window.location.hostname + ":3333";
 
 export async function postJSON(endpoint, json) {
   let url = new URL(endpoint, BASE_URL).toString();

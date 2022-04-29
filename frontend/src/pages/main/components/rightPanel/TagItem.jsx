@@ -5,7 +5,7 @@ export default function TagItem({ tag }) {
   return (
     <Link
       to={`/?tag=${tag.name}`}
-      className="hover:underline hover:text-cyan-700"
+      className="hover:underline hover:text-cyan-700 capitalize"
     >
       #{tag.name}
     </Link>
