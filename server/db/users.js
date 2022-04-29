@@ -1,4 +1,5 @@
 const Database = require("better-sqlite3");
+const bcrypt = require("bcrypt");
 let db = new Database("./db/bookmarks.sqlite");
 /**
  * @typedef {Object} User
