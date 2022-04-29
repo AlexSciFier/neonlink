@@ -1,9 +1,13 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function TagItem({ tag }) {
   return (
-    <a href={`/tag/${tag.id}`} className="hover:underline hover:text-cyan-700">
+    <Link
+      to={`/?tag=${tag.name}`}
+      className="hover:underline hover:text-cyan-700"
+    >
       #{tag.name}
-    </a>
+    </Link>
   );
 }
