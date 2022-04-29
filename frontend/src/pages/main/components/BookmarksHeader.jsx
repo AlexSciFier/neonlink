@@ -10,7 +10,7 @@ export default function BookmarksHeader() {
   const { fetchBookmarks } = useBookMarkList();
 
   useEffect(() => {
-    delayedQuery();
+    if (query !== "") delayedQuery();
     return delayedQuery.cancel;
   }, [delayedQuery, query]);
 

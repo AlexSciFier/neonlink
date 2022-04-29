@@ -22,7 +22,13 @@ export default function BookmarksList() {
     let limit = searchParams.get("limit") || 10;
     let page = searchParams.get("page") ?? 1;
     let offset = (page - 1) * limit;
-    fetchBookmarks(offset, limit);
+
+    let tag = searchParams.get("tag");
+    if (tag) {
+      fetchBookmarks({ offset, limit, tag });
+      return;
+    }
+    fetchBookmarks({ offset, limit });
   }, [searchParams]);
 
   return (

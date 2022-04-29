@@ -14,7 +14,7 @@ export function BookMarkListProvider({ children }) {
   const [maxPage, setMaxPage] = useState(10);
   const [errorBookmarks, setErrorBookmarks] = useState();
 
-  async function fetchBookmarks(offset, limit, query) {
+  async function fetchBookmarks({ offset, limit, query, tag }) {
     setIsBookmarksLoading(true);
     setErrorBookmarks(undefined);
 
@@ -22,6 +22,7 @@ export function BookMarkListProvider({ children }) {
     searchParams.append("offset", offset);
     searchParams.append("limit", limit);
     query && searchParams.append("q", query);
+    tag && searchParams.append("tag", tag);
     let res = await getJSON(`/api/bookmarks/?${searchParams}`);
     if (res.ok) {
       let json = await res.json();
