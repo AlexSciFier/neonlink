@@ -105,12 +105,11 @@ function getBookmarkByUrl(url) {
 function findBookmark(query, limit = 10, offset = 0) {
   let total = db
     .prepare(
-      "SELECT COUNT(*) FROM bookmarks WHERE title LIKE :query OR desc LIKE :query OR url LIKE :query"
+      "SELECT COUNT(*) AS count FROM bookmarks WHERE title LIKE :query OR desc LIKE :query OR url LIKE :query"
     )
-    .get({ query: `%${query}%` })["COUNT(*)"];
+    .get({ query: `%${query}%` }).count;
   let maxPage = Math.ceil(total / limit);
   let currentPage = offset / limit + 1;
-  console.log({ total, limit, offset, query, maxPage, currentPage });
   let bookmarks = db
     .prepare(
       `SELECT 
@@ -126,9 +125,56 @@ function findBookmark(query, limit = 10, offset = 0) {
       INNER JOIN tags ON bookmarksTags.tagId = tags.id
     WHERE bookmarks.title LIKE :query OR bookmarks.desc LIKE :query OR bookmarks.url LIKE :query 
     GROUP BY bookmarks.id
+    ORDER BY bookmarks.created
     LIMIT :limit OFFSET :offset`
     )
     .all({ query: `%${query}%`, limit, offset })
+    .map((bookmark) => {
+      return { ...bookmark, tags: bookmark.tags.split(",") };
+    });
+  return { bookmarks, currentPage, maxPage };
+}
+
+function findBookmarkByTag(tag, limit = 10, offset = 0) {
+  let total = db
+    .prepare(
+      `SELECT 
+      COUNT(*) AS count
+    FROM bookmarks 
+      INNER JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
+      INNER JOIN tags ON bookmarksTags.tagId = tags.id
+    WHERE tags.name=:tag
+    GROUP BY bookmarks.id
+    ORDER BY bookmarks.created`
+    )
+    .get({ tag }).count;
+  let maxPage = Math.ceil(total / limit);
+  let currentPage = offset / limit + 1;
+  let bookmarks = db
+    .prepare(
+      `SELECT * FROM (
+        SELECT 
+            bookmarks.id,
+            url,
+            title,
+            desc,
+            icon,
+            created,
+            group_concat(tags.name, ',') as tags
+        FROM bookmarks 
+        INNER JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
+        INNER JOIN tags ON bookmarksTags.tagId = tags.id
+        GROUP BY bookmarks.id
+    )
+    WHERE id IN(
+        SELECT bookmarkId FROM tags
+        INNER JOIN bookmarksTags ON bookmarksTags.tagId = tags.id
+        WHERE name = :tag
+    )
+    ORDER BY created
+    LIMIT :limit OFFSET :offset`
+    )
+    .all({ tag, limit, offset })
     .map((bookmark) => {
       return { ...bookmark, tags: bookmark.tags.split(",") };
     });
@@ -193,6 +239,7 @@ module.exports = {
   getBookmarkById,
   getBookmarkByUrl,
   findBookmark,
+  findBookmarkByTag,
   updateBookmarkById,
   deleteBookmarkById,
 };
