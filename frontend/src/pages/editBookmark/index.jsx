@@ -52,7 +52,7 @@ export default function EditBookmark() {
             onSubmit={handleSubmit}
           >
             <input
-              className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
+              className="w-full bg-transparent disabled:text-gray-400 rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
               type={"url"}
               placeholder="Url"
               name={"url"}
@@ -60,7 +60,7 @@ export default function EditBookmark() {
               disabled={true}
             ></input>
             <input
-              className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
+              className="w-full bg-transparent rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
               type={"text"}
               placeholder="Title"
               name={"title"}
@@ -68,7 +68,7 @@ export default function EditBookmark() {
               onChange={inputHandler}
             ></input>
             <textarea
-              className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
+              className="w-full bg-transparent rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
               type={"text"}
               placeholder="Description"
               name={"desc"}

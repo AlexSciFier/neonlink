@@ -94,8 +94,7 @@ export default function LinkTemplate({ bookmark }) {
         </div>
         <button
           className="flex-none"
-          onFocus={(e) => setShowOptions(true)}
-          onBlur={(e) => setShowOptions(false)}
+          onClick={(e) => setShowOptions(!showOptions)}
         >
           {showOptions ? (
             <ChevronLeftIcon className="w-8 h-8" />

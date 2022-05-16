@@ -1,11 +1,13 @@
 import { LogoutIcon, PlusIcon } from "@heroicons/react/outline";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useIsloggedIn } from "../context/isLoggedIn";
 import { postJSON } from "../helpers/fetch";
 
 export default function NavBar() {
   const { profile } = useIsloggedIn();
+  const [searchParams] = useSearchParams();
+  let tag = searchParams.get("tag");
 
   function logoutHandler() {
     postJSON("http://localhost:3333/api/users/logout", JSON.stringify({})).then(
@@ -16,10 +18,12 @@ export default function NavBar() {
   }
 
   return (
-    <div className="flex justify-between text-white py-3 px-6">
+    <div className="flex justify-between mb-3 text-white py-3 px-6 bg-gradient-to-r from-white/0 to-white/0 dark:from-cyan-600 dark:to-fuchsia-600">
       <Link to="/" className="text-2xl font-light ">
         Bookmark App
+        {tag ? <span className="ml-3 font-light">#{tag}</span> : null}
       </Link>
+
       <div className="flex gap-3 items-center">
         <Link
           to={"/add"}
