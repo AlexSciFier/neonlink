@@ -5,6 +5,7 @@ let db = new Database("./db/bookmarks.sqlite");
 const bookmarks = require("./bookmarks");
 const users = require("./users");
 const tags = require("./tags");
+const categories = require("./categories");
 
 function init() {
   console.log("Starting up...");
@@ -29,6 +30,7 @@ function init() {
     title TEXT,
     desc TEXT,
     icon TEXT,
+    categodyId INEGER,
     created TIMESTAMP
     DEFAULT CURRENT_TIMESTAMP
   )`
@@ -42,6 +44,13 @@ function init() {
     uuid TEXT
   )`
   ).run();
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS category (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    color TEXT
+  )`
+  ).run();
 }
 
 module.exports = {
@@ -49,4 +58,5 @@ module.exports = {
   ...users,
   ...bookmarks,
   ...tags,
+  ...categories,
 };
