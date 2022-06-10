@@ -67,6 +67,37 @@ module.exports = async function (fastify, opts) {
     }
   );
 
+  fastify.put(
+    "/changePassword",
+    {
+      schema: {
+        body: {
+          type: "object",
+          required: ["username", "currentPassword", "newPassword"],
+          properties: {
+            username: { type: "string" },
+            currentPassword: { type: "string" },
+            newPassword: { type: "string" },
+          },
+        },
+      },
+    },
+    async function (request) {
+      let { username, currentPassword, newPassword } = request.body;
+      if (db.isUserExist(username) === false) {
+        throw fastify.httpErrors.notFound("Username not found");
+      } else {
+        let isValid = await db.isPasswordValid(username, currentPassword);
+        if (isValid === false) {
+          throw fastify.httpErrors.forbidden("Password is incorrect");
+        } else {
+          db.changePassword(username, newPassword);
+          return true;
+        }
+      }
+    }
+  );
+
   fastify.delete(
     "/:id",
     { preHandler: requestForbidden },

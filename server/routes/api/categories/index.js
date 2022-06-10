@@ -93,7 +93,7 @@ module.exports = async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let { name, color } = request.body;
-      if (db.updateBookmarkById(id, name, color)) return { name, color };
+      if (db.updateCategoryById(id, name, color)) return { id, name, color };
       throw fastify.httpErrors.notFound();
     }
   );

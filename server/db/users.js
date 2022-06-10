@@ -98,6 +98,19 @@ async function isPasswordValid(username, password) {
   return bcrypt.compare(password, passwordhash);
 }
 
+/**
+ *
+ * @param {string} username
+ * @param {string} newPassword
+ * @returns {Promise<boolean>}
+ */
+async function changePassword(username, newPassword) {
+  let newHashedPassword = await bcrypt.hash(newPassword, 10);
+  db.prepare(
+    "UPDATE users SET passwordHash=:passwordHash WHERE username=:username"
+  ).run({ username, passwordHash: newHashedPassword });
+}
+
 module.exports = {
   addUser,
   addUUID,
@@ -107,4 +120,5 @@ module.exports = {
   getUserById,
   isPasswordValid,
   isUserExist,
+  changePassword,
 };
