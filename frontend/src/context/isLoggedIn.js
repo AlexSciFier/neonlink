@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
+import { putJSON } from "../helpers/fetch";
 
 const IsloggedIn = createContext();
 
@@ -11,6 +12,15 @@ export function IsLoggedInProvider({ children }) {
   const [profile, setProfile] = useState({});
   const [isProfileLoading, setIsProfileLoading] = useState(true);
 
+  async function changePassword(currentPassword, newPassword) {
+    let res = await putJSON("/api/users/changePassword", {
+      username: profile.username,
+      currentPassword,
+      newPassword,
+    });
+    return res.ok;
+  }
+
   return (
     <IsloggedIn.Provider
       value={{
@@ -20,6 +30,7 @@ export function IsLoggedInProvider({ children }) {
         setIsLoggedIn,
         setProfile,
         setIsProfileLoading,
+        changePassword,
       }}
     >
       {children}

@@ -7,18 +7,32 @@ import {
 } from "@heroicons/react/outline";
 import React, { useEffect, useRef, useState } from "react";
 import { useCategoriesList } from "../../../context/categoriesList";
+import getRandomColor from "../../../helpers/color";
 import InputGroup from "../components/inputGroup";
+
+function ConfirmationButtons({ onConfirm, onCancel }) {
+  return (
+    <>
+      <button onClick={onConfirm} className="w-5 h-5 hover:text-green-500">
+        <CheckCircleIcon />
+      </button>
+      <button onClick={onCancel} className="w-5 h-5 hover:text-red-500">
+        <XCircleIcon />
+      </button>
+    </>
+  );
+}
 
 function AddCategoryInput() {
   const { addCategory } = useCategoriesList();
-  var randomColor = Math.floor(Math.random() * 16777215).toString(16);
-  const [color, setColor] = useState(`#${randomColor}`);
+  const [color, setColor] = useState(getRandomColor());
 
   const nameRef = useRef(null);
 
-  function handleSubmit() {
-    addCategory(nameRef.current.value, color);
+  async function handleSubmit() {
+    await addCategory(nameRef.current.value, color);
     nameRef.current.value = "";
+    setColor(getRandomColor());
   }
 
   return (
@@ -47,57 +61,75 @@ function AddCategoryInput() {
 }
 
 function CategoryItem({ id, name, color }) {
-  const { deleteCategory } = useCategoriesList();
+  const { deleteCategory, editCategory } = useCategoriesList();
   const [isEdit, setIsEdit] = useState(false);
+  const [isDeleting, setIsDeliting] = useState(false);
+  const [editedName, setEditedName] = useState(name);
+  const [editedColor, setEditedColor] = useState(color);
 
-  function handleDelete() {
-    deleteCategory(id);
+  async function handleDelete() {
+    await deleteCategory(id);
   }
-
+  async function handleEdit() {
+    let ok = await editCategory(id, editedName, editedColor);
+    if (ok) {
+      setIsEdit(false);
+    }
+  }
   if (isEdit)
     return (
       <li className="flex py-1 px-3 hover:bg-white/10 rounded">
         <input
           type={"text"}
           defaultValue={name}
-          className="flex-1 bg-transparent"
+          className="flex-1 bg-transparent ring ring-cyan-600 rounded mr-3"
+          onChange={(e) => setEditedName(e.target.value)}
         ></input>
         <div className="flex items-center gap-1">
-          <div
-            className="w-5 h-5 rounded"
-            style={{ backgroundColor: color }}
-          ></div>
+          <input
+            type={"color"}
+            defaultValue={color}
+            className=""
+            onChange={(e) => setEditedColor(e.target.value)}
+          ></input>
 
-          <button className="w-5 h-5 hover:text-green-500">
-            <CheckCircleIcon />
-          </button>
-          <button
-            onClick={(e) => setIsEdit(false)}
-            className="w-5 h-5 hover:text-red-500"
-          >
-            <XCircleIcon />
-          </button>
+          <ConfirmationButtons
+            onConfirm={handleEdit}
+            onCancel={() => setIsEdit(false)}
+          />
         </div>
       </li>
     );
 
   return (
     <li className="flex py-1 px-3 hover:bg-white/10 rounded">
-      <div className="flex-1">{name}</div>
+      <div className={`flex-1 ${isDeleting ? "line-through" : ""}`}>{name}</div>
       <div className="flex items-center gap-1">
         <div
           className="w-5 h-5 rounded"
           style={{ backgroundColor: color }}
         ></div>
-        <button
-          onClick={(e) => setIsEdit(!isEdit)}
-          className="w-5 h-5 hover:text-cyan-500"
-        >
-          <PencilIcon />
-        </button>
-        <button onClick={handleDelete} className="w-5 h-5 hover:text-red-500">
-          <XIcon />
-        </button>
+        {isDeleting ? (
+          <ConfirmationButtons
+            onConfirm={handleDelete}
+            onCancel={() => setIsDeliting(false)}
+          />
+        ) : (
+          <>
+            <button
+              onClick={(e) => setIsEdit(!isEdit)}
+              className="w-5 h-5 hover:text-cyan-500"
+            >
+              <PencilIcon />
+            </button>
+            <button
+              onClick={(e) => setIsDeliting(true)}
+              className="w-5 h-5 hover:text-red-500"
+            >
+              <XIcon />
+            </button>
+          </>
+        )}
       </div>
     </li>
   );

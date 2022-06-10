@@ -8,26 +8,28 @@ export default function LoginPage() {
   const passwordRef = useRef(null);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [error, setError] = useState();
   const { setProfile, profile } = useIsloggedIn();
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     let username = usernameRef.current.value;
     let password = passwordRef.current.value;
-    postJSON("/api/users/login", { username, password })
-      .then((res) => {
-        res.json().then((json) => {
-          if (res.ok) {
-            setProfile(json);
-            setIsLoggedIn(true);
-          } else {
-            setIsLoggedIn(false);
-          }
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    setError(undefined);
+    try {
+      let res = await postJSON("/api/users/login", { username, password });
+      let resData = await res.json();
+      if (res.ok) {
+        setProfile(resData);
+        setIsLoggedIn(true);
+      } else {
+        setError(resData);
+        setIsLoggedIn(false);
+      }
+    } catch (err) {
+      setError({ message: err.message });
+      setIsLoggedIn(false);
+    }
   };
 
   if (isLoggedIn || profile) return <Navigate to={"/"} />;
@@ -49,6 +51,7 @@ export default function LoginPage() {
             placeholder="Password"
             ref={passwordRef}
           ></input>
+          {error ? <span className="text-red-500">{error.message}</span> : null}
           <button
             className="w-full px-6 py-3 rounded focus:outline-none focus:ring-cyan-500 focus:ring hover:bg-cyan-500 bg-cyan-600 text-white"
             type="submit"
