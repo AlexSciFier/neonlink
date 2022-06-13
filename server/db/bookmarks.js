@@ -20,10 +20,12 @@ let db = new Database("./db/bookmarks.sqlite");
  * @param {number[]} tags
  * @returns {number} Number of changes
  */
-function addBookmark(url, title, desc, icon, tags) {
+function addBookmark(url, title, desc, icon, categoryId, tags) {
   let bookmarkId = db
-    .prepare("INSERT INTO bookmarks (url,title,desc,icon) VALUES(?,?,?,?)")
-    .run(url, title, desc, icon).lastInsertRowid;
+    .prepare(
+      "INSERT INTO bookmarks (url,title,desc,icon,categoryId) VALUES(?,?,?,?,?)"
+    )
+    .run(url, title, desc, icon, categoryId).lastInsertRowid;
   let ids = db
     .prepare(
       `SELECT id FROM tags WHERE name IN (${new Array(tags.length)
@@ -84,6 +86,17 @@ function getAllBookmarks(offset = 0, limit = 10) {
  */
 function getBookmarkById(id) {
   return db.prepare("SELECT * FROM bookmarks WHERE id = ?").get(id);
+}
+
+/**
+ *
+ * @param {number} categoryId
+ * @returns {Bookmark[]} Bookmarks
+ */
+function getBookmarkByCategoryId(categoryId) {
+  return db
+    .prepare("SELECT * FROM bookmarks WHERE categoryId = ?")
+    .all(categoryId);
 }
 
 /**
@@ -200,7 +213,7 @@ function deleteBookmarkById(id) {
  * @param {string} desc
  * @returns {boolean}
  */
-function updateBookmarkById(id, url, title, desc, icon, tags) {
+function updateBookmarkById(id, url, title, desc, icon, categoryId, tags) {
   db.prepare("DELETE FROM bookmarksTags WHERE bookmarkId = ?").run(id);
   let ids = db
     .prepare(
@@ -226,10 +239,11 @@ function updateBookmarkById(id, url, title, desc, icon, tags) {
     url = coalesce(:url,url), 
     title = coalesce(:title,title),
     desc = coalesce(:desc,desc),
-    icon = coalesce(:icon,icon)
+    icon = coalesce(:icon,icon),
+    categoryId = coalesce(:categoryId,categoryId),
     WHERE id = :id`
     )
-    .run({ id, url, title, desc, icon }).changes > 0
+    .run({ id, url, title, desc, icon, categoryId }).changes > 0
     ? true
     : false;
 }
@@ -237,6 +251,7 @@ module.exports = {
   addBookmark,
   getAllBookmarks,
   getBookmarkById,
+  getBookmarkByCategoryId,
   getBookmarkByUrl,
   findBookmark,
   findBookmarkByTag,

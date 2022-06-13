@@ -30,7 +30,7 @@ function init() {
     title TEXT,
     desc TEXT,
     icon TEXT,
-    categodyId INEGER,
+    categoryId INEGER,
     created TIMESTAMP
     DEFAULT CURRENT_TIMESTAMP
   )`

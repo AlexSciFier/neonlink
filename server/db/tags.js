@@ -28,9 +28,9 @@ function findTags(query) {
     .prepare(
       `SELECT tags.id AS id, tags.name AS name FROM tags
     INNER JOIN bookmarksTags ON tags.id = bookmarksTags.tagId
+    WHERE tags.name LIKE :query
     GROUP BY tags.id
-    ORDER BY tags.name
-    WHERE tags.name LIKE :query`
+    ORDER BY tags.name`
     )
     .all({ query: `${query}%` });
 }

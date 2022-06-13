@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import NavBar from "../../components/NavBar";
-import PageBody from "../../components/PageBody";
 import { debounce } from "lodash";
-import { getJSON, postJSON } from "../../helpers/fetch";
+import { postJSON } from "../../helpers/fetch";
 import InputBox from "./components/InputBox";
-import { Navigate, useParams } from "react-router";
+import { Navigate } from "react-router";
 import TagInput from "./components/TagInput";
+import { useCategoriesList } from "../../context/categoriesList";
+import Page from "../../components/Page";
 
 export default function AddPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -14,6 +14,7 @@ export default function AddPage() {
     title: "",
     desc: "",
     icon: "",
+    categoryId: 0,
     tags: [],
   });
   const [url, setUrl] = useState("");
@@ -21,35 +22,27 @@ export default function AddPage() {
   const [error, setError] = useState();
   const [urlError, setUrlError] = useState();
 
-  const { id } = useParams();
-
   const urlRef = useRef(null);
+
+  let { categories, fetchCategories } = useCategoriesList();
 
   const debounced = useCallback(debounce(fetchUrl, 800), [url]);
 
   useEffect(() => {
-    async function fetchBookamrks() {
-      if (id) {
-        let res = await getJSON(`/api/bookmarks/${id}`);
-        if (res.ok) {
-          let data = await res.json();
-          setFormData({
-            title: data.title,
-            desc: data.desc,
-            icon: data.icon,
-            tags: JSON.parse(data.tags) || [],
-          });
-        }
-      }
-    }
-    fetchBookamrks();
-  }, [id]);
-
-  useEffect(() => {
     debounced(url);
-    if (url === "") setFormData({ desc: "", title: "", icon: "", tags: [] });
+    if (url === "")
+      setFormData({
+        ...formData,
+        desc: "",
+        title: "",
+        icon: "",
+      });
     return debounced.cancel;
   }, [debounced, url]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const refreshHandler = (e) => {
     e.preventDefault();
@@ -80,7 +73,7 @@ export default function AddPage() {
     }
 
     if (res.ok) {
-      setFormData({ ...(await res.json()), tags: formData.tags });
+      setFormData({ ...formData, ...(await res.json()), tags: formData.tags });
       setIsLoading(false);
     } else {
       console.error("error", res.statusText, res.status);
@@ -121,86 +114,103 @@ export default function AddPage() {
   if (complete) return <Navigate to={"/"} />;
 
   return (
-    <div>
-      <NavBar />
-      <PageBody>
-        <div className="flex justify-center w-full">
-          <form
-            className="w-1/2 flex flex-col gap-3 my-3"
-            onSubmit={handleSubmit}
+    <Page>
+      <div className="flex justify-center w-full">
+        <form
+          className="w-1/2 flex flex-col gap-3 my-3"
+          onSubmit={handleSubmit}
+        >
+          <InputBox
+            type={"url"}
+            name={"url"}
+            placeholder="URL"
+            onChange={(e) => setUrl(e.target.value)}
+            refreshHandler={refreshHandler}
+            value={url}
+            icon={formData.icon}
+            ref={urlRef}
+            isLoading={isLoading}
+          ></InputBox>
+          <input
+            className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
+            type={"text"}
+            placeholder="Title"
+            name={"title"}
+            value={formData.title}
+            onChange={inputHandler}
+          ></input>
+          <TagInput
+            tags={formData.tags}
+            setTags={(tags) => setFormData({ ...formData, tags })}
+          />
+          <textarea
+            className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
+            type={"text"}
+            placeholder="Description"
+            name={"desc"}
+            value={formData.desc}
+            onChange={inputHandler}
+          ></textarea>
+          <select
+            className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
+            type={""}
+            placeholder="Title"
+            name={"categoryId"}
+            onChange={inputHandler}
           >
-            <InputBox
-              type={"url"}
-              name={"url"}
-              placeholder="URL"
-              onChange={(e) => setUrl(e.target.value)}
-              refreshHandler={refreshHandler}
-              value={url}
-              icon={formData.icon}
-              ref={urlRef}
-              isLoading={isLoading}
-            ></InputBox>
-            <input
-              className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
-              type={"text"}
-              placeholder="Title"
-              name={"title"}
-              value={formData.title}
-              onChange={inputHandler}
-            ></input>
-            <TagInput
-              tags={formData.tags}
-              setTags={(tags) => setFormData({ ...formData, tags })}
-            />
-            <textarea
-              className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
-              type={"text"}
-              placeholder="Description"
-              name={"desc"}
-              value={formData.desc}
-              onChange={inputHandler}
-            ></textarea>
-            <div className="flex justify-between">
-              <div className="text-red-600">
-                {error?.message || urlError || ""}
-              </div>
-              <button
-                className="inline-flex items-center px-6 py-2 rounded focus:outline-none disabled:bg-gray-400 focus:ring-cyan-400 focus:ring hover:bg-cyan-400 bg-cyan-500 text-white"
-                type="submit"
-                disabled={isButtonDisabled()}
+            <option className="text-black" value={undefined}>
+              None
+            </option>
+            {categories.map((category) => (
+              <option
+                className="text-black"
+                key={category.id}
+                value={category.id}
               >
-                {sending ? (
-                  <>
-                    <svg
-                      class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                      ></circle>
-                      <path
-                        class="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Sending ...
-                  </>
-                ) : (
-                  "Add"
-                )}
-              </button>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          <div className="flex justify-between">
+            <div className="text-red-600">
+              {error?.message || urlError || ""}
             </div>
-          </form>
-        </div>
-      </PageBody>
-    </div>
+            <button
+              className="inline-flex items-center px-6 py-2 rounded focus:outline-none disabled:bg-gray-400 focus:ring-cyan-400 focus:ring hover:bg-cyan-400 bg-cyan-500 text-white"
+              type="submit"
+              disabled={isButtonDisabled()}
+            >
+              {sending ? (
+                <>
+                  <svg
+                    class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Sending ...
+                </>
+              ) : (
+                "Add"
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </Page>
   );
 }

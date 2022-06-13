@@ -54,6 +54,19 @@ module.exports = async function (fastify, opts) {
     }
   );
 
+  fastify.get(
+    "/category/:id",
+    { preHandler: requestForbidden },
+    async function (request, reply) {
+      let { id } = request.params;
+      let bookmarks = db.getBookmarkByCategoryId(id);
+      if (bookmarks) return bookmarks;
+      throw fastify.httpErrors.notFound(
+        `bookmarks with category id ${id} not found`
+      );
+    }
+  );
+
   fastify.post(
     "/",
     {
@@ -67,13 +80,14 @@ module.exports = async function (fastify, opts) {
             title: { type: "string" },
             desc: { type: "string" },
             icon: { type: "string" },
+            categoryId: { type: "number" },
             tags: { type: "array", items: { type: "string" }, maxItems: 10 },
           },
         },
       },
     },
     async function (request, reply) {
-      let { url, title, desc, icon, tags } = request.body;
+      let { url, title, desc, icon, categoryId, tags } = request.body;
       if (url === "")
         throw fastify.httpErrors.notAcceptable("url shoud not be empty string");
       let existingBookmark = db.getBookmarkByUrl(url);
@@ -84,11 +98,12 @@ module.exports = async function (fastify, opts) {
           title,
           desc,
           icon,
+          categoryId,
           tags
         );
       }
       reply.statusCode = 201;
-      return db.addBookmark(url, title, desc, icon, tags);
+      return db.addBookmark(url, title, desc, icon, categoryId, tags);
     }
   );
 

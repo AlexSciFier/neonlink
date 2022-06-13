@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
 function getPreferedScheme() {
@@ -22,7 +22,7 @@ export const ThemeProvider = ({ initialTheme, children }) => {
     "theme-mode",
     getPreferedScheme()
   );
-  const [theme, setTheme] = React.useState(lSTheme);
+  const [theme, setTheme] = useState(lSTheme);
 
   const rawSetTheme = (rawTheme) => {
     const root = window.document.documentElement;

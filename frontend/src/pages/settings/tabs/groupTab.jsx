@@ -7,7 +7,7 @@ import {
 } from "@heroicons/react/outline";
 import React, { useEffect, useRef, useState } from "react";
 import { useCategoriesList } from "../../../context/categoriesList";
-import getRandomColor from "../../../helpers/color";
+import { getRandomColor } from "../../../helpers/color";
 import InputGroup from "../components/inputGroup";
 
 function ConfirmationButtons({ onConfirm, onCancel }) {

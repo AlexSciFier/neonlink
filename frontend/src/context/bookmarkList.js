@@ -14,7 +14,7 @@ export function BookMarkListProvider({ children }) {
   const [maxPage, setMaxPage] = useState(10);
   const [errorBookmarks, setErrorBookmarks] = useState();
 
-  async function fetchBookmarks({ offset, limit, query, tag }) {
+  async function fetchBookmarks({ offset = 0, limit = 25, query, tag }) {
     setIsBookmarksLoading(true);
     setErrorBookmarks(undefined);
 
