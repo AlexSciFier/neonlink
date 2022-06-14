@@ -67,14 +67,14 @@ function getAllBookmarks(offset = 0, limit = 10) {
         created,
         group_concat(tags.name, ',') as tags
       FROM bookmarks 
-        INNER JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
-        INNER JOIN tags ON bookmarksTags.tagId = tags.id
+        LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
+        LEFT JOIN tags ON bookmarksTags.tagId = tags.id
       GROUP BY bookmarks.id
       LIMIT :limit OFFSET :offset`
     )
     .all({ offset, limit })
     .map((bookmark) => {
-      return { ...bookmark, tags: bookmark.tags.split(",") };
+      return { ...bookmark, tags: bookmark.tags?.split(",") };
     });
   return { bookmarks, currentPage, maxPage };
 }
@@ -85,7 +85,24 @@ function getAllBookmarks(offset = 0, limit = 10) {
  * @returns {Bookmark} Bookmark
  */
 function getBookmarkById(id) {
-  return db.prepare("SELECT * FROM bookmarks WHERE id = ?").get(id);
+  return db
+    .prepare(
+      `SELECT 
+        bookmarks.id,
+        url,
+        title,
+        desc,
+        icon,
+        created,
+        categoryId,
+        group_concat(tags.name, ',') as tags
+      FROM bookmarks 
+        LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
+        LEFT JOIN tags ON bookmarksTags.tagId = tags.id
+      WHERE bookmarks.id = ?
+      GROUP BY bookmarks.id`
+    )
+    .get(id);
 }
 
 /**
@@ -211,6 +228,9 @@ function deleteBookmarkById(id) {
  * @param {string} url
  * @param {string} title
  * @param {string} desc
+ * @param {string} icon
+ * @param {string} categoryId
+ * @param {string[]} tags
  * @returns {boolean}
  */
 function updateBookmarkById(id, url, title, desc, icon, categoryId, tags) {
@@ -240,7 +260,7 @@ function updateBookmarkById(id, url, title, desc, icon, categoryId, tags) {
     title = coalesce(:title,title),
     desc = coalesce(:desc,desc),
     icon = coalesce(:icon,icon),
-    categoryId = coalesce(:categoryId,categoryId),
+    categoryId = coalesce(:categoryId,categoryId)
     WHERE id = :id`
     )
     .run({ id, url, title, desc, icon, categoryId }).changes > 0

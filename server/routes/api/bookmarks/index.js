@@ -119,15 +119,18 @@ module.exports = async function (fastify, opts) {
             url: { type: "string" },
             title: { type: "string" },
             desc: { type: "string" },
+            icon: { type: "string" },
+            categoryId: { type: "number" },
+            tags: { type: "array", items: { type: "string" }, maxItems: 10 },
           },
         },
       },
     },
     async function (request, reply) {
       let { id } = request.params;
-      let { url, title, desc } = request.body;
+      let { url, title, desc, icon, categoryId, tags } = request.body;
       if (url === "") throw new Error("Url shoud not be empty string");
-      if (db.updateBookmarkById(id, url, title, desc))
+      if (db.updateBookmarkById(id, url, title, desc, icon, categoryId, tags))
         return { url, title, desc };
       throw fastify.httpErrors.notFound();
     }
