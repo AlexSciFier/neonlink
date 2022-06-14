@@ -3,7 +3,7 @@ import React from "react";
 
 export default function SceletalBokmarkList() {
   return (
-    <div className="flex flex-col divide-y">
+    <div className="flex flex-col">
       {[...Array(10).keys()].map((idx) => (
         <div className="flex items-center animate-pulse" key={idx}>
           <div className="flex flex-1 items-center gap-3">

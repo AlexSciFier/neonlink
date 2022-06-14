@@ -1,11 +1,9 @@
-import { LogoutIcon, PlusIcon } from "@heroicons/react/outline";
+import { CogIcon, LogoutIcon, PlusIcon } from "@heroicons/react/outline";
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useIsloggedIn } from "../context/isLoggedIn";
 import { postJSON } from "../helpers/fetch";
 
 export default function NavBar() {
-  const { profile } = useIsloggedIn();
   const [searchParams] = useSearchParams();
   let tag = searchParams.get("tag");
 
@@ -18,25 +16,29 @@ export default function NavBar() {
   }
 
   return (
-    <div className="flex justify-between mb-3 text-white py-3 px-6 bg-gradient-to-r from-white/0 to-white/0 dark:from-cyan-600 dark:to-fuchsia-600">
-      <Link to="/" className="text-2xl font-light ">
-        Bookmark App
-        {tag ? <span className="ml-3 font-light">#{tag}</span> : null}
+    <div className="flex justify-between text-white py-3 px-6 bg-gradient-to-r from-white/0 to-white/0 dark:from-cyan-600 dark:to-fuchsia-600">
+      <Link to="/" className="text-2xl font-light flex">
+        {tag ? <span>#{tag}</span> : <span>Bookmark App</span>}
       </Link>
 
       <div className="flex gap-3 items-center">
         <Link
           to={"/add"}
-          className="bg-cyan-500 text-white px-4 h-full rounded flex items-center gap-1"
+          className="bg-cyan-500 text-white px-4 h-full rounded flex items-center gap-1 hover:bg-cyan-400"
         >
           <PlusIcon className="w-6 h-6" />
           <span className="hidden md:inline">Add bookmark</span>
         </Link>
-        <Link className="leading-loose" to={"/settings"}>
-          {profile.username}
+        <Link className="leading-loose flex group gap-1" to={"/settings"}>
+          <CogIcon className="w-8 h-8 p-1 rounded-full group-hover:bg-white/20" />
+          <span className="md:block hidden">Settings</span>
         </Link>
-        <button onClick={logoutHandler}>
-          <LogoutIcon className="w-6 h-6" />
+        <button
+          onClick={logoutHandler}
+          className="flex items-center group gap-1"
+        >
+          <LogoutIcon className="w-8 h-8 p-1 rounded-full group-hover:bg-white/20" />
+          <span className="md:block hidden">Logout</span>
         </button>
       </div>
     </div>

@@ -30,19 +30,28 @@ export default function Pagination({ maxPage, currentPage, siblings }) {
   function onNextClick(e) {
     e.preventDefault();
     let page = ++currentPage;
-    navigate({ pathname: "/", search: `?${createSearchParams({ page })}` });
+    navigate({
+      pathname: "/links",
+      search: `?${createSearchParams({ page })}`,
+    });
   }
 
   function onPrevClick(e) {
     e.preventDefault();
     let page = --currentPage;
-    navigate({ pathname: "/", search: `?${createSearchParams({ page })}` });
+    navigate({
+      pathname: "/links",
+      search: `?${createSearchParams({ page })}`,
+    });
   }
 
   function onPageClick(e) {
     e.preventDefault();
     let page = e.target.textContent;
-    navigate({ pathname: "/", search: `?${createSearchParams({ page })}` });
+    navigate({
+      pathname: "/links",
+      search: `?${createSearchParams({ page })}`,
+    });
   }
 
   return (

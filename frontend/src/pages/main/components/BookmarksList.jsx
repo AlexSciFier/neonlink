@@ -32,16 +32,18 @@ export default function BookmarksList() {
   }, [searchParams]);
 
   return (
-    <div className="lg:w-3/5 my-3 space-y-6">
+    <div className="lg:w-3/5 my-2 space-y-6">
       <BookmarksHeader />
       {isBookmarksLoading ? (
         <SceletalBokmarkList />
       ) : bookmarkList?.length > 0 ? (
         <>
-          <div className="flex flex-col divide-y overflow-hidden">
-            {bookmarkList.map((bookmark, idx) => (
-              <LinkTemplate bookmark={bookmark} key={idx} />
-            ))}
+          <div className="flex flex-col overflow-hidden">
+            {bookmarkList
+              .sort((a, b) => new Date(b.created) - new Date(a.created))
+              .map((bookmark, idx) => (
+                <LinkTemplate bookmark={bookmark} key={idx} />
+              ))}
           </div>
           <Pagination
             maxPage={maxPage}

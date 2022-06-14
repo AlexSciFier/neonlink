@@ -29,7 +29,7 @@ export default function TabView() {
 
   return (
     <div>
-      <ul className="flex gap-3 w-full text-lg">
+      <ul className="flex gap-3 w-full text-lg overflow-x-auto">
         {tabs.map((tab, idx) => (
           <TabHeader
             title={tab.header}

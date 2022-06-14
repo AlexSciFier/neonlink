@@ -1,25 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { getJSON, putJSON } from "../../helpers/fetch";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import Page from "../../components/Page";
+import { useCategoriesList } from "../../context/categoriesList";
+import TagInput from "../addBookmark/components/TagInput";
 
 export default function EditBookmark() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState();
-  const [formData, setFormData] = useState({ title: "", desc: "", url: "" });
+  const [formData, setFormData] = useState({
+    title: "",
+    desc: "",
+    url: "",
+    tags: [],
+    categoryId: 0,
+  });
 
   const { id } = useParams();
+  let { categories, fetchCategories } = useCategoriesList();
+  let naviate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
       let res = await getJSON(`/api/bookmarks/${id}`);
       if (res.ok) {
         let json = await res.json();
-        setFormData({ url: json.url, title: json.title, desc: json.desc });
+        setFormData({
+          url: json.url,
+          title: json.title,
+          desc: json.desc,
+          tags: json.tags?.split(",") ?? [],
+          categoryId: json.categoryId,
+        });
       }
     }
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -28,11 +48,13 @@ export default function EditBookmark() {
     let res = await putJSON(`/api/bookmarks/${id}`, formData);
     setSending(false);
     if (res.ok) {
+      naviate("/links");
     } else {
       let error = await res.json();
       setError(error);
     }
   }
+
   function inputHandler(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
@@ -45,7 +67,7 @@ export default function EditBookmark() {
     <Page>
       <div className="flex justify-center w-full">
         <form
-          className="w-1/2 flex flex-col gap-3 my-3"
+          className="md:w-1/2 w-full flex flex-col gap-3 my-3"
           onSubmit={handleSubmit}
         >
           <input
@@ -72,6 +94,32 @@ export default function EditBookmark() {
             value={formData.desc}
             onChange={inputHandler}
           ></textarea>
+          <TagInput
+            tags={formData.tags}
+            setTags={(tags) => setFormData({ ...formData, tags })}
+          />
+          <select
+            className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
+            type={""}
+            placeholder="Title"
+            name={"categoryId"}
+            value={formData.categoryId}
+            onChange={inputHandler}
+          >
+            <option className="text-black" value={undefined}>
+              None
+            </option>
+            {categories.map((category) => (
+              <option
+                // selected={category.id === formData.categoryId}
+                className="text-black"
+                key={category.id}
+                value={category.id}
+              >
+                {category.name}
+              </option>
+            ))}
+          </select>
           <div className="flex justify-between">
             <div className="text-red-600">{error?.message || ""}</div>
             <button

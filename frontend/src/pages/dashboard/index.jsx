@@ -12,7 +12,7 @@ export default function Dashboard() {
       style={{ backgroundImage: useImageAsBg && `url(${bgUrl})` }}
     >
       <NavBar />
-      <div className="flex flex-1 flex-col justify-center w-full">
+      <div className="flex flex-1 flex-col justify-center w-full mt-3">
         <GroupList />
         <div className="flex-1"></div>
         <div className="flex justify-center">

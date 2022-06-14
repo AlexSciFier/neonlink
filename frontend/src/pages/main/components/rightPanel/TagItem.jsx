@@ -6,7 +6,7 @@ export default function TagItem({ tag }) {
   let searchTag = searchParams.get("tag");
   return (
     <Link
-      to={`/?tag=${tag.name}`}
+      to={`/links?tag=${tag.name}`}
       className={`hover:underline hover:text-cyan-700 capitalize ${
         tag.name === searchTag && "text-cyan-500 font-medium"
       }`}

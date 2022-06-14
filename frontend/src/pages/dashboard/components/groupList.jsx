@@ -6,7 +6,7 @@ import { useLocalStorage } from "../../../hooks/useLocalStorage";
 import Group from "../components/group";
 
 export default function GroupList() {
-  let { categories, isLoading, error, fetchCategories } = useCategoriesList();
+  let { categories, fetchCategories } = useCategoriesList();
 
   useEffect(() => {
     fetchCategories();
@@ -16,7 +16,7 @@ export default function GroupList() {
   return (
     <div className="flex justify-center w-full">
       <div
-        className={`grid md:grid-cols-${columns} grid-cols-1 gap-4 justify-items-center md:w-2/3 w-full`}
+        className={`grid md:grid-cols-${columns} grid-cols-1 gap-4 justify-items-center md:w-2/3 w-11/12`}
       >
         {categories.map((category) => (
           <Group key={category.id} category={category} />

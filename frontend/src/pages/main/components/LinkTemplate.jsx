@@ -44,7 +44,7 @@ export default function LinkTemplate({ bookmark }) {
 
   return (
     <div
-      className={`flex relative transition-transform py-3`}
+      className={`flex relative transition-transform py-1`}
       style={{
         transform: showOptions
           ? `translate3d(-${optionBlock.current.offsetWidth}px, 0,0)`
@@ -73,7 +73,7 @@ export default function LinkTemplate({ bookmark }) {
               {bookmark.title}
               <span className="pl-3 font-light">{getDomain(bookmark.url)}</span>
             </a>
-            <div className="font-light text-gray-700 dark:text-gray-200">
+            <div className="font-light text-gray-700 dark:text-gray-200 truncate">
               {bookmark.desc}
             </div>
             <div className="flex justify-between">
@@ -82,7 +82,7 @@ export default function LinkTemplate({ bookmark }) {
                   <Link
                     key={idx}
                     className="hover:underline"
-                    to={`/?tag=${tag}`}
+                    to={`/links?tag=${tag}`}
                   >
                     #{tag}
                   </Link>

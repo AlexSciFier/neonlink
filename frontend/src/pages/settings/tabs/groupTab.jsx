@@ -40,7 +40,7 @@ function AddCategoryInput() {
       <input
         type={"text"}
         ref={nameRef}
-        className="bg-transparent flex-1 disabled:text-gray-400 rounded-l border border-r-0 focus:outline-none focus:ring-cyan-600 focus:ring px-4"
+        className="bg-transparent flex-1 w-0 disabled:text-gray-400 rounded-l border border-r-0 focus:outline-none focus:ring-cyan-600 focus:ring px-4"
       ></input>
       <div style={{ backgroundColor: color }}>
         <input
@@ -145,7 +145,7 @@ export default function GroupTab() {
   return (
     <div>
       <InputGroup title={"List of categories"}>
-        <ul className="space-y-1 w-1/4">
+        <ul className="space-y-1 md:w-2/3 xl:w-1/4 w-full">
           <AddCategoryInput />
           {isLoading ? (
             <div>Is Loading</div>

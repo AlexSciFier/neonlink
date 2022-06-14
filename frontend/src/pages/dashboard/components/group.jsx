@@ -28,12 +28,12 @@ export default function Group({ category }) {
   return (
     <div
       className={`w-full border rounded-lg ${
-        useImageAsBg ? "backdrop-blur-lg" : "bg-transparent"
+        useImageAsBg ? "backdrop-blur-lg" : "bg-white dark:bg-transparent"
       }`}
       style={{ borderColor: backgroundColor }}
     >
       <div
-        className="text-3xl py-2 rounded-t text-center"
+        className="text-2xl font-light py-2 rounded-t text-center"
         style={{ backgroundColor, color: foregroundColor }}
       >
         {category.name}
