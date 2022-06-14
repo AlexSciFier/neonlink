@@ -1,10 +1,12 @@
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
+import { useTheme } from "../../../context/themeContext";
 import { pickColorBasedOnBgColor } from "../../../helpers/color";
 import { getJSON } from "../../../helpers/fetch";
 
 export default function Group({ category }) {
+  const { useImageAsBg } = useTheme();
   const [bookmarks, setBookmarks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -25,7 +27,9 @@ export default function Group({ category }) {
 
   return (
     <div
-      className="w-full border rounded-lg"
+      className={`w-full border rounded-lg ${
+        useImageAsBg ? "backdrop-blur-lg" : "bg-transparent"
+      }`}
       style={{ borderColor: backgroundColor }}
     >
       <div
@@ -36,7 +40,7 @@ export default function Group({ category }) {
       </div>
       <div className="flex flex-col space-y-1 my-3 mx-3">
         {bookmarks.length === 0 && (
-          <div className="text-center font-light">Empty</div>
+          <div className="text-center font-light dark:text-white">Empty</div>
         )}
         {isLoading === true ||
           bookmarks.map((bookmark) => (
@@ -54,7 +58,9 @@ export default function Group({ category }) {
                   backgroundSize: "cover",
                 }}
               ></div>
-              <div className="truncate w-full">{bookmark.title}</div>
+              <div className="truncate w-full dark:text-white">
+                {bookmark.title}
+              </div>
             </a>
           ))}
       </div>

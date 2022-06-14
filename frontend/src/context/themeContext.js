@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
 function getPreferedScheme() {
@@ -22,7 +22,14 @@ export const ThemeProvider = ({ initialTheme, children }) => {
     "theme-mode",
     getPreferedScheme()
   );
+
   const [theme, setTheme] = useState(lSTheme);
+
+  const [bgUrl, setBgUrl] = useLocalStorage("bg-url", "");
+  const [useImageAsBg, setUseImageAsBg] = useLocalStorage(
+    "use-image-as-bg",
+    false
+  );
 
   const rawSetTheme = (rawTheme) => {
     const root = window.document.documentElement;
@@ -38,12 +45,21 @@ export const ThemeProvider = ({ initialTheme, children }) => {
     rawSetTheme(initialTheme);
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     rawSetTheme(theme);
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        bgUrl,
+        useImageAsBg,
+        setUseImageAsBg,
+        setBgUrl,
+        setTheme,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );

@@ -23,7 +23,7 @@ export default function GroupList() {
         ))}
         {categories.length === 0 && (
           <div>
-            <div className="text-xl">No groups.</div>
+            <div className="text-xl dark:text-white">No groups.</div>
             <div>
               Add them in{" "}
               <Link to={"/settings"} className="text-cyan-600">

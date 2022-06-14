@@ -4,7 +4,7 @@ import PageBody from "./PageBody";
 
 export default function Page({ children }) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-cover">
       <NavBar />
       <PageBody>{children}</PageBody>
     </div>
