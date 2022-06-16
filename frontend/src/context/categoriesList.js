@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { deleteJSON, getJSON, postJSON, putJSON } from "../helpers/fetch";
 
 const CategoriesList = createContext();
@@ -36,17 +36,25 @@ export function CategoriesListProvider({ children }) {
     }
     // setIsLoading(false);
   }
-
-  async function editCategory(id, name, color) {
+  /**
+   *
+   * @param {number} id id
+   * @param {string} name name
+   * @param {string} color color in HEX with #
+   * @param {number} position position
+   * @returns
+   */
+  async function editCategory(id, name, color, position) {
     setError(undefined);
     // setIsLoading(true);
-    let res = await putJSON(`api/categories/${id}`, { name, color });
+    let res = await putJSON(`api/categories/${id}`, { name, color, position });
     if (res.ok) {
       let idx = categories.findIndex((category) => category.id === id);
       let arrayCopy = [...categories];
       let itemCopy = { ...arrayCopy[idx] };
       itemCopy.name = name;
       itemCopy.color = color;
+      itemCopy.position = position;
       arrayCopy[idx] = itemCopy;
       setCategories(arrayCopy);
       return true;
@@ -70,6 +78,21 @@ export function CategoriesListProvider({ children }) {
     // setIsLoading(false);
   }
 
+  async function changePositions(idPositionPairArray) {
+    setError(undefined);
+    // setIsLoading(true);
+    let res = await putJSON(
+      `api/categories/changePositions`,
+      idPositionPairArray
+    );
+    if (res.ok) {
+      // setCategories(re);
+    } else {
+      setError(await res.json());
+    }
+    // setIsLoading(false);
+  }
+
   return (
     <CategoriesList.Provider
       value={{
@@ -80,6 +103,8 @@ export function CategoriesListProvider({ children }) {
         addCategory,
         deleteCategory,
         editCategory,
+        setCategories,
+        changePositions,
       }}
     >
       {children}

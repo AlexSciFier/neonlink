@@ -58,20 +58,26 @@ module.exports = async function (fastify, opts) {
           properties: {
             name: { type: "string" },
             color: { type: "string" },
+            position: { type: "number" },
           },
         },
       },
     },
     async function (request, reply) {
-      let { name, color } = request.body;
+      let { name, color, position } = request.body;
 
       let existingCategory = db.getCategoryByName(name);
 
       if (existingCategory) {
-        return db.updateCategoryById(existingCategory.id, name, color);
+        return db.updateCategoryById(
+          existingCategory.id,
+          name,
+          color,
+          position
+        );
       }
       reply.statusCode = 201;
-      return db.addCategory(name, color);
+      return db.addCategory(name, color, position);
     }
   );
 
@@ -94,6 +100,31 @@ module.exports = async function (fastify, opts) {
       let { id } = request.params;
       let { name, color } = request.body;
       if (db.updateCategoryById(id, name, color)) return { id, name, color };
+      throw fastify.httpErrors.notFound();
+    }
+  );
+
+  fastify.put(
+    "/changePositions",
+    {
+      preHandler: requestForbidden,
+      schema: {
+        body: {
+          type: "array",
+          items: {
+            type: "object",
+            required: ["id", "position"],
+            properties: {
+              id: { type: "number" },
+              position: { type: "number" },
+            },
+          },
+        },
+      },
+    },
+    async function (request, reply) {
+      let array = request.body;
+      if (db.updatePostitions(array)) return true;
       throw fastify.httpErrors.notFound();
     }
   );

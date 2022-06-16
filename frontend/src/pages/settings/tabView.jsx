@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import TabHeader from "./tabHeader";
 import AboutTab from "./tabs/aboutTab";
-import GroupTab from "./tabs/groupTab";
+import GroupTab from "./tabs/groupTab/groupTab";
 import MainTab from "./tabs/mainTab";
 import ThemeTab from "./tabs/themeTab";
 

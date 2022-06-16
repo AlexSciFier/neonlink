@@ -11,14 +11,32 @@ let db = new Database("./db/bookmarks.sqlite");
 
 /**
  *
+ * @typedef {Object} IdPositionPair
+ * @property {number} id
+ * @property {number} position
+ */
+
+/**
+ *
  * @param {string} name
  * @param {string} color
  * @returns {number} Id of inserted row
  */
 function addCategory(name, color) {
-  return db
+  let lastPosition =
+    db
+      .prepare("SELECT * FROM categoryPosition ORDER BY position DESC LIMIT 1")
+      .get()?.position || 0;
+
+  let categoryId = db
     .prepare("INSERT INTO category (name, color) VALUES(:name,:color)")
     .run({ name, color }).lastInsertRowid;
+
+  db.prepare(
+    "INSERT INTO categoryPosition (categoryId, position) VALUES(:categoryId,:position)"
+  ).run({ categoryId, position: ++lastPosition });
+
+  return categoryId;
 }
 
 /**
@@ -26,7 +44,13 @@ function addCategory(name, color) {
  * @returns {Category[]} Array of categories
  */
 function getAllCategories() {
-  return db.prepare("SELECT * FROM category").all();
+  return db
+    .prepare(
+      `SELECT id,name,color,position FROM category 
+       INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id
+       ORDER BY position ASC`
+    )
+    .all();
 }
 
 /**
@@ -35,7 +59,14 @@ function getAllCategories() {
  * @returns {Category} Category
  */
 function getCategoryById(id) {
-  return db.prepare("SELECT * FROM category WHERE id = ?").get(id);
+  return db
+    .prepare(
+      `SELECT id,name,color,position FROM category 
+       INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id
+       WHERE categoryId = :id
+       ORDER BY position ASC`
+    )
+    .get(id);
 }
 
 /**
@@ -44,7 +75,15 @@ function getCategoryById(id) {
  * @returns {Category} Category
  */
 function getCategoryByName(name) {
-  return db.prepare("SELECT * FROM category WHERE name = ?").get(name);
+  let id = db.prepare("SELECT * FROM category WHERE name = ?").get(name).id;
+  return db
+    .prepare(
+      `SELECT id,name,color,position FROM category 
+       INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id
+       WHERE categoryId = :id
+       ORDER BY position ASC`
+    )
+    .get({ id });
 }
 
 /**
@@ -69,13 +108,31 @@ function updateCategoryById(id, name, color) {
   return db
     .prepare(
       `UPDATE category SET 
-    name = coalesce(:name,name), 
-    color = coalesce(:color,color)
-    WHERE id = :id`
+        name = coalesce(:name,name), 
+        color = coalesce(:color,color)
+      WHERE id = :id`
     )
     .run({ id, name, color }).changes > 0
     ? true
     : false;
+}
+
+/**
+ *
+ * @param {IdPositionPair[]} idPositionPairArray
+ */
+function updatePostitions(idPositionPairArray) {
+  const insert = db.prepare(
+    "UPDATE categoryPosition SET position = coalesce(:position,position) WHERE categoryId = :id"
+  );
+
+  const insertMany = db.transaction((items) => {
+    for (const item of items)
+      insert.run({ id: item.id, position: item.position });
+  });
+
+  insertMany(idPositionPairArray);
+  return true;
 }
 
 module.exports = {
@@ -85,4 +142,5 @@ module.exports = {
   getCategoryByName,
   updateCategoryById,
   deleteCategoryById,
+  updatePostitions,
 };

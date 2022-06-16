@@ -51,6 +51,12 @@ function init() {
     color TEXT
   )`
   ).run();
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS categoryPosition (
+    categoryId INTEGER,
+    position INTEGER
+  )`
+  ).run();
 }
 
 module.exports = {
