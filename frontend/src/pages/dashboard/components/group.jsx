@@ -27,7 +27,7 @@ export default function Group({ category }) {
 
   return (
     <div
-      className={`w-full border rounded-lg ${
+      className={`w-full border rounded-lg shadow-xl ${
         useImageAsBg ? "backdrop-blur-lg" : "bg-white dark:bg-transparent"
       }`}
       style={{ borderColor: backgroundColor }}
