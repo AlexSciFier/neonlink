@@ -59,7 +59,7 @@ export function CategoryItem({ id, name, color, position }) {
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="flex py-1 rounded cursor-default bg-gray-900"
+      className="flex py-1 px-2 rounded cursor-default dark:bg-gray-900 bg-white active:shadow-xl active:ring-1 active:ring-white/10"
     >
       <div
         {...listeners}

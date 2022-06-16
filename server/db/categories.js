@@ -75,7 +75,8 @@ function getCategoryById(id) {
  * @returns {Category} Category
  */
 function getCategoryByName(name) {
-  let id = db.prepare("SELECT * FROM category WHERE name = ?").get(name).id;
+  let id = db.prepare("SELECT * FROM category WHERE name = ?").get(name)?.id;
+  if (id === undefined) return undefined;
   return db
     .prepare(
       `SELECT id,name,color,position FROM category 

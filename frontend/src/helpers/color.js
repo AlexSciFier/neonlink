@@ -1,6 +1,20 @@
+import { getRandomIntInclusive } from "./math";
+
+export const colors = [
+  { label: "Red", value: "#dc2626" },
+  { label: "Orange", value: "#f97316" },
+  { label: "Amber", value: "#d97706" },
+  { label: "Yellow", value: "#eab308" },
+  { label: "Lime", value: "#84cc16" },
+  { label: "Green", value: "#22c55e" },
+  { label: "Emerald", value: "#10b981" },
+  { label: "Teal", value: "#14b8a6" },
+  { label: "Cyan", value: "#06b6d4" },
+  { label: "Fuchsia", value: "#d946ef" },
+];
+
 export function getRandomColor() {
-  let colorValue = Math.floor(Math.random() * 16777215).toString(16);
-  return `#${colorValue}`;
+  return colors[getRandomIntInclusive(0, colors.length - 1)];
 }
 
 export function pickColorBasedOnBgColor(
