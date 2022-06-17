@@ -13,6 +13,18 @@ export async function postJSON(endpoint, json) {
     credentials: "include",
   });
 }
+export async function postFormData(endpoint, object) {
+  let url = new URL(endpoint, BASE_URL).toString();
+  let formData = new FormData();
+  for (const name in object) {
+    formData.append(name, object[name]);
+  }
+  return await fetch(url, {
+    method: "POST",
+    body: formData,
+    credentials: "include",
+  });
+}
 export async function getJSON(endpoint) {
   let url = new URL(endpoint, BASE_URL).toString();
   return await fetch(url, { credentials: "include" });
