@@ -17,7 +17,7 @@ export function AddCategoryInput() {
   }
 
   return (
-    <div className="flex mb-3 md:w-2/3 xl:w-1/4 w-full gap-1">
+    <div className="flex mb-3 md:w-2/3 w-full gap-1">
       <input
         type={"text"}
         ref={nameRef}

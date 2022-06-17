@@ -3,7 +3,13 @@ import { useCategoriesList } from "../../../../context/categoriesList";
 import InputGroup from "../../components/inputGroup";
 import { AddCategoryInput } from "./AddCategoryInput";
 import { CategoryItem } from "./CategoryItem";
-import { DndContext } from "@dnd-kit/core";
+import {
+  DndContext,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -19,6 +25,22 @@ export default function GroupTab() {
     error,
     fetchCategories,
   } = useCategoriesList();
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      // Require the mouse to move by 10 pixels before activating
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      // Press delay of 250ms, with tolerance of 5px of movement
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
 
   useEffect(() => {
     fetchCategories();
@@ -50,13 +72,13 @@ export default function GroupTab() {
     <div>
       <InputGroup title={"List of categories"}>
         <AddCategoryInput />
-        <ul className="space-y-1 md:w-2/3 xl:w-1/4 w-full">
+        <ul className="space-y-1 md:w-2/3 w-full">
           {isLoading ? (
             <div>Is Loading</div>
           ) : categories.length === 0 ? (
             "No categories"
           ) : (
-            <DndContext onDragEnd={handleDragEnd}>
+            <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
               <SortableContext
                 items={categories}
                 strategy={verticalListSortingStrategy}

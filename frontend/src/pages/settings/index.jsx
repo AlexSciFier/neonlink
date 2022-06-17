@@ -6,8 +6,8 @@ import TabView from "./tabView";
 export default function SettingsPage() {
   return (
     <Page>
-      <div className="md:p-12  w-full">
-        <TabView></TabView>
+      <div className="flex w-full justify-center">
+        <TabView />
       </div>
     </Page>
   );

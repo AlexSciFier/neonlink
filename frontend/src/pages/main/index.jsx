@@ -7,7 +7,7 @@ import Page from "../../components/Page";
 export default function MainPage() {
   return (
     <Page>
-      <div className="flex flex-col justify-center w-full md:flex-row">
+      <div className="flex flex-col gap-4 justify-center w-full md:flex-row">
         <BookMarkListProvider>
           <BookmarksList />
           <RightPanel />
