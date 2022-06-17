@@ -107,6 +107,40 @@ module.exports = async function (fastify, opts) {
     }
   );
 
+  fastify.post(
+    "/addArray",
+    {
+      schema: {
+        body: {
+          type: "array",
+          items: {
+            type: "object",
+            required: ["url", "title"],
+            properties: {
+              url: { type: "string" },
+              title: { type: "string" },
+            },
+          },
+        },
+      },
+    },
+    async function (request, reply) {
+      let urlArray = request.body;
+      urlArray.forEach((item) => {
+        let { url, title, icon } = item;
+        if (url === "")
+          throw fastify.httpErrors.notAcceptable(
+            `url shoud not be empty ${title}`
+          );
+        let existingBookmark = db.getBookmarkByUrl(url);
+        if (existingBookmark) return;
+        db.addBookmark(url, title, "", icon, undefined, []);
+        reply.statusCode = 201;
+      });
+      return true;
+    }
+  );
+
   fastify.put(
     "/:id",
     {

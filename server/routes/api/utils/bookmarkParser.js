@@ -12,6 +12,7 @@ function parseBookmarkFile(data) {
     href: node.getAttribute("href"),
     date: new Date(Number.parseInt(node.getAttribute("add_date")) * 1000),
     name: node.textContent,
+    icon: node.getAttribute("icon"),
   }));
 
   return urlArray;

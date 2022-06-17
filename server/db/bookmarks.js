@@ -28,7 +28,7 @@ function addBookmark(url, title, desc, icon, categoryId, tags) {
     .run(url, title, desc, icon, categoryId).lastInsertRowid;
   let ids = db
     .prepare(
-      `SELECT id FROM tags WHERE name IN (${new Array(tags.length)
+      `SELECT id FROM tags WHERE name IN (${new Array(tags?.length || 0)
         .fill("?")
         .join(",")})`
     )
@@ -70,6 +70,7 @@ function getAllBookmarks(offset = 0, limit = 10) {
         LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
         LEFT JOIN tags ON bookmarksTags.tagId = tags.id
       GROUP BY bookmarks.id
+      ORDER BY bookmarks.created DESC
       LIMIT :limit OFFSET :offset`
     )
     .all({ offset, limit })
