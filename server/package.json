@@ -23,6 +23,7 @@
     "fastify-cli": "^2.15.0",
     "fastify-cookie": "^5.6.0",
     "fastify-cors": "^6.0.3",
+    "fastify-file-upload": "^4.0.0",
     "fastify-plugin": "^3.0.0",
     "fastify-sensible": "^3.1.2",
     "fastify-session": "^5.2.1",
