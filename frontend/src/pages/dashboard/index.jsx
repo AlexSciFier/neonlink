@@ -12,17 +12,8 @@ export default function Dashboard() {
       style={{ backgroundImage: useImageAsBg && `url(${bgUrl})` }}
     >
       <NavBar />
-      <div className="flex flex-1 flex-col justify-center w-full mt-3">
+      <div className="flex flex-1 flex-col w-full mt-3">
         <GroupList />
-        <div className="flex-1"></div>
-        <div className="flex justify-center">
-          <Link
-            to={"/links"}
-            className="hover:text-cyan-500 dark:text-white dark:hover:text-cyan-600"
-          >
-            All links
-          </Link>
-        </div>
       </div>
     </div>
   );

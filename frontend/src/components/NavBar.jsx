@@ -17,9 +17,14 @@ export default function NavBar() {
 
   return (
     <div className="flex justify-between text-white py-3 px-6 bg-gradient-to-r from-white/0 to-white/0 dark:from-cyan-600 dark:to-fuchsia-600">
-      <Link to="/" className="text-2xl font-light flex">
-        {tag ? <span>#{tag}</span> : <span>Bookmark App</span>}
-      </Link>
+      <div className="flex items-center gap-3">
+        <Link to="/" className="text-2xl font-light flex">
+          {tag ? <span>#{tag}</span> : <span>Bookmark App</span>}
+        </Link>
+        <Link className="text-2xl font-light" to="/links">
+          Links
+        </Link>
+      </div>
 
       <div className="flex gap-3 items-center">
         <Link
