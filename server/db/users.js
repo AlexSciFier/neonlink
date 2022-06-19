@@ -111,6 +111,13 @@ async function changePassword(username, newPassword) {
   ).run({ username, passwordHash: newHashedPassword });
 }
 
+/**
+ * 
+ */
+async function isUsersTableEmpty() {
+  return db.prepare("SELECT COUNT(*) AS count FROM users").get().count === 0
+}
+
 module.exports = {
   addUser,
   addUUID,
@@ -121,4 +128,5 @@ module.exports = {
   isPasswordValid,
   isUserExist,
   changePassword,
+  isUsersTableEmpty
 };

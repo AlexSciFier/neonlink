@@ -11,19 +11,26 @@ import { getJSON } from "./helpers/fetch";
 import EditBookmark from "./pages/editBookmark";
 import NotFound from "./pages/notFound";
 import Dashboard from "./pages/dashboard";
+import RegisterPage from "./pages/register";
 
 function PrivateWrapper({ profile }) {
-  return profile ? <Outlet /> : <Navigate to="/login" />;
+  return profile ? <Outlet /> :<Navigate to="/login" />;
 }
 
 function App() {
-  let { profile, setIsProfileLoading, isProfileLoading, setProfile } =
-    useIsloggedIn();
+  let {
+    profile,
+    setIsProfileLoading,
+    isProfileLoading,
+    setProfile,
+    setNeedRegistration
+  } = useIsloggedIn();
 
   useEffect(() => {
     async function fetchProfile() {
       setIsProfileLoading(true);
       var res;
+      setNeedRegistration(false)
       try {
         res = await getJSON("/api/users/me");
       } catch (error) {
@@ -35,6 +42,9 @@ function App() {
         setProfile(await res.json());
         setIsProfileLoading(false);
       } else {
+        if(res.status === 404){
+          setNeedRegistration(true)
+        }
         setProfile(undefined);
         setIsProfileLoading(false);
       }
@@ -47,31 +57,27 @@ function App() {
       <div className="w-screen h-screen gradient-animate overflow-auto"></div>
     );
 
+  const routes = [
+    { path: "/", element: <Dashboard /> },
+    { path: "/settings", element: <SettingsPage /> },
+    { path: "/add", element: <AddPage /> },
+    { path: "/edit/:id", element: <EditBookmark /> },
+    { path: "/links", element: <MainPage /> },
+  ];
+
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-cyan-600 to-fuchsia-600 overflow-auto dark:from-gray-900 dark:to-gray-900">
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
 
-          <Route element={<PrivateWrapper profile={profile} />}>
-            <Route path="/" element={<Dashboard />} />
-          </Route>
+          <Route path="/register" element={<RegisterPage />} />
 
-          <Route element={<PrivateWrapper profile={profile} />}>
-            <Route path="/settings" element={<SettingsPage />} />
-          </Route>
-
-          <Route element={<PrivateWrapper profile={profile} />}>
-            <Route path="/add" element={<AddPage />} />
-          </Route>
-
-          <Route element={<PrivateWrapper profile={profile} />}>
-            <Route path="/edit/:id" element={<EditBookmark />} />
-          </Route>
-
-          <Route element={<PrivateWrapper profile={profile} />}>
-            <Route path="/links" element={<MainPage />} />
-          </Route>
+          {routes.map((route) => (
+            <Route key={route.path} element={<PrivateWrapper profile={profile} />}>
+              <Route path={route.path} element={route.element} />
+            </Route>
+          ))}
 
           <Route path="*" element={<NotFound />} />
         </Routes>

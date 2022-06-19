@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { Navigate } from "react-router";
+import React, { useEffect, useRef, useState } from "react";
+import { Navigate, useNavigate } from "react-router";
 import { useIsloggedIn } from "../../context/isLoggedIn";
 import { postJSON } from "../../helpers/fetch";
 
@@ -7,21 +7,31 @@ export default function LoginPage() {
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState();
-  const { setProfile, profile } = useIsloggedIn();
+  const { setProfile,needRegistration, setIsLoggedIn } = useIsloggedIn();
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if(needRegistration) navigate("/register")
+  }, [needRegistration])
+  
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
+
     let username = usernameRef.current.value;
     let password = passwordRef.current.value;
+
     setError(undefined);
+
     try {
       let res = await postJSON("/api/users/login", { username, password });
       let resData = await res.json();
       if (res.ok) {
         setProfile(resData);
         setIsLoggedIn(true);
+        navigate("/");
       } else {
         setError(resData);
         setIsLoggedIn(false);
@@ -32,7 +42,6 @@ export default function LoginPage() {
     }
   };
 
-  if (isLoggedIn || profile) return <Navigate to={"/"} />;
 
   return (
     <div className="flex flex-col justify-center w-full h-full">

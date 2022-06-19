@@ -11,6 +11,7 @@ export function IsLoggedInProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState({});
   const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [needRegistration, setNeedRegistration] = useState(true)
 
   async function changePassword(currentPassword, newPassword) {
     let res = await putJSON("/api/users/changePassword", {
@@ -27,10 +28,12 @@ export function IsLoggedInProvider({ children }) {
         isLoggedIn,
         profile,
         isProfileLoading,
+        needRegistration,
         setIsLoggedIn,
         setProfile,
         setIsProfileLoading,
         changePassword,
+        setNeedRegistration
       }}
     >
       {children}

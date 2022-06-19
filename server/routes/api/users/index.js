@@ -8,6 +8,8 @@ const crypto = require("crypto");
  * @param {import("fastify").FastifyReply} reply
  */
 async function requestForbidden(request, reply) {
+  if (await db.isUsersTableEmpty())
+    throw reply.notFound("No registrated users");
   if (request.cookies === undefined)
     throw reply.unauthorized("You must login to use this method");
   let { SSID } = request.cookies;
@@ -40,7 +42,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       let { SSID } = request.cookies;
-      return db, db.getUserByUUID(SSID);
+      return db.getUserByUUID(SSID);
     }
   );
 
@@ -50,7 +52,7 @@ module.exports = async function (fastify, opts) {
       schema: {
         body: {
           type: "object",
-          required: ["username", "password", "isAdmin"],
+          required: ["username", "password"],
           properties: {
             username: { type: "string" },
             password: { type: "string" },
@@ -60,9 +62,11 @@ module.exports = async function (fastify, opts) {
       },
     },
     async function (request) {
-      let { username, password, isAdmin } = request.body;
+      let { username, password } = request.body;
+      let isAdmin = request.body?.isAdmin || false;
       if (db.isUserExist(username))
         throw fastify.httpErrors.notAcceptable("This username already exist");
+      if (db.isUsersTableEmpty()) isAdmin === true;
       return await db.addUser(username, password, isAdmin);
     }
   );
