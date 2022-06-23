@@ -5,6 +5,7 @@ import Page from "../../components/Page";
 import { useCategoriesList } from "../../context/categoriesList";
 import TagInput from "../addBookmark/components/TagInput";
 import { BUTTON_BASE_CLASS } from "../../helpers/baseDesign";
+import IconInput from "./iconInput";
 
 function LoadCircle() {
   return (
@@ -42,6 +43,7 @@ export default function EditBookmark() {
     desc: "",
     url: "",
     tags: [],
+    icon: "",
     categoryId: 0,
   });
 
@@ -59,6 +61,7 @@ export default function EditBookmark() {
           title: json.title,
           desc: json.desc,
           tags: json.tags?.split(",") ?? [],
+          icon: json.icon,
           categoryId: json.categoryId,
         });
       }
@@ -107,6 +110,11 @@ export default function EditBookmark() {
             value={formData.url}
             disabled={true}
           ></input>
+          <IconInput
+            icon={formData.icon}
+            url={formData.url}
+            setIcon={(icon) => setFormData({ ...formData, icon })}
+          />
           <input
             className="w-full bg-transparent rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2"
             type={"text"}
