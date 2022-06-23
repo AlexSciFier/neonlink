@@ -1,6 +1,8 @@
 import { CogIcon, LogoutIcon, PlusIcon } from "@heroicons/react/outline";
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { BUTTON_BASE_CLASS } from "../helpers/baseDesign";
+import { APP_NAME } from "../helpers/constants";
 import { postJSON } from "../helpers/fetch";
 
 export default function NavBar() {
@@ -19,7 +21,7 @@ export default function NavBar() {
     <div className="flex justify-between text-white py-3 px-6 bg-gradient-to-r from-white/0 to-white/0 dark:from-cyan-600 dark:to-fuchsia-600">
       <div className="flex items-center gap-3">
         <Link to="/" className="text-2xl font-light flex">
-          {tag ? <span>#{tag}</span> : <span>Bookmark App</span>}
+          {tag ? <span>#{tag}</span> : <span>{APP_NAME}</span>}
         </Link>
         <Link className="text-2xl font-light" to="/links">
           Links
@@ -27,10 +29,7 @@ export default function NavBar() {
       </div>
 
       <div className="flex gap-3 items-center">
-        <Link
-          to={"/add"}
-          className="bg-cyan-500 text-white px-4 h-full rounded flex items-center gap-1 hover:bg-cyan-400"
-        >
+        <Link to={"/add"} className={BUTTON_BASE_CLASS + "flex gap-2"}>
           <PlusIcon className="w-6 h-6" />
           <span className="hidden md:inline">Add bookmark</span>
         </Link>

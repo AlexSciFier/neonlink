@@ -4,6 +4,35 @@ import { useNavigate, useParams } from "react-router";
 import Page from "../../components/Page";
 import { useCategoriesList } from "../../context/categoriesList";
 import TagInput from "../addBookmark/components/TagInput";
+import { BUTTON_BASE_CLASS } from "../../helpers/baseDesign";
+
+function LoadCircle() {
+  return (
+    <>
+      <svg
+        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      Sending ...
+    </>
+  );
+}
 
 export default function EditBookmark() {
   const [sending, setSending] = useState(false);
@@ -123,37 +152,11 @@ export default function EditBookmark() {
           <div className="flex justify-between">
             <div className="text-red-600">{error?.message || ""}</div>
             <button
-              className="inline-flex items-center px-6 py-2 rounded focus:outline-none disabled:bg-gray-400 focus:ring-cyan-400 focus:ring hover:bg-cyan-400 bg-cyan-500 text-white"
+              className={BUTTON_BASE_CLASS + "flex items-center"}
               type="submit"
               disabled={isButtonDisabled()}
             >
-              {sending ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Sending ...
-                </>
-              ) : (
-                "Edit"
-              )}
+              {sending ? <LoadCircle /> : "Edit"}
             </button>
           </div>
         </form>

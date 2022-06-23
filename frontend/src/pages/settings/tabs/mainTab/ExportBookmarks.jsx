@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
 import { getJSON } from "../../../../helpers/fetch";
 
 export default function ExportBookmarks() {
@@ -27,7 +28,7 @@ export default function ExportBookmarks() {
   return (
     <div>
       <button
-        className="bg-cyan-500 hover:bg-cyan-400 disabled:bg-gray-500 text-white px-4 py-2 rounded"
+        className={BUTTON_BASE_CLASS}
         disabled={isLoading}
         onClick={downloadBookmarks}
       >

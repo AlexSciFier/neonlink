@@ -52,7 +52,7 @@ export default function LinkTemplate({ bookmark }) {
       }}
     >
       <div className="flex-auto overflow-hidden flex justify-between items-center text-gray-400">
-        <div className="flex flex-auto overflow-hidden gap-3 items-center">
+        <div className="flex flex-auto overflow-hidden gap-3">
           <div className="flex-none">
             <div
               className="w-8 h-8 bg-contain bg-no-repeat bg-center"
@@ -76,7 +76,7 @@ export default function LinkTemplate({ bookmark }) {
             <div className="font-light text-gray-700 dark:text-gray-200 truncate md:block hidden">
               {bookmark.desc}
             </div>
-            <div className="flex justify-between md:flex-row flex-col">
+            <div className="flex justify-between md:flex-row text-sm flex-col">
               <div className="flex gap-3 font-light">
                 {bookmark.tags?.map((tag, idx) => (
                   <Link

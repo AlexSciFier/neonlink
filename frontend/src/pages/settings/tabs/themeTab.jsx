@@ -3,12 +3,20 @@ import InputGroup from "../components/inputGroup";
 import SwitchButton from "../components/SwitchButton";
 import { useTheme } from "../../../context/themeContext";
 import { useLocalStorage } from "../../../hooks/useLocalStorage";
+import { DEF_COLUMNS, DEF_MAX_ITEMS } from "../../../helpers/constants";
 
 export default function ThemeTab() {
   const { theme, setTheme, useImageAsBg, bgUrl, setUseImageAsBg, setBgUrl } =
     useTheme();
 
-  const [columns, setColumns] = useLocalStorage("dashboardColumns", 3);
+  const [columns, setColumns] = useLocalStorage(
+    "dashboardColumns",
+    DEF_COLUMNS
+  );
+  const [maxItemsInList, setMaxItemsInList] = useLocalStorage(
+    "maxItemsInList",
+    DEF_MAX_ITEMS
+  );
 
   console.log();
 
@@ -34,13 +42,13 @@ export default function ThemeTab() {
         </div>
       </InputGroup>
       <InputGroup title={"Dashboard"}>
-        <div className="flex flex-col gap-3 w-fit">
+        <div className="flex flex-col gap-3">
           <div className="flex flex-col">
             <label htmlFor="dashboard-columns">Columns </label>
             <select
               id="dashboard-columns"
               defaultValue={columns}
-              className="rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
+              className="rounded border w-fit focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
               onChange={(e) => setColumns(e.target.value)}
             >
               {[...Array(Number.parseInt(6))].map((i, idx) => (
@@ -49,6 +57,20 @@ export default function ThemeTab() {
                 </option>
               ))}
             </select>
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="links-limit">
+              Maximum numbers of links on one page
+            </label>
+            <input
+              type="number"
+              min={10}
+              max={50}
+              value={maxItemsInList}
+              onChange={(e) => setMaxItemsInList(e.target.value)}
+              id="links-limit"
+              className="rounded border w-fit focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
+            ></input>
           </div>
           <SwitchButton
             id={"use-dashboard-bg"}

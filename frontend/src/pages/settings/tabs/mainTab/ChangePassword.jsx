@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useIsloggedIn } from "../../../../context/isLoggedIn";
+import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
 
 function PasswordBox({ id, name, placeholder, onChange, isValid = true }) {
   return (
@@ -49,9 +50,9 @@ export default function ChangePassword() {
     }
   }
   return (
-    <div className="flex flex-col items-start">
+    <div className="flex flex-col gap-2 items-start">
       <div className="text-xl">{profile.username}</div>
-      <div className="flex flex-col gap-2 mt-3">
+      <div className="flex flex-col gap-2">
         <PasswordBox
           placeholder={"Current password"}
           onChange={(e) => setCurrentPassword(e.target.value)}
@@ -71,7 +72,7 @@ export default function ChangePassword() {
         value={"Change password"}
         onClick={handleChangeClick}
         disabled={isNewPasswordEmpty || isPasswordValid === false}
-        className="bg-cyan-500 rounded px-4 py-2 cursor-pointer hover:bg-cyan-400 mt-3 text-white disabled:bg-gray-500 disabled:cursor-auto"
+        className={BUTTON_BASE_CLASS}
       ></input>
     </div>
   );

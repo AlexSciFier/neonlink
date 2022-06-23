@@ -6,10 +6,12 @@ import SceletalBokmarkList from "./SceletalBokmarkList";
 import { useSearchParams } from "react-router-dom";
 import { useBookMarkList } from "../../../context/bookmarkList";
 import NoBookmarks from "./NoBookmarks";
+import { useLocalStorage } from "../../../hooks/useLocalStorage";
+import { DEF_MAX_ITEMS } from "../../../helpers/constants";
 
 export default function BookmarksList() {
   const [searchParams] = useSearchParams();
-
+  const [maxItemsInList] = useLocalStorage("maxItemsInList", DEF_MAX_ITEMS);
   const {
     bookmarkList,
     currentPage,
@@ -19,7 +21,7 @@ export default function BookmarksList() {
   } = useBookMarkList();
 
   useEffect(() => {
-    let limit = searchParams.get("limit") || 10;
+    let limit = searchParams.get("limit") || maxItemsInList;
     let page = searchParams.get("page") ?? 1;
     let offset = (page - 1) * limit;
 
