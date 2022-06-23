@@ -1,7 +1,8 @@
 "use strict";
 const { default: fastify } = require("fastify");
 const db = require("../../../db/connect");
-const netscape = require("../utils/bookmarkFileGenerator");
+const netscape = require("../../../utils/bookmarkFileGenerator");
+const { imgUrlToBase64 } = require("../../../utils/imgUrlToBase64");
 
 /**
  *
@@ -109,6 +110,7 @@ module.exports = async function (fastify, opts) {
       let { url, title, desc, icon, categoryId, tags } = request.body;
       if (url === "")
         throw fastify.httpErrors.notAcceptable("url shoud not be empty string");
+      icon = await imgUrlToBase64(icon);
       let existingBookmark = db.getBookmarkByUrl(url);
       if (existingBookmark) {
         return db.updateBookmarkById(
