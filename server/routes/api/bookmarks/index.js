@@ -185,6 +185,7 @@ module.exports = async function (fastify, opts) {
       let { id } = request.params;
       let { url, title, desc, icon, categoryId, tags } = request.body;
       if (url === "") throw new Error("Url shoud not be empty string");
+      icon = await imgUrlToBase64(icon);
       if (db.updateBookmarkById(id, url, title, desc, icon, categoryId, tags))
         return { url, title, desc };
       throw fastify.httpErrors.notFound();
