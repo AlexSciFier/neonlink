@@ -1,6 +1,7 @@
 "use strict";
 const { default: fastify } = require("fastify");
 const db = require("../../../db/connect");
+const netscape = require("../utils/bookmarkFileGenerator");
 
 /**
  *
@@ -51,6 +52,24 @@ module.exports = async function (fastify, opts) {
       let bookmark = db.getBookmarkById(id);
       if (bookmark) return bookmark;
       throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
+    }
+  );
+
+  fastify.get(
+    "/export",
+    { preHandler: requestForbidden },
+    async function (request, reply) {
+      let bookmarks = db.getAllBookmarks(0, 999999)?.bookmarks;
+      let maped = {};
+      for (const key in bookmarks) {
+        if (Object.hasOwnProperty.call(bookmarks, key)) {
+          const element = bookmarks[key];
+          maped[element.title] = element.url;
+        }
+      }
+      console.log(maped);
+      let html = netscape(maped);
+      return html;
     }
   );
 
