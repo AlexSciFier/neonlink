@@ -20,10 +20,14 @@ export default function NavBar() {
   return (
     <div className="flex justify-between text-white py-3 px-6 bg-gradient-to-r from-white/0 to-white/0 dark:from-cyan-600 dark:to-fuchsia-600">
       <div className="flex items-center gap-3">
-        <Link to="/" className="text-2xl font-light flex">
-          {tag ? <span>#{tag}</span> : <span>{APP_NAME}</span>}
+        <Link to="/" className="text-2xl font-light flex items-center gap-1">
+          <div
+            style={{ backgroundImage: "url(/logo.svg)" }}
+            className="w-6 h-6"
+          ></div>
+          <div className="md:block hidden">{tag ? `#${tag}` : APP_NAME}</div>
         </Link>
-        <Link className="text-2xl font-light" to="/links">
+        <Link className="text-2xl font-light hover:text-cyan-400" to="/links">
           Links
         </Link>
       </div>
