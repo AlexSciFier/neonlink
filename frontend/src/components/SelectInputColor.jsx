@@ -15,8 +15,6 @@ export default function SelectInputColor({
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
-      // If the menu is open and the clicked target is not within the menu,
-      // then close the menu
       if (isMenuOpen && ref.current && !ref.current.contains(e.target)) {
         setIsMenuOpen(false);
       }
@@ -25,7 +23,6 @@ export default function SelectInputColor({
     document.addEventListener("mousedown", checkIfClickedOutside);
 
     return () => {
-      // Cleanup the event listener
       document.removeEventListener("mousedown", checkIfClickedOutside);
     };
   }, [isMenuOpen]);
