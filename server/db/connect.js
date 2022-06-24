@@ -29,6 +29,7 @@ function init() {
     url TEXT,
     title TEXT,
     desc TEXT,
+    search TEXT,
     icon TEXT,
     categoryId INEGER,
     created TIMESTAMP

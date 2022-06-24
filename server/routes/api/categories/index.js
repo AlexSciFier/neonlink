@@ -9,7 +9,6 @@ const db = require("../../../db/connect");
  */
 async function requestForbidden(request, reply) {
   try {
-    console.log("cookies", request.cookies);
     let SSID = request.cookies.SSID;
     if (SSID) {
       let user = await db.getUserByUUID(SSID);

@@ -12,9 +12,10 @@ import EditBookmark from "./pages/editBookmark";
 import NotFound from "./pages/notFound";
 import Dashboard from "./pages/dashboard";
 import RegisterPage from "./pages/register";
+import { APP_NAME } from "./helpers/constants";
 
 function PrivateWrapper({ profile }) {
-  return profile ? <Outlet /> :<Navigate to="/login" />;
+  return profile ? <Outlet /> : <Navigate to="/login" />;
 }
 
 function App() {
@@ -23,14 +24,14 @@ function App() {
     setIsProfileLoading,
     isProfileLoading,
     setProfile,
-    setNeedRegistration
+    setNeedRegistration,
   } = useIsloggedIn();
 
   useEffect(() => {
     async function fetchProfile() {
       setIsProfileLoading(true);
       var res;
-      setNeedRegistration(false)
+      setNeedRegistration(false);
       try {
         res = await getJSON("/api/users/me");
       } catch (error) {
@@ -42,14 +43,15 @@ function App() {
         setProfile(await res.json());
         setIsProfileLoading(false);
       } else {
-        if(res.status === 404){
-          setNeedRegistration(true)
+        if (res.status === 404) {
+          setNeedRegistration(true);
         }
         setProfile(undefined);
         setIsProfileLoading(false);
       }
     }
     fetchProfile();
+    document.title = APP_NAME;
   }, []);
 
   if (isProfileLoading)
@@ -74,7 +76,10 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
 
           {routes.map((route) => (
-            <Route key={route.path} element={<PrivateWrapper profile={profile} />}>
+            <Route
+              key={route.path}
+              element={<PrivateWrapper profile={profile} />}
+            >
               <Route path={route.path} element={route.element} />
             </Route>
           ))}

@@ -21,9 +21,9 @@ export function BookMarkListProvider({ children }) {
     let searchParams = new URLSearchParams();
     searchParams.append("offset", offset);
     searchParams.append("limit", limit);
-    query && searchParams.append("q", query);
-    tag && searchParams.append("tag", tag);
-    let res = await getJSON(`/api/bookmarks/?${searchParams}`);
+    if (query) searchParams.append("q", query);
+    if (tag) searchParams.append("tag", tag);
+    let res = await getJSON(`/api/bookmarks/?${searchParams.toString()}`);
     if (res.ok) {
       let json = await res.json();
       setBookmarkList(json.bookmarks);
@@ -41,7 +41,6 @@ export function BookMarkListProvider({ children }) {
       method: "DELETE",
     });
     if (res.ok) {
-      console.log(await res.json());
       setBookmarkList(bookmarkList.filter((item) => item.id !== id));
     } else {
       console.error(await res.json());

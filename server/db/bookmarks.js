@@ -23,9 +23,16 @@ let db = new Database("./db/bookmarks.sqlite");
 function addBookmark(url, title, desc, icon, categoryId, tags) {
   let bookmarkId = db
     .prepare(
-      "INSERT INTO bookmarks (url,title,desc,icon,categoryId) VALUES(?,?,?,?,?)"
+      "INSERT INTO bookmarks (url,title,desc,icon,search,categoryId) VALUES(:url,:title,:desc,:icon,:search,:categoryId)"
     )
-    .run(url, title, desc, icon, categoryId).lastInsertRowid;
+    .run({
+      url,
+      title,
+      desc,
+      icon,
+      search: (url + title + desc).toLocaleLowerCase(),
+      categoryId,
+    }).lastInsertRowid;
   let ids = db
     .prepare(
       `SELECT id FROM tags WHERE name IN (${new Array(tags?.length || 0)
@@ -152,16 +159,16 @@ function findBookmark(query, limit = 10, offset = 0) {
       created,
       group_concat(tags.name, ',') as tags
     FROM bookmarks 
-      INNER JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
-      INNER JOIN tags ON bookmarksTags.tagId = tags.id
-    WHERE bookmarks.title LIKE :query OR bookmarks.desc LIKE :query OR bookmarks.url LIKE :query 
+      LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
+      LEFT JOIN tags ON bookmarksTags.tagId = tags.id
+    WHERE bookmarks.search LIKE :query
     GROUP BY bookmarks.id
     ORDER BY bookmarks.created
     LIMIT :limit OFFSET :offset`
     )
-    .all({ query: `%${query}%`, limit, offset })
+    .all({ query: `%${query.toLocaleLowerCase()}%`, limit, offset })
     .map((bookmark) => {
-      return { ...bookmark, tags: bookmark.tags.split(",") };
+      return { ...bookmark, tags: bookmark.tags?.split(",") };
     });
   return { bookmarks, currentPage, maxPage };
 }
@@ -172,8 +179,8 @@ function findBookmarkByTag(tag, limit = 10, offset = 0) {
       `SELECT 
       COUNT(*) AS count
     FROM bookmarks 
-      INNER JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
-      INNER JOIN tags ON bookmarksTags.tagId = tags.id
+      LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
+      LEFT JOIN tags ON bookmarksTags.tagId = tags.id
     WHERE tags.name=:tag
     GROUP BY bookmarks.id
     ORDER BY bookmarks.created`
@@ -193,13 +200,13 @@ function findBookmarkByTag(tag, limit = 10, offset = 0) {
             created,
             group_concat(tags.name, ',') as tags
         FROM bookmarks 
-        INNER JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
-        INNER JOIN tags ON bookmarksTags.tagId = tags.id
+        LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
+        LEFT JOIN tags ON bookmarksTags.tagId = tags.id
         GROUP BY bookmarks.id
     )
     WHERE id IN(
         SELECT bookmarkId FROM tags
-        INNER JOIN bookmarksTags ON bookmarksTags.tagId = tags.id
+        LEFT JOIN bookmarksTags ON bookmarksTags.tagId = tags.id
         WHERE name = :tag
     )
     ORDER BY created
@@ -243,7 +250,6 @@ function updateBookmarkById(id, url, title, desc, icon, categoryId, tags) {
         .join(",")})`
     )
     .all(...tags);
-  console.log(ids);
   let stmt = db.prepare(
     "INSERT INTO bookmarksTags (bookmarkId, tagId) VALUES(:bookmarkId,:tagId)"
   );

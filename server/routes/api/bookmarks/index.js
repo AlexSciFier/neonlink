@@ -11,7 +11,6 @@ const { imgUrlToBase64 } = require("../../../utils/imgUrlToBase64");
  */
 async function requestForbidden(request, reply) {
   try {
-    console.log("cookies", request.cookies);
     let SSID = request.cookies.SSID;
     if (SSID) {
       let user = await db.getUserByUUID(SSID);
@@ -68,7 +67,6 @@ module.exports = async function (fastify, opts) {
           maped[element.title] = element.url;
         }
       }
-      console.log(maped);
       let html = netscape(maped);
       return html;
     }
