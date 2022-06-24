@@ -5,7 +5,7 @@ import { BUTTON_BASE_CLASS } from "../helpers/baseDesign";
 import { APP_NAME } from "../helpers/constants";
 import { postJSON } from "../helpers/fetch";
 
-export default function NavBar() {
+export default function NavBar({ isBgTransparent = false }) {
   const [searchParams] = useSearchParams();
   let tag = searchParams.get("tag");
 
@@ -18,7 +18,12 @@ export default function NavBar() {
   }
 
   return (
-    <div className="flex justify-between text-white py-3 px-6 bg-gradient-to-r from-white/0 to-white/0 dark:from-cyan-600 dark:to-fuchsia-600">
+    <div
+      className={`flex justify-between text-white py-3 px-6 ${
+        isBgTransparent === false &&
+        "bg-gradient-to-r from-white/0 to-white/0 dark:from-cyan-600 dark:to-fuchsia-600"
+      }`}
+    >
       <div className="flex items-center gap-3">
         <Link to="/" className="text-2xl font-light flex items-center gap-1">
           <div

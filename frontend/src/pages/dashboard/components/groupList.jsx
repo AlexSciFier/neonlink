@@ -1,3 +1,4 @@
+import { ViewGridAddIcon } from "@heroicons/react/outline";
 import React from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -13,6 +14,24 @@ export default function GroupList() {
   }, []);
 
   const [columns] = useLocalStorage("dashboardColumns", 3);
+  if (categories.length === 0) {
+    return (
+      <div className="w-fit self-center flex items-center gap-3 bg-white px-6 py-2 rounded shadow-xl dark:text-white dark:bg-gray-700 dark:shadow-cyan-500/10">
+        <div className="h-10 w-10 text-fuchsia-600">
+          <ViewGridAddIcon />
+        </div>
+        <div>
+          <div className="text-xl">No groups.</div>
+          <div>
+            Add them in{" "}
+            <Link to={"/settings"} className="text-cyan-600 hover:underline">
+              settings
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex justify-center w-full">
       <div
@@ -21,17 +40,6 @@ export default function GroupList() {
         {categories.map((category) => (
           <Group key={category.id} category={category} />
         ))}
-        {categories.length === 0 && (
-          <div>
-            <div className="text-xl dark:text-white">No groups.</div>
-            <div>
-              Add them in{" "}
-              <Link to={"/settings"} className="text-cyan-600">
-                settings
-              </Link>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
