@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { debounce } from "lodash";
 import { useBookMarkList } from "../../../context/bookmarkList";
+import { DEF_MAX_ITEMS } from "../../../helpers/constants";
+import { useLocalStorage } from "../../../hooks/useLocalStorage";
 
 export default function BookmarksHeader() {
   const [query, setQuery] = useState("");
@@ -8,18 +10,15 @@ export default function BookmarksHeader() {
   const delayedQuery = useCallback(debounce(updateBookmarkList, 800), [query]);
 
   const { fetchBookmarks } = useBookMarkList();
+  const [maxItemsInList] = useLocalStorage("maxItemsInList", DEF_MAX_ITEMS);
 
   useEffect(() => {
-    if (query !== "") delayedQuery();
+    delayedQuery();
     return delayedQuery.cancel;
   }, [delayedQuery, query]);
 
   function updateBookmarkList() {
-    fetchBookmarks(0, 10, query);
-  }
-
-  function inputHandler(e) {
-    setQuery(e.target.value);
+    fetchBookmarks({ offset: 0, limit: maxItemsInList, query });
   }
 
   return (
@@ -29,7 +28,7 @@ export default function BookmarksHeader() {
         type={"search"}
         placeholder={"Search"}
         value={query}
-        onChange={inputHandler}
+        onChange={(e) => setQuery(e.target.value)}
       ></input>
     </div>
   );
