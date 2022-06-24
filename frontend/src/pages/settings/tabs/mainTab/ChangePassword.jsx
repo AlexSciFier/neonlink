@@ -44,7 +44,6 @@ export default function ChangePassword() {
   }
 
   async function handleChangeClick() {
-    console.log("click");
     if (isPasswordValid && isNewPasswordEmpty === false) {
       await changePassword(currentPassword, newPassword);
     }

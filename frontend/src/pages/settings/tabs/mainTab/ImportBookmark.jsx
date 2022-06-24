@@ -25,7 +25,6 @@ export default function ImportBookmark() {
     setError("");
     let res = await postFormData("/api/utils/parseBookmarkFile", { file });
     if (res.ok) {
-      console.log(res.statusText);
       setIsLoading(false);
       let list = await res.json();
       list = list.map((item, idx) => ({ ...item, id: idx, isSelected: true }));

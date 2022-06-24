@@ -18,8 +18,6 @@ export default function ThemeTab() {
     DEF_MAX_ITEMS
   );
 
-  console.log();
-
   function changeTheme(e) {
     let isChecked = e.target.checked;
     if (isChecked) {
