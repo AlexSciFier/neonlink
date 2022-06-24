@@ -183,7 +183,7 @@ export default function AddPage() {
           <select
             className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
             type={""}
-            placeholder="Title"
+            placeholder="Category"
             name={"categoryId"}
             onChange={inputHandler}
           >
