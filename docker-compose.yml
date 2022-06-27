@@ -1,0 +1,28 @@
+version: '3.8'
+
+  nginx:
+    depends_on:
+      - api
+      - client
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "3050:80"
+
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: "./server"
+    volumes:
+      - /app/node_modules
+      - ./server:/app
+
+  client:
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+    volumes:
+      - /app/node_modules
+      - ./client:/app
