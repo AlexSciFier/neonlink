@@ -38,6 +38,20 @@ export default function ThemeTab() {
             onChange={(e) => changeTheme(e)}
           />
         </div>
+        <div className="flex flex-col">
+          <label htmlFor="links-limit">
+            Maximum numbers of links on one page
+          </label>
+          <input
+            type="number"
+            min={10}
+            max={50}
+            value={maxItemsInList}
+            onChange={(e) => setMaxItemsInList(e.target.value)}
+            id="links-limit"
+            className="rounded border w-fit focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
+          ></input>
+        </div>
       </InputGroup>
       <InputGroup title={"Dashboard"}>
         <div className="flex flex-col gap-3">
@@ -55,20 +69,6 @@ export default function ThemeTab() {
                 </option>
               ))}
             </select>
-          </div>
-          <div className="flex flex-col">
-            <label htmlFor="links-limit">
-              Maximum numbers of links on one page
-            </label>
-            <input
-              type="number"
-              min={10}
-              max={50}
-              value={maxItemsInList}
-              onChange={(e) => setMaxItemsInList(e.target.value)}
-              id="links-limit"
-              className="rounded border w-fit focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
-            ></input>
           </div>
           <SwitchButton
             id={"use-dashboard-bg"}
