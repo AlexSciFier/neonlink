@@ -63,12 +63,12 @@ export default function LinkTemplate({ bookmark }) {
               }}
             ></div>
           </div>
-          <div className="flex-auto overflow-hidden">
+          <div className="flex-auto truncate">
             <a
               href={bookmark.url}
               target="_blank"
               rel="noreferrer"
-              className="text-lg text-cyan-700 truncate hover:underline dark:text-cyan-300"
+              className="text-lg text-cyan-700 hover:underline dark:text-cyan-300"
             >
               {bookmark.title}
               <span className="pl-3 font-light">{getDomain(bookmark.url)}</span>
