@@ -6,7 +6,7 @@ export default function TagInput({ tags, setTags }) {
   const [tagInput, setTagInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
-  const debounced = useCallback(debounce(fetchUrl, 800), [tagInput]);
+  const debounced = useCallback(debounce(fetchUrl, 500), [tagInput]);
 
   async function fetchUrl() {
     if (tagInput === "") {
@@ -21,19 +21,24 @@ export default function TagInput({ tags, setTags }) {
 
   useEffect(() => {
     if (tagInput.endsWith(" ")) {
-      setTagInput("");
       if (tags.includes(tagInput) === false) {
-        let tagString = tagInput.trim();
-        setTags([...tags, tagString]);
-        let founded = suggestions.filter((tag) => tag.name === tagString);
-        if (founded.length === 0) {
-          postJSON(`/api/tags`, { name: tagString });
-        }
+        addTag(tagInput);
       }
     }
     debounced();
     return debounced.cancel;
   }, [setTags, tagInput, tags]);
+
+  function addTag(textInput) {
+    let tagString = textInput.trim();
+    setTags([...tags, tagString]);
+    let founded = suggestions.filter((tag) => tag.name === tagString);
+    if (founded.length === 0) {
+      postJSON(`/api/tags`, { name: tagString });
+    }
+    setTagInput("");
+    setSuggestions([]);
+  }
 
   function deleteTag(e, tag) {
     e.preventDefault();
@@ -46,11 +51,14 @@ export default function TagInput({ tags, setTags }) {
         <div className="flex gap-2 px-2">
           {tags.map((tag, idx) => (
             <div
-              className="inline-flex whitespace-nowrap px-2 bg-cyan-700 text-white rounded"
+              className="inline-flex whitespace-nowrap pl-2 bg-cyan-700 text-white rounded"
               key={idx}
             >
               {tag}
-              <button onClick={(e) => deleteTag(e, tag)} className="pl-2">
+              <button
+                onClick={(e) => deleteTag(e, tag)}
+                className="ml-1 px-1 hover:bg-white/10"
+              >
                 ×
               </button>
             </div>
@@ -67,15 +75,21 @@ export default function TagInput({ tags, setTags }) {
           onChange={(e) => setTagInput(e.target.value)}
         ></input>
       </div>
-      {suggestions.length > 0 && (
+      {tagInput && (
         <ul className="absolute bg-white text-black left-0 right-0 mt-1 py-1 rounded shadow dark:ring-1 dark:ring-white/10 dark:bg-gray-900 dark:text-white dark:shadow-cyan-500/20">
+          <li
+            className="px-4 hover:bg-cyan-500 cursor-pointer"
+            onClick={() => {
+              addTag(tagInput);
+            }}
+          >
+            Create <strong>{tagInput}</strong> tag
+          </li>
           {suggestions.map((suggestion, idx) => (
             <li
               key={idx}
               onClick={() => {
-                setTags([...tags, suggestion.name]);
-                setTagInput("");
-                setSuggestions([]);
+                addTag(suggestion.name);
               }}
               className="px-4 hover:bg-cyan-500 cursor-pointer"
             >

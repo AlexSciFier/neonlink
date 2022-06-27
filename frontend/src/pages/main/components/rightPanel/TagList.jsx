@@ -11,7 +11,7 @@ export default function TagList() {
 
   if (tags.length === 0) return <div>No tags</div>;
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col">
       {tags.map((tag) => (
         <TagItem key={tag.id} tag={tag} />
       ))}
