@@ -1,7 +1,7 @@
 {
-  "name": "myproject",
+  "name": "neonlink-backend",
   "version": "1.0.0",
-  "description": "This project was bootstrapped with Fastify-CLI.",
+  "description": "NeonLink backend part bootstrapped with Fastify-CLI.",
   "main": "app.js",
   "directories": {
     "test": "test"
