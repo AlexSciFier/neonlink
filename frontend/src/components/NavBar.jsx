@@ -1,4 +1,9 @@
-import { CogIcon, LogoutIcon, PlusIcon } from "@heroicons/react/outline";
+import {
+  CogIcon,
+  LinkIcon,
+  LogoutIcon,
+  PlusIcon,
+} from "@heroicons/react/outline";
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { BUTTON_BASE_CLASS } from "../helpers/baseDesign";
@@ -19,7 +24,7 @@ export default function NavBar({ isBgTransparent = false }) {
 
   return (
     <div
-      className={`flex justify-between text-white py-3 px-6 ${
+      className={`flex justify-between text-white py-3 px-6 font-['RalewayLight'] ${
         isBgTransparent === false &&
         "bg-gradient-to-r from-white/0 to-white/0 dark:from-cyan-600 dark:to-fuchsia-600"
       }`}
@@ -32,15 +37,16 @@ export default function NavBar({ isBgTransparent = false }) {
           ></div>
           <div className="md:block hidden">{tag ? `#${tag}` : APP_NAME}</div>
         </Link>
-        <Link className="text-2xl font-light hover:text-cyan-400" to="/links">
-          Links
-        </Link>
       </div>
 
       <div className="flex gap-3 items-center">
         <Link to={"/add"} className={BUTTON_BASE_CLASS + "flex gap-2"}>
           <PlusIcon className="w-6 h-6" />
           <span className="hidden md:inline">Add bookmark</span>
+        </Link>
+        <Link className="leading-loose flex group gap-1" to="/links">
+          <LinkIcon className="w-8 h-8 p-1 rounded-full group-hover:bg-white/20" />
+          <span className="md:block hidden">Links</span>
         </Link>
         <Link className="leading-loose flex group gap-1" to={"/settings"}>
           <CogIcon className="w-8 h-8 p-1 rounded-full group-hover:bg-white/20" />
