@@ -15,6 +15,7 @@ const InputBox = React.forwardRef(
       refreshHandler,
       icon,
       isLoading,
+      required = false,
     },
     ref
   ) => {
@@ -28,6 +29,7 @@ const InputBox = React.forwardRef(
           value={value}
           name={name}
           ref={ref}
+          required={required}
         ></input>
         {refreshHandler ? (
           <button

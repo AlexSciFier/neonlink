@@ -159,6 +159,7 @@ export default function AddPage() {
             icon={formData.icon}
             ref={urlRef}
             isLoading={isLoading}
+            required={true}
           ></InputBox>
           <input
             className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
@@ -167,6 +168,7 @@ export default function AddPage() {
             name={"title"}
             value={formData.title}
             onChange={inputHandler}
+            required={true}
           ></input>
           <TagInput
             tags={formData.tags}

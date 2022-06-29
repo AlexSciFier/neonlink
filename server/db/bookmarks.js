@@ -33,6 +33,7 @@ function addBookmark(url, title, desc, icon, categoryId, tags) {
       search: (url + title + desc).toLocaleLowerCase(),
       categoryId,
     }).lastInsertRowid;
+
   let ids = db
     .prepare(
       `SELECT id FROM tags WHERE name IN (${new Array(tags?.length || 0)

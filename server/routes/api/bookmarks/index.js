@@ -106,9 +106,13 @@ module.exports = async function (fastify, opts) {
     },
     async function (request, reply) {
       let { url, title, desc, icon, categoryId, tags } = request.body;
-      if (url === "")
-        throw fastify.httpErrors.notAcceptable("url shoud not be empty string");
-      icon = await imgUrlToBase64(icon);
+      if (url === "" || title === "")
+        throw fastify.httpErrors.notAcceptable(
+          "Url and title shoud not be empty string"
+        );
+
+      if (icon !== "") icon = await imgUrlToBase64(icon);
+
       let existingBookmark = db.getBookmarkByUrl(url);
       if (existingBookmark) {
         return db.updateBookmarkById(
