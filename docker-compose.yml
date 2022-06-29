@@ -1,28 +1,14 @@
-version: '3.8'
+version: "3.8"
 
-  nginx:
+services:
+  api:
+    image: alexscifier/neonlink_api
+    volumes:
+      - ./server/db/bookmarks.sqlite:/usr/src/neonlink/db/bookmarks.sqlite
+  app:
     depends_on:
       - api
-      - client
     restart: always
-    build:
-      dockerfile: Dockerfile
-      context: ./nginx
     ports:
-      - "3050:80"
-
-  api:
-    build:
-      dockerfile: Dockerfile
-      context: "./server"
-    volumes:
-      - /app/node_modules
-      - ./server:/app
-
-  client:
-    build:
-      dockerfile: Dockerfile
-      context: ./frontend
-    volumes:
-      - /app/node_modules
-      - ./client:/app
+      - "80:80"
+    image: alexscifier/neonlink_app

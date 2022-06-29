@@ -15,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/static": "^5.0.2",
     "axios": "^0.26.1",
     "bcrypt": "^5.0.1",
     "better-sqlite3": "^7.5.0",

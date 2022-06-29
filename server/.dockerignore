@@ -1,4 +1,9 @@
-node_modules
 .dockerignore
+.vscode
+.nyc_output
+node_modules
+db/bookmarks.sqlite
+public
+test
 Dockerfile
 Dockerfile.prod

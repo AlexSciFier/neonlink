@@ -1,0 +1,9 @@
+*/node_modules
+server/db/bookmarks.sqlite
+.dockerignore
+Dockerfile
+Dockerfile.prod
+*/.nyc_output
+*/.vscode
+.vscode
+docs
