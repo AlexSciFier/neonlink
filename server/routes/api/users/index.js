@@ -64,6 +64,8 @@ module.exports = async function (fastify, opts) {
     async function (request) {
       let { username, password } = request.body;
       let isAdmin = request.body?.isAdmin || false;
+      if (db.isUsersTableEmpty() === false)
+        throw fastify.httpErrors.notAcceptable("Users limit reach");
       if (db.isUserExist(username))
         throw fastify.httpErrors.notAcceptable("This username already exist");
       if (db.isUsersTableEmpty()) isAdmin === true;
