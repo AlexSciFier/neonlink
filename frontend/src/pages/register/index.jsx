@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import { postJSON } from "../../helpers/fetch";
 import { useNavigate } from "react-router-dom";
 import { useIsloggedIn } from "../../context/isLoggedIn";
-import { APP_NAME } from "../../helpers/constants";
 import Logo from "../../components/Logo";
 
 export default function RegisterPage() {
-  let { setNeedRegistration } = useIsloggedIn();
+  let { needRegistration, setNeedRegistration } = useIsloggedIn();
   const [formData, setFormData] = useState({
     login: "",
     password: "",
@@ -16,6 +15,10 @@ export default function RegisterPage() {
   const [isPasswordInvalid, setIsPasswordInvalid] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (needRegistration === false) navigate("/");
+  }, []);
 
   useEffect(() => {
     setIsFormValid(

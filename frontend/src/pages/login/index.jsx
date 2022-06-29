@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import Logo from "../../components/Logo";
 import { useIsloggedIn } from "../../context/isLoggedIn";
-import { APP_NAME } from "../../helpers/constants";
 import { postJSON } from "../../helpers/fetch";
 
 export default function LoginPage() {
@@ -10,12 +9,13 @@ export default function LoginPage() {
   const passwordRef = useRef(null);
 
   const [error, setError] = useState();
-  const { setProfile, needRegistration, setIsLoggedIn } = useIsloggedIn();
+  const { profile, setProfile, needRegistration } = useIsloggedIn();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (needRegistration) navigate("/register");
+    if (profile) navigate("/");
   }, [needRegistration]);
 
   const handleLoginSubmit = async (e) => {
@@ -31,15 +31,12 @@ export default function LoginPage() {
       let resData = await res.json();
       if (res.ok) {
         setProfile(resData);
-        setIsLoggedIn(true);
         navigate("/");
       } else {
         setError(resData);
-        setIsLoggedIn(false);
       }
     } catch (err) {
       setError({ message: err.message });
-      setIsLoggedIn(false);
     }
   };
 
