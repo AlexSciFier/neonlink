@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Navigate, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
+import Logo from "../../components/Logo";
 import { useIsloggedIn } from "../../context/isLoggedIn";
+import { APP_NAME } from "../../helpers/constants";
 import { postJSON } from "../../helpers/fetch";
 
 export default function LoginPage() {
@@ -8,14 +10,13 @@ export default function LoginPage() {
   const passwordRef = useRef(null);
 
   const [error, setError] = useState();
-  const { setProfile,needRegistration, setIsLoggedIn } = useIsloggedIn();
+  const { setProfile, needRegistration, setIsLoggedIn } = useIsloggedIn();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if(needRegistration) navigate("/register")
-  }, [needRegistration])
-  
+    if (needRegistration) navigate("/register");
+  }, [needRegistration]);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -42,12 +43,11 @@ export default function LoginPage() {
     }
   };
 
-
   return (
     <div className="flex flex-col justify-center w-full h-full">
       <div className="flex justify-center">
         <form className="border flex flex-col items-center sm:w-1/4 w-4/5 px-6 py-4 rounded-xl space-y-3 bg-white dark:bg-black/30 dark:backdrop-blur-xl dark:border-0">
-          <h1 className="text-4xl my-3 dark:text-white">Bookmarker</h1>
+          <Logo />
           <input
             className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 mx-2 bg-transparent dark:text-white"
             type="text"
