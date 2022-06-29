@@ -38,10 +38,11 @@ function findTags(query) {
 function addTag(name) {
   let existingTag = db
     .prepare(`SELECT * FROM tags WHERE name = :name`)
-    .get({ name });
+    .get({ name: name.toLocaleLowerCase() });
   if (existingTag) throw Error("This tag is already exist");
-  return db.prepare(`INSERT INTO tags (name) VALUES(?)`).run(name)
-    .lastInsertRowid;
+  return db
+    .prepare(`INSERT INTO tags (name) VALUES(?)`)
+    .run(name.toLocaleLowerCase()).lastInsertRowid;
 }
 
 function updateTagById(id, name) {
@@ -51,7 +52,7 @@ function updateTagById(id, name) {
       name = coalesce(:name,name), 
       WHERE id = :id`
     )
-    .run({ id, name }).changes > 0
+    .run({ id, name: name.toLocaleLowerCase() }).changes > 0
     ? true
     : false;
 }
