@@ -3,7 +3,7 @@ import TabHeader from "./tabHeader";
 import AboutTab from "./tabs/aboutTab";
 import GroupTab from "./tabs/groupTab/groupTab";
 import MainTab from "./tabs/mainTab/mainTab";
-import ThemeTab from "./tabs/themeTab";
+import InterfaceTab from "./tabs/interfaceTab";
 
 export default function TabView() {
   const tabs = [
@@ -12,8 +12,8 @@ export default function TabView() {
       body: <MainTab />,
     },
     {
-      header: "Theme",
-      body: <ThemeTab />,
+      header: "Interface",
+      body: <InterfaceTab />,
     },
     {
       header: "Groups",

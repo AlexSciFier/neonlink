@@ -1,7 +1,7 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/login";
-import MainPage from "./pages/main";
+import LinksPage from "./pages/link";
 import { useIsloggedIn } from "./context/isLoggedIn";
 import SettingsPage from "./pages/settings";
 import AddPage from "./pages/addBookmark";
@@ -64,7 +64,7 @@ function App() {
     { path: "/settings", element: <SettingsPage /> },
     { path: "/add", element: <AddPage /> },
     { path: "/edit/:id", element: <EditBookmark /> },
-    { path: "/links", element: <MainPage /> },
+    { path: "/links", element: <LinksPage /> },
   ];
 
   return (

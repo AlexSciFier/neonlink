@@ -5,7 +5,7 @@ import { useTheme } from "../../../context/themeContext";
 import { useLocalStorage } from "../../../hooks/useLocalStorage";
 import { DEF_COLUMNS, DEF_MAX_ITEMS } from "../../../helpers/constants";
 
-export default function ThemeTab() {
+export default function InterfaceTab() {
   const { theme, setTheme, useImageAsBg, bgUrl, setUseImageAsBg, setBgUrl } =
     useTheme();
 
