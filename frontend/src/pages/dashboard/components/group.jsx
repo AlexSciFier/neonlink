@@ -6,13 +6,16 @@ import { pickColorBasedOnBgColor } from "../../../helpers/color";
 import { getJSON } from "../../../helpers/fetch";
 
 export default function Group({ category }) {
-  const { useImageAsBg } = useTheme();
+  const { useImageAsBg, cardHeaderStyle } = useTheme();
   const [bookmarks, setBookmarks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   let opacity = "cc";
   let backgroundColor = category.color + opacity;
   let foregroundColor = pickColorBasedOnBgColor(backgroundColor);
+
+  let transparentHeader = cardHeaderStyle === "transparent";
+  let borderless = cardHeaderStyle === "borderless";
 
   useEffect(() => {
     const fetch = async () => {
@@ -30,11 +33,15 @@ export default function Group({ category }) {
       className={`w-full border rounded-lg shadow-xl ${
         useImageAsBg ? "backdrop-blur-lg" : "bg-white dark:bg-transparent"
       }`}
-      style={{ borderColor: backgroundColor }}
+      style={{ borderColor: borderless ? "#00000000" : backgroundColor }}
     >
       <div
-        className="text-2xl font-light py-2 rounded-t text-center"
-        style={{ backgroundColor, color: foregroundColor }}
+        className="text-2xl font-light py-2 rounded-t text-center dark:text-white"
+        style={
+          transparentHeader || borderless
+            ? { backgroundColor: "#00000000" }
+            : { backgroundColor, color: foregroundColor }
+        }
       >
         {category.name}
       </div>

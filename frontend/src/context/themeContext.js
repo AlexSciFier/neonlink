@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
+import { CARD_HEADER_STYLE } from "../helpers/constants";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
 function getPreferedScheme() {
@@ -30,6 +31,10 @@ export const ThemeProvider = ({ initialTheme, children }) => {
     "use-image-as-bg",
     false
   );
+  const [cardHeaderStyle, setCardHeaderStyle] = useLocalStorage(
+    "card-header-style",
+    CARD_HEADER_STYLE[0]
+  );
 
   const rawSetTheme = (rawTheme) => {
     const root = window.document.documentElement;
@@ -55,9 +60,11 @@ export const ThemeProvider = ({ initialTheme, children }) => {
         theme,
         bgUrl,
         useImageAsBg,
+        cardHeaderStyle,
         setUseImageAsBg,
         setBgUrl,
         setTheme,
+        setCardHeaderStyle,
       }}
     >
       {children}

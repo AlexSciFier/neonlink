@@ -3,7 +3,7 @@ import TabHeader from "./tabHeader";
 import AboutTab from "./tabs/aboutTab";
 import GroupTab from "./tabs/groupTab/groupTab";
 import MainTab from "./tabs/mainTab/mainTab";
-import InterfaceTab from "./tabs/interfaceTab";
+import InterfaceTab from "./tabs/interfaceTab/interfaceTab";
 
 export default function TabView() {
   const tabs = [
@@ -28,7 +28,7 @@ export default function TabView() {
   const [curentTab, setCurentTab] = useState(0);
 
   return (
-    <div className="md:w-2/4 w-full">
+    <div className="md:w-2/4 w-full px-3">
       <ul className="flex gap-3 w-full text-lg overflow-x-auto">
         {tabs.map((tab, idx) => (
           <TabHeader
