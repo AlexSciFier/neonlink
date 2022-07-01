@@ -11,7 +11,7 @@ export default function RadioButtonGroup({
     <div className="flex flex-col w-full">
       <p>{title}</p>
       {options.map((option) => (
-        <div>
+        <div key={option}>
           <input
             className="checkbox hidden"
             type={"radio"}
