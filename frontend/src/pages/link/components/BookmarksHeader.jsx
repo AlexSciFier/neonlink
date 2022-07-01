@@ -3,6 +3,7 @@ import { debounce } from "lodash";
 import { useBookMarkList } from "../../../context/bookmarkList";
 import { DEF_MAX_ITEMS } from "../../../helpers/constants";
 import { useLocalStorage } from "../../../hooks/useLocalStorage";
+import { useRef } from "react";
 
 export default function BookmarksHeader() {
   const [query, setQuery] = useState("");
@@ -12,7 +13,12 @@ export default function BookmarksHeader() {
   const { fetchBookmarks } = useBookMarkList();
   const [maxItemsInList] = useLocalStorage("maxItemsInList", DEF_MAX_ITEMS);
 
+  const firstUpdate = useRef(true);
   useEffect(() => {
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
+    }
     delayedQuery();
     return delayedQuery.cancel;
   }, [delayedQuery, query]);
