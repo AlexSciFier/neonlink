@@ -1,5 +1,6 @@
 const Database = require("better-sqlite3");
-const bcrypt = require("bcryptjs");
+const crypto = require("node:crypto");
+
 let db = new Database("./db/bookmarks.sqlite");
 /**
  * @typedef {Object} User
@@ -10,7 +11,27 @@ let db = new Database("./db/bookmarks.sqlite");
  * @property {number} usergroup
  * @property {string} uuid
  */
-
+function generateSalt() {
+  let length = 32;
+  return crypto
+    .randomBytes(Math.ceil(length / 2))
+    .toString("hex")
+    .slice(0, 16);
+}
+function sha512(password, salt) {
+  var hash = crypto.createHmac("sha512", salt);
+  hash.update(password);
+  return hash.digest("hex");
+}
+function encodePassword(password) {
+  var salt = generateSalt(16);
+  var hash = sha512(password, salt);
+  return { hash, salt };
+}
+function comparePasswords(password, hashInDb, saltInDB) {
+  var sha512Result = sha512(password, saltInDB);
+  return hashInDb === sha512Result;
+}
 /**
  *
  * @param {string} username
@@ -19,12 +40,12 @@ let db = new Database("./db/bookmarks.sqlite");
  * @returns {{username:string,id:number}}
  */
 async function addUser(username, password, isAdmin = false) {
-  let hashedPassword = await bcrypt.hash(password, 10);
+  let hashedPassword = encodePassword(password);
   let result = db
     .prepare(
-      "INSERT INTO users (username, passwordhash, usergroup) VALUES (?,?,?)"
+      "INSERT INTO users (username, passwordhash,salt, usergroup) VALUES (?,?,?,?)"
     )
-    .run(username, hashedPassword, Number(isAdmin));
+    .run(username, hashedPassword.hash, hashedPassword.salt, Number(isAdmin));
   return { username, id: result.lastInsertRowid };
 }
 
@@ -94,8 +115,8 @@ function getUserById(id) {
  * @returns {Promise<boolean>}
  */
 async function isPasswordValid(username, password) {
-  let { passwordhash } = getUser(username);
-  return bcrypt.compare(password, passwordhash);
+  let { passwordhash, salt } = getUser(username);
+  return comparePasswords(password, passwordhash, salt);
 }
 
 /**
@@ -105,10 +126,14 @@ async function isPasswordValid(username, password) {
  * @returns {Promise<boolean>}
  */
 async function changePassword(username, newPassword) {
-  let newHashedPassword = await bcrypt.hash(newPassword, 10);
+  let hashedPassword = encodePassword(password);
   db.prepare(
-    "UPDATE users SET passwordHash=:passwordHash WHERE username=:username"
-  ).run({ username, passwordHash: newHashedPassword });
+    "UPDATE users SET passwordHash=:passwordHash, salt=:salt WHERE username=:username"
+  ).run({
+    username,
+    passwordHash: hashedPassword.hash,
+    salt: hashedPassword.salt,
+  });
 }
 
 /**

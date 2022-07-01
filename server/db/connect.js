@@ -40,6 +40,7 @@ function init() {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT,
     passwordhash TEXT,
+    salt TEXT,
     usergroup INTEGER,
     uuid TEXT
   )`

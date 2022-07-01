@@ -17,7 +17,6 @@
   "dependencies": {
     "@fastify/static": "^5.0.2",
     "axios": "^0.26.1",
-    "bcryptjs": "^2.4.3",
     "better-sqlite3": "^7.5.3",
     "fastify": "^3.0.0",
     "fastify-autoload": "^3.10.0",
