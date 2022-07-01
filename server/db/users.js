@@ -1,5 +1,5 @@
 const Database = require("better-sqlite3");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 let db = new Database("./db/bookmarks.sqlite");
 /**
  * @typedef {Object} User
@@ -112,10 +112,10 @@ async function changePassword(username, newPassword) {
 }
 
 /**
- * 
+ *
  */
 async function isUsersTableEmpty() {
-  return db.prepare("SELECT COUNT(*) AS count FROM users").get().count === 0
+  return db.prepare("SELECT COUNT(*) AS count FROM users").get().count === 0;
 }
 
 module.exports = {
@@ -128,5 +128,5 @@ module.exports = {
   isPasswordValid,
   isUserExist,
   changePassword,
-  isUsersTableEmpty
+  isUsersTableEmpty,
 };

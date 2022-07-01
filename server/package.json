@@ -17,8 +17,8 @@
   "dependencies": {
     "@fastify/static": "^5.0.2",
     "axios": "^0.26.1",
-    "bcrypt": "^5.0.1",
-    "better-sqlite3": "^7.5.0",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^7.5.3",
     "fastify": "^3.0.0",
     "fastify-autoload": "^3.10.0",
     "fastify-cli": "^2.15.0",
@@ -28,8 +28,7 @@
     "fastify-plugin": "^3.0.0",
     "fastify-sensible": "^3.1.2",
     "fastify-session": "^5.2.1",
-    "node-html-parser": "^5.3.3",
-    "sqlite3": "^5.0.2"
+    "node-html-parser": "^5.3.3"
   },
   "devDependencies": {
     "tap": "^15.1.6"
