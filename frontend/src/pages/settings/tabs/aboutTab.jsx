@@ -16,8 +16,10 @@ export default function AboutTab() {
           </div>
         }
       >
-        <div>Open-source self-hosted bookmark service</div>
-        <div>Version {VERSION}</div>
+        <div>
+          <p>Open-source self-hosted bookmark service</p>
+          <p>Version {VERSION}</p>
+        </div>
       </InputGroup>
     </div>
   );

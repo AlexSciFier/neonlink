@@ -1,12 +1,12 @@
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
-import { useTheme } from "../../../context/themeContext";
+import { useInterfaceSettings } from "../../../context/interfaceSettingsContext";
 import { pickColorBasedOnBgColor } from "../../../helpers/color";
 import { getJSON } from "../../../helpers/fetch";
 
 export default function Group({ category }) {
-  const { useImageAsBg, cardHeaderStyle } = useTheme();
+  const { useImageAsBg, cardHeaderStyle } = useInterfaceSettings();
   const [bookmarks, setBookmarks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 

@@ -5,6 +5,7 @@ import { useBookMarkList } from "../../../context/bookmarkList";
 import { getDomain } from "../../../helpers/url";
 import { prettyfyDate } from "../../../helpers/date";
 import { Link } from "react-router-dom";
+import { useInterfaceSettings } from "../../../context/interfaceSettingsContext";
 
 function Options({ className, bookmarkId, setShowOptions }) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -39,6 +40,7 @@ function Options({ className, bookmarkId, setShowOptions }) {
 }
 
 export default function LinkTemplate({ bookmark }) {
+  const { openLinkInNewTab } = useInterfaceSettings();
   const [showOptions, setShowOptions] = useState(false);
   const optionBlock = useRef(null);
 
@@ -66,7 +68,7 @@ export default function LinkTemplate({ bookmark }) {
           <div className="flex-auto truncate">
             <a
               href={bookmark.url}
-              target="_blank"
+              target={openLinkInNewTab ? "_blank" : "_self"}
               rel="noreferrer"
               className="text-lg text-cyan-700 hover:underline dark:text-cyan-300"
             >

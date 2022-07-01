@@ -71,31 +71,33 @@ export default function GroupTab() {
   return (
     <div>
       <InputGroup title={"List of categories"}>
-        <AddCategoryInput />
-        <ul className="space-y-1 md:w-2/3 w-full">
-          {isLoading ? (
-            <div>Is Loading</div>
-          ) : categories.length === 0 ? (
-            "No categories"
-          ) : (
-            <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
-              <SortableContext
-                items={categories}
-                strategy={verticalListSortingStrategy}
-              >
-                {categories?.map((category) => (
-                  <CategoryItem
-                    id={category.id}
-                    name={category.name}
-                    color={category.color}
-                    position={category.position}
-                    key={category.id}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
-          )}
-        </ul>
+        <div>
+          <AddCategoryInput />
+          <ul className="space-y-1 md:w-2/3 w-full">
+            {isLoading ? (
+              <div>Is Loading</div>
+            ) : categories.length === 0 ? (
+              "No categories"
+            ) : (
+              <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
+                <SortableContext
+                  items={categories}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {categories?.map((category) => (
+                    <CategoryItem
+                      id={category.id}
+                      name={category.name}
+                      color={category.color}
+                      position={category.position}
+                      key={category.id}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
+            )}
+          </ul>
+        </div>
       </InputGroup>
     </div>
   );

@@ -1,10 +1,10 @@
 import React from "react";
 import NavBar from "../../components/NavBar";
 import GroupList from "./components/groupList";
-import { useTheme } from "../../context/themeContext";
+import { useInterfaceSettings } from "../../context/interfaceSettingsContext";
 
 export default function Dashboard() {
-  const { bgUrl, useImageAsBg } = useTheme();
+  const { bgUrl, useImageAsBg } = useInterfaceSettings();
   return (
     <div
       className="h-full flex flex-col bg-cover"

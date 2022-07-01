@@ -1,5 +1,8 @@
 import React, { useContext, useState, useEffect } from "react";
-import { CARD_HEADER_STYLE } from "../helpers/constants";
+import {
+  CARD_HEADER_STYLE,
+  DEF_OPEN_LINK_IN_NEW_TAB,
+} from "../helpers/constants";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
 function getPreferedScheme() {
@@ -12,20 +15,19 @@ function getPreferedScheme() {
   return "light";
 }
 
-const ThemeContext = React.createContext();
+const InterfaceSettingsContext = React.createContext();
 
-export function useTheme() {
-  return useContext(ThemeContext);
+export function useInterfaceSettings() {
+  return useContext(InterfaceSettingsContext);
 }
 
-export const ThemeProvider = ({ initialTheme, children }) => {
+export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
   const [lSTheme, setLSTheme] = useLocalStorage(
     "theme-mode",
     getPreferedScheme()
   );
 
   const [theme, setTheme] = useState(lSTheme);
-
   const [bgUrl, setBgUrl] = useLocalStorage("bg-url", "");
   const [useImageAsBg, setUseImageAsBg] = useLocalStorage(
     "use-image-as-bg",
@@ -35,7 +37,10 @@ export const ThemeProvider = ({ initialTheme, children }) => {
     "card-header-style",
     CARD_HEADER_STYLE[0]
   );
-
+  const [openLinkInNewTab, setOpenLinkInNewTab] = useLocalStorage(
+    "open-links-in-new-tab",
+    DEF_OPEN_LINK_IN_NEW_TAB
+  );
   const rawSetTheme = (rawTheme) => {
     const root = window.document.documentElement;
     if (rawTheme === "dark") {
@@ -55,19 +60,21 @@ export const ThemeProvider = ({ initialTheme, children }) => {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider
+    <InterfaceSettingsContext.Provider
       value={{
         theme,
         bgUrl,
         useImageAsBg,
         cardHeaderStyle,
+        openLinkInNewTab,
         setUseImageAsBg,
         setBgUrl,
         setTheme,
         setCardHeaderStyle,
+        setOpenLinkInNewTab,
       }}
     >
       {children}
-    </ThemeContext.Provider>
+    </InterfaceSettingsContext.Provider>
   );
 };
