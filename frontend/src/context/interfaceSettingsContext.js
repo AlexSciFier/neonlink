@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import {
   CARD_HEADER_STYLE,
   DEF_OPEN_LINK_IN_NEW_TAB,
+  DEF_USE_NEON_SHADOW,
 } from "../helpers/constants";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
@@ -41,6 +42,11 @@ export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
     "open-links-in-new-tab",
     DEF_OPEN_LINK_IN_NEW_TAB
   );
+  const [useNeonShadow, setUseNeonShadow] = useLocalStorage(
+    "useNeonShadow",
+    DEF_USE_NEON_SHADOW
+  );
+
   const rawSetTheme = (rawTheme) => {
     const root = window.document.documentElement;
     if (rawTheme === "dark") {
@@ -67,11 +73,13 @@ export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
         useImageAsBg,
         cardHeaderStyle,
         openLinkInNewTab,
+        useNeonShadow,
         setUseImageAsBg,
         setBgUrl,
         setTheme,
         setCardHeaderStyle,
         setOpenLinkInNewTab,
+        setUseNeonShadow,
       }}
     >
       {children}

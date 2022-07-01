@@ -13,6 +13,7 @@ import InputItem from "../../components/inputItem";
 import {
   BookmarkIcon,
   ExternalLinkIcon,
+  LightBulbIcon,
   MoonIcon,
   PhotographIcon,
   ViewBoardsIcon,
@@ -27,10 +28,12 @@ export default function InterfaceTab() {
     cardHeaderStyle,
     bgUrl,
     openLinkInNewTab,
+    useNeonShadow,
     setUseImageAsBg,
     setBgUrl,
     setCardHeaderStyle,
     setOpenLinkInNewTab,
+    setUseNeonShadow,
   } = useInterfaceSettings();
 
   const [columns, setColumns] = useLocalStorage(
@@ -165,9 +168,23 @@ export default function InterfaceTab() {
             <RadioButtonGroup
               options={CARD_HEADER_STYLE}
               name={"card-header"}
-              title={"Card header style"}
+              title={""}
               onChange={(e) => setCardHeaderStyle(e.target.value)}
               defaultValue={cardHeaderStyle || CARD_HEADER_STYLE[0]}
+            />
+          ),
+        },
+        {
+          title: "Enable neon shadows",
+          description: "Enable colored shadow under cards in dashboard",
+          icon: <LightBulbIcon />,
+          input: (
+            <SwitchButton
+              id={"use-neon-shadow"}
+              name={"use-neon-shadow"}
+              text={""}
+              checked={useNeonShadow}
+              onChange={(e) => setUseNeonShadow(e.target.checked)}
             />
           ),
         },
