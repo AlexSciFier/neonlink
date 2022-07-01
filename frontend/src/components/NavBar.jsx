@@ -15,11 +15,9 @@ export default function NavBar({ isBgTransparent = false }) {
   let tag = searchParams.get("tag");
 
   function logoutHandler() {
-    postJSON("http://localhost:3333/api/users/logout", JSON.stringify({})).then(
-      (res) => {
-        window.location.reload();
-      }
-    );
+    postJSON("/api/users/logout", JSON.stringify({})).then((res) => {
+      window.location.reload();
+    });
   }
 
   return (
