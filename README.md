@@ -83,3 +83,7 @@ docker build --platform linux/arm/v7 --tag alexscifier/neonlink:latest-armv7 .
 ```
 
 ## Screenshots
+
+![Dashboard](docs/Dashboard.png)
+![Links dark](docs/Links%20dark.png)
+![Links light](docs/Links%20light.png)
