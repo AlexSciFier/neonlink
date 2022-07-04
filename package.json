@@ -1,0 +1,30 @@
+{
+  "name": "neonlink",
+  "version": "0.1.0",
+  "description": "Simple self-hosted bookmark service.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev-init": "npm intall && cd ./frontend && npm install && cd ../server && npm install",
+    "dev-client": "cd ./frontend && npm run start",
+    "dev-server": "cd ./server && npm run dev",
+    "dev-start": "concurrently --kill-others \"npm run dev-server\" \"npm run dev-client\"",
+    "build-client": "cd ./frontend && npm run build",
+    "start": "npm run build-client && cp -r ./frontend/build/* ./server/public/ && cd ./server && npm run start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexSciFier/bookmark-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlexSciFier/bookmark-app/issues"
+  },
+  "homepage": "https://github.com/AlexSciFier/bookmark-app#readme",
+  "devDependencies": {
+    "concurrently": "^7.2.2"
+  }
+}
