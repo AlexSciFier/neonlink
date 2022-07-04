@@ -58,8 +58,8 @@ export default function Group({ category }) {
         {isLoading === true ? (
           [...Array(3)].map((i) => (
             <div className="px-4 py-2 flex space-x-3">
-              <div className="w-6 h-6 flex-none rounded-full bg-gray-200 animate-pulse"></div>
-              <div className="w-full rounded bg-gray-200 animate-pulse"></div>
+              <div className="w-6 h-6 flex-none rounded-full dark:bg-white/10 bg-black/10 animate-pulse"></div>
+              <div className="w-full rounded dark:bg-white/10 bg-black/10 animate-pulse"></div>
             </div>
           ))
         ) : bookmarks.length === 0 ? (

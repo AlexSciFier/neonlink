@@ -2,6 +2,7 @@ import { PlusIcon } from "@heroicons/react/outline";
 import React, { useRef, useState } from "react";
 import SelectInputColor from "../../../../components/SelectInputColor";
 import { useCategoriesList } from "../../../../context/categoriesList";
+import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
 import { colors, getRandomColor } from "../../../../helpers/color";
 
 export function AddCategoryInput() {
@@ -23,23 +24,12 @@ export function AddCategoryInput() {
         ref={nameRef}
         className="bg-transparent flex-1 w-0 disabled:text-gray-400 rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4"
       ></input>
-      {/* <div style={{ backgroundColor: color }}>
-        <input
-          className="overflow-hidden opacity-0"
-          type={"color"}
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-        ></input>
-      </div> */}
       <SelectInputColor
         options={colors}
         value={color}
         onChange={(color) => setColor(color)}
       />
-      <button
-        className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 rounded"
-        onClick={handleSubmit}
-      >
+      <button className={BUTTON_BASE_CLASS} onClick={handleSubmit}>
         <PlusIcon className="w-4 h-4" />
       </button>
     </div>

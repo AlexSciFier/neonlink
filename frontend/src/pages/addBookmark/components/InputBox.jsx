@@ -33,7 +33,7 @@ const InputBox = React.forwardRef(
         ></input>
         {refreshHandler ? (
           <button
-            className={`text-gray-500 hover:bg-gray-200 rounded-full absolute right-2 top-2 ${
+            className={`text-gray-500 dark:text-gray-200 hover:bg-black/10 dark:hover:bg-white/10 p-1 rounded-full absolute right-2 top-1 ${
               isLoading ? "animate-spin" : ""
             }`}
             onClick={refreshHandler}

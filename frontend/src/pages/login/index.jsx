@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import Logo from "../../components/Logo";
 import { useIsloggedIn } from "../../context/isLoggedIn";
+import { BUTTON_BASE_CLASS } from "../../helpers/baseDesign";
 import { postJSON } from "../../helpers/fetch";
 
 export default function LoginPage() {
@@ -43,7 +44,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col justify-center w-full h-full">
       <div className="flex justify-center">
-        <form className="border flex flex-col items-center sm:w-1/4 w-4/5 px-6 py-4 rounded-xl space-y-3 bg-white dark:bg-black/30 dark:backdrop-blur-xl dark:border-0">
+        <form className="border flex flex-col items-center lg:w-1/4 w-4/5 px-6 py-4 rounded-xl space-y-3 bg-white dark:bg-black/30 dark:backdrop-blur-xl dark:border-0">
           <Logo />
           <input
             className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 mx-2 bg-transparent dark:text-white"
@@ -59,7 +60,7 @@ export default function LoginPage() {
           ></input>
           {error ? <span className="text-red-500">{error.message}</span> : null}
           <button
-            className="w-full px-6 py-3 rounded focus:outline-none focus:ring-cyan-500 focus:ring hover:bg-cyan-500 bg-cyan-600 text-white"
+            className={BUTTON_BASE_CLASS + "w-full"}
             type="submit"
             onClick={handleLoginSubmit}
           >

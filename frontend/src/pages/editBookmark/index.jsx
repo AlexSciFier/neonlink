@@ -99,7 +99,7 @@ export default function EditBookmark() {
     <Page>
       <div className="flex justify-center w-full">
         <form
-          className="md:w-1/2 w-full flex flex-col gap-3 my-3"
+          className="md:w-1/2 px-3 w-full flex flex-col gap-3 my-3"
           onSubmit={handleSubmit}
         >
           <input
