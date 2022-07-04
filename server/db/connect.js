@@ -39,7 +39,7 @@ function init() {
     `CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT,
-    passwordhash TEXT,
+    passwordHash TEXT,
     salt TEXT,
     usergroup INTEGER,
     uuid TEXT

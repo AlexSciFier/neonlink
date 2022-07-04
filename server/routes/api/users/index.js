@@ -130,6 +130,8 @@ module.exports = async function (fastify, opts) {
     },
     async function (request, reply) {
       let { username, password } = request.body;
+      if (db.getUser(username) === undefined)
+        throw reply.notFound("Username or password is incorrect");
       let isValid = await db.isPasswordValid(username, password);
       if (isValid) {
         let user = db.getUser(username);

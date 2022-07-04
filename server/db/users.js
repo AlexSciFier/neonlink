@@ -115,8 +115,8 @@ function getUserById(id) {
  * @returns {Promise<boolean>}
  */
 async function isPasswordValid(username, password) {
-  let { passwordhash, salt } = getUser(username);
-  return comparePasswords(password, passwordhash, salt);
+  let { passwordHash, salt } = getUser(username);
+  return comparePasswords(password, passwordHash, salt);
 }
 
 /**
