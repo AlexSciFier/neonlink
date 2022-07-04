@@ -8,10 +8,11 @@ const { parse } = require("node-html-parser");
  * @returns
  */
 function parseIcon(doc, baseUrl) {
+  var regex = new RegExp("^(?:[a-z]+:)?//", "i");
   let icon = doc.querySelector('link[rel="icon"]');
   if (icon) {
     let iconUrl = icon.attributes["href"];
-    let isRelative = iconUrl.startsWith("/");
+    let isRelative = !regex.test(iconUrl);
     if (isRelative) {
       return new URL(iconUrl, baseUrl);
     } else {
