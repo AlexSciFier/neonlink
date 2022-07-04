@@ -1,14 +1,10 @@
 version: "3.8"
 
 services:
-  api:
-    image: alexscifier/neonlink_api
+  neonlink:
+    image: alexscifier/neonlink
     volumes:
-      - ./server/db/bookmarks.sqlite:/usr/src/neonlink/db/bookmarks.sqlite
-  app:
-    depends_on:
-      - api
+      - ./bookmarks.sqlite:/app/server/db/bookmarks.sqlite
     restart: always
     ports:
-      - "80:80"
-    image: alexscifier/neonlink_app
+      - "80:3333"
