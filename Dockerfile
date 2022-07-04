@@ -1,7 +1,7 @@
 FROM node:lts-alpine AS ui-build
-WORKDIR /app/neonlink/client
+WORKDIR /app/client
 
-ENV PATH /app/neonlink/client/node_modules/.bin:$PATH
+ENV PATH /app/client/node_modules/.bin:$PATH
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
@@ -15,7 +15,7 @@ RUN npm run build
 
 FROM node:lts-alpine AS build
 
-WORKDIR /app/neonlink/server
+WORKDIR /app/server
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
@@ -29,6 +29,6 @@ RUN npm ci --only=production
 EXPOSE 3333
 
 COPY ./server ./
-COPY --from=ui-build /app/neonlink/client/build ./public
+COPY --from=ui-build /app/client/build ./public
 
 CMD ["npm", "run", "start"]
