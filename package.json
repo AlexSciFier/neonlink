@@ -1,6 +1,6 @@
 {
   "name": "neonlink",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Simple self-hosted bookmark service.",
   "main": "index.js",
   "directories": {

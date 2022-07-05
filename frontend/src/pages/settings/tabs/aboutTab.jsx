@@ -1,6 +1,7 @@
 import React from "react";
 import { APP_NAME, VERSION } from "../../../helpers/constants";
 import InputGroup from "../components/inputGroup";
+import "../../../../package.json";
 
 export default function AboutTab() {
   return (
@@ -19,6 +20,17 @@ export default function AboutTab() {
         <div>
           <p>Open-source self-hosted bookmark service</p>
           <p>Version {VERSION}</p>
+          <p>
+            Source code:{" "}
+            <a
+              href="https://github.com/AlexSciFier/neonlink"
+              target={"_blank"}
+              rel="noreferrer"
+              className="text-cyan-600 hover:underline"
+            >
+              GitHub
+            </a>
+          </p>
         </div>
       </InputGroup>
     </div>
