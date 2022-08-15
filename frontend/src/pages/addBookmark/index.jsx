@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { debounce } from "lodash/debounce";
+import debounce from "lodash/debounce";
 import { postJSON } from "../../helpers/fetch";
 import InputBox from "./components/InputBox";
 import { Navigate } from "react-router";

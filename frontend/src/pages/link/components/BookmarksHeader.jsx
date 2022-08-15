@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { debounce } from "lodash/debounce";
+import debounce from "lodash/debounce";
 import { useBookMarkList } from "../../../context/bookmarkList";
 import { DEF_MAX_ITEMS } from "../../../helpers/constants";
 import { useLocalStorage } from "../../../hooks/useLocalStorage";

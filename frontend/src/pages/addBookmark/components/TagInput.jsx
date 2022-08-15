@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { getJSON, postJSON } from "../../../helpers/fetch";
-import { debounce } from "lodash/debounce";
+import debounce from "lodash/debounce";
 
 export default function TagInput({ tags, setTags }) {
   const [tagInput, setTagInput] = useState("");
