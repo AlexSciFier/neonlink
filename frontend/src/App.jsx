@@ -1,18 +1,19 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoginPage from "./pages/login";
-import LinksPage from "./pages/link";
 import { useIsloggedIn } from "./context/isLoggedIn";
-import SettingsPage from "./pages/settings";
-import AddPage from "./pages/addBookmark";
 import { Navigate, Outlet } from "react-router";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { getJSON } from "./helpers/fetch";
-import EditBookmark from "./pages/editBookmark";
-import NotFound from "./pages/notFound";
-import Dashboard from "./pages/dashboard";
-import RegisterPage from "./pages/register";
 import { APP_NAME } from "./helpers/constants";
+
+const RegisterPage = React.lazy(() => import("./pages/register"));
+const Dashboard = React.lazy(() => import("./pages/dashboard"));
+const NotFound = React.lazy(() => import("./pages/notFound"));
+const EditBookmark = React.lazy(() => import("./pages/editBookmark"));
+const AddPage = React.lazy(() => import("./pages/addBookmark"));
+const SettingsPage = React.lazy(() => import("./pages/settings"));
+const LinksPage = React.lazy(() => import("./pages/link"));
+const LoginPage = React.lazy(() => import("./pages/login"));
 
 function PrivateWrapper({ profile }) {
   return profile ? <Outlet /> : <Navigate to="/login" />;
@@ -54,10 +55,7 @@ function App() {
     document.title = APP_NAME;
   }, []);
 
-  if (isProfileLoading)
-    return (
-      <div className="w-screen h-screen gradient-animate overflow-auto"></div>
-    );
+  if (isProfileLoading) return <LoadScreen />;
 
   const routes = [
     { path: "/", element: <Dashboard /> },
@@ -71,24 +69,56 @@ function App() {
     <div className="w-screen h-screen bg-gradient-to-br from-cyan-600 to-fuchsia-600 overflow-auto dark:from-gray-900 dark:to-gray-900">
       <Router>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/login"
+            element={
+              <React.Suspense fallback={<LoadScreen />}>
+                <LoginPage />
+              </React.Suspense>
+            }
+          />
 
-          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/register"
+            element={
+              <React.Suspense fallback={<LoadScreen />}>
+                <RegisterPage />
+              </React.Suspense>
+            }
+          />
 
           {routes.map((route) => (
             <Route
               key={route.path}
               element={<PrivateWrapper profile={profile} />}
             >
-              <Route path={route.path} element={route.element} />
+              <Route
+                path={route.path}
+                element={
+                  <React.Suspense fallback={<LoadScreen />}>
+                    {route.element}
+                  </React.Suspense>
+                }
+              />
             </Route>
           ))}
 
-          <Route path="*" element={<NotFound />} />
+          <Route
+            path="*"
+            element={
+              <React.Suspense fallback={<LoadScreen />}>
+                <NotFound />
+              </React.Suspense>
+            }
+          />
         </Routes>
       </Router>
     </div>
   );
 }
-
+function LoadScreen() {
+  return (
+    <div className="w-screen h-screen gradient-animate overflow-auto"></div>
+  );
+}
 export default App;
