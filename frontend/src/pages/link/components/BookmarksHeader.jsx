@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { debounce } from "lodash";
+import { debounce } from "lodash/debounce";
 import { useBookMarkList } from "../../../context/bookmarkList";
 import { DEF_MAX_ITEMS } from "../../../helpers/constants";
 import { useLocalStorage } from "../../../hooks/useLocalStorage";
@@ -8,6 +8,7 @@ import { useRef } from "react";
 export default function BookmarksHeader() {
   const [query, setQuery] = useState("");
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const delayedQuery = useCallback(debounce(updateBookmarkList, 800), [query]);
 
   const { fetchBookmarks } = useBookMarkList();

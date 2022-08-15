@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { getJSON, postJSON } from "../../../helpers/fetch";
-import { debounce } from "lodash";
+import { debounce } from "lodash/debounce";
 
 export default function TagInput({ tags, setTags }) {
   const [tagInput, setTagInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debounced = useCallback(debounce(fetchUrl, 500), [tagInput]);
 
   async function fetchUrl() {
@@ -27,6 +28,7 @@ export default function TagInput({ tags, setTags }) {
     }
     debounced();
     return debounced.cancel;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setTags, tagInput, tags]);
 
   function addTag(textInput) {
