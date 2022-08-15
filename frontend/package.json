@@ -24,7 +24,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "analyze": "craco build"
   },
   "eslintConfig": {
     "extends": [
@@ -45,8 +46,10 @@
     ]
   },
   "devDependencies": {
+    "@craco/craco": "^6.4.5",
     "autoprefixer": "^10.4.4",
     "postcss": "^8.4.12",
-    "tailwindcss": "^3.0.23"
+    "tailwindcss": "^3.0.23",
+    "webpack-bundle-analyzer": "^4.5.0"
   }
 }
