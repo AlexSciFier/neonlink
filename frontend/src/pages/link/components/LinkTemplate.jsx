@@ -1,4 +1,4 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/outline";
+import { ChevronRightIcon } from "@heroicons/react/outline";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useBookMarkList } from "../../../context/bookmarkList";
@@ -55,15 +55,8 @@ export default function LinkTemplate({ bookmark }) {
     >
       <div className="flex-auto overflow-hidden flex justify-between items-center text-gray-400">
         <div className="flex flex-auto overflow-hidden gap-3">
-          <div className="flex-none">
-            <div
-              className="w-8 h-8 bg-contain bg-no-repeat bg-center"
-              style={{
-                backgroundImage: `${
-                  bookmark.icon ? `url(${bookmark.icon})` : ""
-                }`,
-              }}
-            ></div>
+          <div className="flex-none relative">
+            <LazyIcon id={bookmark.id} title={bookmark.title} />
           </div>
           <div className="flex-auto truncate">
             <a
@@ -98,11 +91,9 @@ export default function LinkTemplate({ bookmark }) {
           className="flex-none"
           onClick={(e) => setShowOptions(!showOptions)}
         >
-          {showOptions ? (
-            <ChevronLeftIcon className="w-8 h-8" />
-          ) : (
-            <ChevronRightIcon className="w-8 h-8" />
-          )}
+          <ChevronRightIcon
+            className={`w-8 h-8 ${showOptions && "rotate-180"}`}
+          />
         </button>
       </div>
       <div
@@ -112,5 +103,31 @@ export default function LinkTemplate({ bookmark }) {
         <Options bookmarkId={bookmark.id} setShowOptions={setShowOptions} />
       </div>
     </div>
+  );
+}
+
+function LazyIcon({ id, title }) {
+  const [isLoading, setIsLoading] = useState(true);
+  return (
+    <>
+      <img
+        onLoad={() => setIsLoading(false)}
+        className={`w-8 h-8 bg-contain bg-no-repeat bg-center transition-opacity ${
+          isLoading ? "opacity-0" : "opacity-100"
+        }`}
+        height={32}
+        width={32}
+        loading="lazy"
+        alt={`icon for ${title}`}
+        src={`${
+          process.env.NODE_ENV !== "production" ? "http://localhost:3333" : ""
+        }/api/bookmarks/${id}/icon`}
+      ></img>
+      <div
+        className={`w-8 h-8 animate-pulse rounded bg-gray-200 absolute top-0 ${
+          isLoading ? "" : "hidden"
+        }`}
+      ></div>
+    </>
   );
 }

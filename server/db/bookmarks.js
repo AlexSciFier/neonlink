@@ -71,7 +71,6 @@ function getAllBookmarks(offset = 0, limit = 10) {
         url,
         title,
         desc,
-        icon,
         created,
         group_concat(tags.name, ',') as tags
       FROM bookmarks 
@@ -101,7 +100,6 @@ function getBookmarkById(id) {
         url,
         title,
         desc,
-        icon,
         created,
         categoryId,
         group_concat(tags.name, ',') as tags
@@ -156,7 +154,6 @@ function findBookmark(query, limit = 10, offset = 0) {
       url,
       title,
       desc,
-      icon,
       created,
       group_concat(tags.name, ',') as tags
     FROM bookmarks 
@@ -234,6 +231,22 @@ function deleteBookmarkById(id) {
 /**
  *
  * @param {number} id
+ * @returns
+ */
+function getIconByBookmarkId(id) {
+  return db
+    .prepare(
+      `SELECT 
+        icon
+      FROM bookmarks 
+      WHERE bookmarks.id = ?`
+    )
+    .get(id);
+}
+
+/**
+ *
+ * @param {number} id
  * @param {string} url
  * @param {string} title
  * @param {string} desc
@@ -285,4 +298,5 @@ module.exports = {
   findBookmarkByTag,
   updateBookmarkById,
   deleteBookmarkById,
+  getIconByBookmarkId,
 };
