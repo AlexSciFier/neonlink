@@ -93,9 +93,20 @@ function getCategoryByName(name) {
  * @returns {boolean} Deleted succsessfuly
  */
 function deleteCategoryById(id) {
-  return db.prepare("DELETE FROM category WHERE id = ?").run(id).changes > 0
-    ? true
-    : false;
+  const statements = [
+    "DELETE FROM category WHERE id = :categoryId",
+    "DELETE FROM categoryPosition WHERE categoryId = :categoryId",
+  ].map((sql) => db.prepare(sql));
+
+  const deleteTransaction = db.transaction((data) => {
+    for (const stmt of statements) {
+      stmt.run(data);
+    }
+  });
+
+  deleteTransaction({ categoryId: id });
+
+  return true;
 }
 
 /**
