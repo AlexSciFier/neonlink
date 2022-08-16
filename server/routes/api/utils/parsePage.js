@@ -5,21 +5,12 @@ const { parse } = require("node-html-parser");
  *
  * @param {HTMLElement} doc
  * @param {string} baseUrl
- * @returns
+ * @returns {string}
  */
 function parseIcon(doc, baseUrl) {
-  var regex = new RegExp("^(?:[a-z]+:)?//", "i");
-  let icon = doc.querySelector('link[rel="icon"]');
-  if (icon) {
-    let iconUrl = icon.attributes["href"];
-    let isRelative = !regex.test(iconUrl);
-    if (isRelative) {
-      return new URL(iconUrl, baseUrl);
-    } else {
-      return iconUrl;
-    }
-  }
-  icon = doc.querySelector('link[rel="shortcut icon"]');
+  let icon =
+    doc.querySelector('link[rel="icon"]') ||
+    doc.querySelector('link[rel="shortcut icon"]');
   if (icon) {
     let path = icon.attributes["href"];
     return new URL(path, baseUrl).toString();
@@ -31,7 +22,7 @@ function parseIcon(doc, baseUrl) {
  * @param {HTMLElement} doc
  */
 function parseTitle(doc) {
-  let title = doc.querySelector("title").textContent;
+  let title = doc.querySelector("title")?.textContent ?? "";
   let desc =
     doc.querySelector("meta[name=description]")?.attributes["content"] ?? "";
   return { title, desc };

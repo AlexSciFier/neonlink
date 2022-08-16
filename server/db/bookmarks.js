@@ -8,7 +8,9 @@ let db = new Database("./db/bookmarks.sqlite");
  * @property {string} url
  * @property {string} title
  * @property {string} desc
- * @property {string} icon
+ * @property {string} created
+ * @property {number} categoryId
+ * @property {string[]} tags
  */
 
 /**
@@ -53,12 +55,17 @@ function addBookmark(url, title, desc, icon, categoryId, tags) {
   transaction(tags);
   return bookmarkId;
 }
-
+/**
+ * @typedef AllBookmarks
+ * @property {Bookmark[]} bookmarks
+ * @property {number} currentPage
+ * @property {number} maxPage
+ */
 /**
  *
  * @param {number} offset
  * @param {number} limit
- * @returns {Bookmark[]} Array of bookmarks
+ * @returns {AllBookmarks} All bookmarks
  */
 function getAllBookmarks(offset = 0, limit = 10) {
   let total = db.prepare("SELECT COUNT(*) FROM bookmarks").get()["COUNT(*)"];
@@ -72,6 +79,7 @@ function getAllBookmarks(offset = 0, limit = 10) {
         title,
         desc,
         created,
+        categoryId,
         group_concat(tags.name, ',') as tags
       FROM bookmarks 
         LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
@@ -241,7 +249,7 @@ function getIconByBookmarkId(id) {
       FROM bookmarks 
       WHERE bookmarks.id = ?`
     )
-    .get(id);
+    .get(id).icon;
 }
 
 /**
@@ -257,22 +265,25 @@ function getIconByBookmarkId(id) {
  */
 function updateBookmarkById(id, url, title, desc, icon, categoryId, tags) {
   db.prepare("DELETE FROM bookmarksTags WHERE bookmarkId = ?").run(id);
-  let ids = db
-    .prepare(
-      `SELECT id FROM tags WHERE name IN (${new Array(tags.length)
-        .fill("?")
-        .join(",")})`
-    )
-    .all(...tags);
-  let stmt = db.prepare(
-    "INSERT INTO bookmarksTags (bookmarkId, tagId) VALUES(:bookmarkId,:tagId)"
-  );
-  let transaction = db.transaction((ids) => {
-    for (const tagId of ids.map((value) => value.id)) {
-      stmt.run({ bookmarkId: id, tagId });
-    }
-  });
-  transaction(ids);
+
+  if (tags) {
+    let ids = db
+      .prepare(
+        `SELECT id FROM tags WHERE name IN (${new Array(tags.length)
+          .fill("?")
+          .join(",")})`
+      )
+      .all(...tags);
+    let stmt = db.prepare(
+      "INSERT INTO bookmarksTags (bookmarkId, tagId) VALUES(:bookmarkId,:tagId)"
+    );
+    let transaction = db.transaction((ids) => {
+      for (const tagId of ids.map((value) => value.id)) {
+        stmt.run({ bookmarkId: id, tagId });
+      }
+    });
+    transaction(ids);
+  }
 
   return db
     .prepare(

@@ -1,5 +1,6 @@
 import React from "react";
 import InputGroup from "../../components/inputGroup";
+import BatchEditing from "./BatchEditing";
 import ChangePassword from "./ChangePassword";
 import ExportBookmarks from "./ExportBookmarks";
 import ImportBookmark from "./ImportBookmark";
@@ -15,6 +16,9 @@ export default function MainTab() {
       </InputGroup>
       <InputGroup title={"Export"}>
         <ExportBookmarks />
+      </InputGroup>
+      <InputGroup title={"Batch editing"}>
+        <BatchEditing />
       </InputGroup>
     </div>
   );

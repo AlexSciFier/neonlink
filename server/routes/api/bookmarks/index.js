@@ -61,18 +61,14 @@ module.exports = async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let icon = db.getIconByBookmarkId(id);
-      if (icon?.icon) {
-        // const toSendBuffer = Buffer.from(`data:image/png:base64,${icon.icon}`);
-        // return toSendBuffer;
-        let type = icon.icon.split(";")[0].split(":")[1];
+      if (icon) {
+        let type = icon.split(";")[0].split(":")[1];
         reply
           .type(type)
           .send(
-            Buffer.from(
-              icon.icon.replace(/^data:\w+\/.+;base64,/, ""),
-              "base64"
-            )
+            Buffer.from(icon.replace(/^data:\w+\/.+;base64,/, ""), "base64")
           );
+        return;
       }
       throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
     }

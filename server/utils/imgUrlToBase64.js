@@ -6,7 +6,7 @@ async function imgUrlToBase64(url) {
     let raw = Buffer.from(image.data).toString("base64");
     return "data:" + image.headers["content-type"] + ";base64," + raw;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     return undefined;
   }
 }
