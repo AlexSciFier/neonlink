@@ -18,6 +18,7 @@ export default function BookmarksList() {
     maxPage,
     isBookmarksLoading,
     fetchBookmarks,
+    abort,
   } = useBookMarkList();
 
   useEffect(() => {
@@ -31,6 +32,9 @@ export default function BookmarksList() {
       return;
     }
     fetchBookmarks({ offset, limit });
+    return () => {
+      abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 

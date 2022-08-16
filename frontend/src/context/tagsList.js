@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
-import { deleteJSON, getJSON } from "../helpers/fetch";
+import React, { createContext, useContext, useRef, useState } from "react";
+import { getJSON } from "../helpers/fetch";
 
 const TagsList = createContext();
 
@@ -11,11 +11,13 @@ export function TagsListProvider({ children }) {
   const [tags, setTags] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
+  const abortController = useRef(null);
 
   async function fetchTags() {
     setError(undefined);
     setIsLoading(true);
-    let res = await getJSON(`/api/tags`);
+    abortController.current = new AbortController();
+    let res = await getJSON(`/api/tags`, abortController.current.signal);
     if (res.ok) {
       setTags(await res.json());
     } else {
@@ -23,9 +25,11 @@ export function TagsListProvider({ children }) {
     }
     setIsLoading(false);
   }
-
+  function abort() {
+    abortController.current.abort();
+  }
   return (
-    <TagsList.Provider value={{ tags, isLoading, error, fetchTags }}>
+    <TagsList.Provider value={{ tags, isLoading, error, fetchTags, abort }}>
       {children}
     </TagsList.Provider>
   );

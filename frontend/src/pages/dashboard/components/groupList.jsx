@@ -7,10 +7,14 @@ import { useLocalStorage } from "../../../hooks/useLocalStorage";
 import Group from "../components/group";
 
 export default function GroupList() {
-  let { categories, isLoading, fetchCategories } = useCategoriesList();
+  let { categories, isLoading, fetchCategories, abort } = useCategoriesList();
 
   useEffect(() => {
     fetchCategories();
+    return () => {
+      abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [columns] = useLocalStorage("dashboardColumns", 3);

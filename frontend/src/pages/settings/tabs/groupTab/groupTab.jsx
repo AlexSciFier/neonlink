@@ -22,8 +22,8 @@ export default function GroupTab() {
     setCategories,
     changePositions,
     isLoading,
-    error,
     fetchCategories,
+    abort,
   } = useCategoriesList();
 
   const sensors = useSensors(
@@ -44,6 +44,8 @@ export default function GroupTab() {
 
   useEffect(() => {
     fetchCategories();
+    return () => abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleDragEnd(e) {
