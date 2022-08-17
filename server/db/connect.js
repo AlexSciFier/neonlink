@@ -5,6 +5,7 @@ const bookmarks = require("./bookmarks");
 const users = require("./users");
 const tags = require("./tags");
 const categories = require("./categories");
+const bgImages = require("./bgImages");
 
 function init() {
   console.log("Starting up...");
@@ -56,6 +57,12 @@ function init() {
     `CREATE TABLE IF NOT EXISTS categoryPosition (
     categoryId INTEGER,
     position INTEGER
+  )`
+  ).run();
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS bgImages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    url INTEGER
   )`
   ).run();
 }

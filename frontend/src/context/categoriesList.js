@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useRef, useState } from "react";
 import { deleteJSON, getJSON, postJSON, putJSON } from "../helpers/fetch";
 
 const CategoriesList = createContext();
@@ -11,11 +11,13 @@ export function CategoriesListProvider({ children }) {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
+  const abortController = useRef(null);
 
   async function fetchCategories() {
     setError(undefined);
     setIsLoading(true);
-    let res = await getJSON(`/api/categories`);
+    abortController.current = new AbortController();
+    let res = await getJSON(`/api/categories`, abortController.current.signal);
     if (res.ok) {
       setCategories(await res.json());
     } else {
@@ -27,7 +29,12 @@ export function CategoriesListProvider({ children }) {
   async function addCategory(name, color) {
     setError(undefined);
     // setIsLoading(true);
-    let res = await postJSON("api/categories", { name, color });
+    abortController.current = new AbortController();
+    let res = await postJSON(
+      "api/categories",
+      { name, color },
+      abortController.current.signal
+    );
     if (res.ok) {
       let id = await res.json();
       setCategories([...categories, { id, name, color }]);
@@ -47,7 +54,12 @@ export function CategoriesListProvider({ children }) {
   async function editCategory(id, name, color, position) {
     setError(undefined);
     // setIsLoading(true);
-    let res = await putJSON(`api/categories/${id}`, { name, color, position });
+    abortController.current = new AbortController();
+    let res = await putJSON(
+      `api/categories/${id}`,
+      { name, color, position },
+      abortController.current.signal
+    );
     if (res.ok) {
       let idx = categories.findIndex((category) => category.id === id);
       let arrayCopy = [...categories];
@@ -68,7 +80,11 @@ export function CategoriesListProvider({ children }) {
   async function deleteCategory(id) {
     setError(undefined);
     // setIsLoading(true);
-    let res = await deleteJSON(`api/categories/${id}`);
+    abortController.current = new AbortController();
+    let res = await deleteJSON(
+      `api/categories/${id}`,
+      abortController.current.signal
+    );
     if (res.ok) {
       let filtered = categories.filter((item) => item.id !== id);
       setCategories(filtered);
@@ -81,9 +97,11 @@ export function CategoriesListProvider({ children }) {
   async function changePositions(idPositionPairArray) {
     setError(undefined);
     // setIsLoading(true);
+    abortController.current = new AbortController();
     let res = await putJSON(
       `api/categories/changePositions`,
-      idPositionPairArray
+      idPositionPairArray,
+      abortController.current.signal
     );
     if (res.ok) {
       // setCategories(re);
@@ -91,6 +109,10 @@ export function CategoriesListProvider({ children }) {
       setError(await res.json());
     }
     // setIsLoading(false);
+  }
+
+  function abort() {
+    abortController.current.abort();
   }
 
   return (
@@ -105,6 +127,7 @@ export function CategoriesListProvider({ children }) {
         editCategory,
         setCategories,
         changePositions,
+        abort,
       }}
     >
       {children}

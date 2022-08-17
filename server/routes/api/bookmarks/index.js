@@ -56,6 +56,25 @@ module.exports = async function (fastify, opts) {
   );
 
   fastify.get(
+    "/:id/icon",
+    { preHandler: requestForbidden },
+    async function (request, reply) {
+      let { id } = request.params;
+      let icon = db.getIconByBookmarkId(id);
+      if (icon) {
+        let type = icon.split(";")[0].split(":")[1];
+        reply
+          .type(type)
+          .send(
+            Buffer.from(icon.replace(/^data:\w+\/.+;base64,/, ""), "base64")
+          );
+        return;
+      }
+      throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
+    }
+  );
+
+  fastify.get(
     "/export",
     { preHandler: requestForbidden },
     async function (request, reply) {
@@ -187,7 +206,7 @@ module.exports = async function (fastify, opts) {
       let { id } = request.params;
       let { url, title, desc, icon, categoryId, tags } = request.body;
       if (url === "") throw new Error("Url shoud not be empty string");
-      if (icon.startsWith("http")) icon = await imgUrlToBase64(icon);
+      if (icon && icon.startsWith("http")) icon = await imgUrlToBase64(icon);
       if (db.updateBookmarkById(id, url, title, desc, icon, categoryId, tags))
         return { url, title, desc };
       throw fastify.httpErrors.notFound();

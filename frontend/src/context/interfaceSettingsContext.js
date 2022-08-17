@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import {
   CARD_HEADER_STYLE,
+  CARD_VERTICAL_ALIGMENT,
   DEF_OPEN_LINK_IN_NEW_TAB,
   DEF_USE_NEON_SHADOW,
 } from "../helpers/constants";
@@ -46,6 +47,10 @@ export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
     "useNeonShadow",
     DEF_USE_NEON_SHADOW
   );
+  const [cardVerticalAligment, setCardVerticalAligment] = useLocalStorage(
+    "card-vertical-aligment",
+    CARD_VERTICAL_ALIGMENT[0]
+  );
 
   const rawSetTheme = (rawTheme) => {
     const root = window.document.documentElement;
@@ -74,12 +79,14 @@ export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
         cardHeaderStyle,
         openLinkInNewTab,
         useNeonShadow,
+        cardVerticalAligment,
         setUseImageAsBg,
         setBgUrl,
         setTheme,
         setCardHeaderStyle,
         setOpenLinkInNewTab,
         setUseNeonShadow,
+        setCardVerticalAligment,
       }}
     >
       {children}

@@ -4,14 +4,29 @@ import GroupList from "./components/groupList";
 import { useInterfaceSettings } from "../../context/interfaceSettingsContext";
 
 export default function Dashboard() {
-  const { bgUrl, useImageAsBg } = useInterfaceSettings();
+  const { bgUrl, cardVerticalAligment, useImageAsBg } = useInterfaceSettings();
+  let aligmentClass = "";
+  switch (cardVerticalAligment) {
+    case "top":
+      aligmentClass = "";
+      break;
+    case "center":
+      aligmentClass = "justify-center";
+      break;
+    case "bottom":
+      aligmentClass = "justify-end";
+      break;
+    default:
+      aligmentClass = "";
+      break;
+  }
   return (
     <div
-      className="h-full flex flex-col bg-cover"
+      className="h-full flex flex-col bg-cover bg-center"
       style={{ backgroundImage: useImageAsBg && `url(${bgUrl})` }}
     >
       <NavBar isBgTransparent={useImageAsBg} />
-      <div className="flex flex-1 flex-col w-full mt-3">
+      <div className={`flex flex-1 flex-col w-full my-3 ${aligmentClass}`}>
         <GroupList />
       </div>
     </div>

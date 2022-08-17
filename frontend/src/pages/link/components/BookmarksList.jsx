@@ -18,6 +18,7 @@ export default function BookmarksList() {
     maxPage,
     isBookmarksLoading,
     fetchBookmarks,
+    abort,
   } = useBookMarkList();
 
   useEffect(() => {
@@ -31,6 +32,10 @@ export default function BookmarksList() {
       return;
     }
     fetchBookmarks({ offset, limit });
+    return () => {
+      abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   return (
@@ -43,8 +48,8 @@ export default function BookmarksList() {
           <div className="flex flex-col overflow-hidden">
             {bookmarkList
               .sort((a, b) => new Date(b.created) - new Date(a.created))
-              .map((bookmark, idx) => (
-                <LinkTemplate bookmark={bookmark} key={idx} />
+              .map((bookmark) => (
+                <LinkTemplate bookmark={bookmark} key={bookmark.id} />
               ))}
           </div>
           <Pagination

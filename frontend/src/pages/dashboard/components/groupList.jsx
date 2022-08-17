@@ -7,13 +7,18 @@ import { useLocalStorage } from "../../../hooks/useLocalStorage";
 import Group from "../components/group";
 
 export default function GroupList() {
-  let { categories, fetchCategories } = useCategoriesList();
+  let { categories, isLoading, fetchCategories, abort } = useCategoriesList();
 
   useEffect(() => {
     fetchCategories();
+    return () => {
+      abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [columns] = useLocalStorage("dashboardColumns", 3);
+  if (isLoading) return <div></div>;
   if (categories.length === 0) {
     return (
       <div className="w-fit self-center flex items-center gap-3 bg-white px-6 py-2 rounded shadow-xl dark:text-white dark:bg-gray-700 dark:shadow-cyan-500/10">

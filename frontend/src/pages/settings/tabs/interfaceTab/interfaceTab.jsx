@@ -5,6 +5,7 @@ import { useInterfaceSettings } from "../../../../context/interfaceSettingsConte
 import { useLocalStorage } from "../../../../hooks/useLocalStorage";
 import {
   CARD_HEADER_STYLE,
+  CARD_VERTICAL_ALIGMENT,
   DEF_COLUMNS,
   DEF_MAX_ITEMS,
 } from "../../../../helpers/constants";
@@ -16,9 +17,11 @@ import {
   LightBulbIcon,
   MoonIcon,
   PhotographIcon,
+  SelectorIcon,
   ViewBoardsIcon,
   ViewGridIcon,
 } from "@heroicons/react/outline";
+import BackgroundImageSettings from "./BackgroundImageSettings";
 
 export default function InterfaceTab() {
   const {
@@ -26,14 +29,14 @@ export default function InterfaceTab() {
     setTheme,
     useImageAsBg,
     cardHeaderStyle,
-    bgUrl,
     openLinkInNewTab,
     useNeonShadow,
+    cardVerticalAligment,
     setUseImageAsBg,
-    setBgUrl,
     setCardHeaderStyle,
     setOpenLinkInNewTab,
     setUseNeonShadow,
+    setCardVerticalAligment,
   } = useInterfaceSettings();
 
   const [columns, setColumns] = useLocalStorage(
@@ -127,19 +130,11 @@ export default function InterfaceTab() {
           ),
         },
         {
-          title: "Backround image",
-          description: "Url to background image",
+          title: "Background image",
+          description: "Upload or choose background image",
           icon: <PhotographIcon />,
-          input: (
-            <input
-              type={"url"}
-              id="bg-image-url"
-              placeholder="Link to image"
-              onChange={(e) => setBgUrl(e.target.value)}
-              value={bgUrl}
-              className="rounded border w-full focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
-            ></input>
-          ),
+          horisontal: true,
+          input: <BackgroundImageSettings />,
         },
         {
           title: "Columns",
@@ -188,6 +183,20 @@ export default function InterfaceTab() {
             />
           ),
         },
+        {
+          title: "Card position",
+          description: "Card vertical aligment",
+          icon: <SelectorIcon />,
+          input: (
+            <RadioButtonGroup
+              options={CARD_VERTICAL_ALIGMENT}
+              name={"card-aligment"}
+              title={""}
+              onChange={(e) => setCardVerticalAligment(e.target.value)}
+              defaultValue={cardVerticalAligment || CARD_VERTICAL_ALIGMENT[0]}
+            />
+          ),
+        },
       ],
     },
   ];
@@ -203,6 +212,7 @@ export default function InterfaceTab() {
               title={item.title}
               description={item.description}
               input={item.input}
+              horisontal={item?.horisontal}
             />
           ))}
         </InputGroup>

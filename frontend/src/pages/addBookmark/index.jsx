@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { debounce } from "lodash";
+import debounce from "lodash/debounce";
 import { postJSON } from "../../helpers/fetch";
 import InputBox from "./components/InputBox";
 import { Navigate } from "react-router";
@@ -55,6 +55,7 @@ export default function AddPage() {
 
   let { categories, fetchCategories } = useCategoriesList();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debounced = useCallback(debounce(fetchUrl, 800), [url]);
 
   useEffect(() => {
@@ -67,10 +68,12 @@ export default function AddPage() {
         icon: "",
       });
     return debounced.cancel;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounced, url]);
 
   useEffect(() => {
     fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const refreshHandler = (e) => {

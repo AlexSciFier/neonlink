@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { UploadIcon } from "@heroicons/react/outline";
 import { useState } from "react";
-import { postFormData, postJSON } from "../../../../helpers/fetch";
+import { getJSON, postFormData, postJSON } from "../../../../helpers/fetch";
 import { useEffect } from "react";
 import BookmarkList from "./BookmarkList";
 
@@ -47,6 +47,7 @@ export default function ImportBookmark() {
       }))
     );
     if (res.ok) {
+      await getJSON("/api/utils/updatelinks");
       navigate("/links");
     } else {
       setError((await res.json()).message);
