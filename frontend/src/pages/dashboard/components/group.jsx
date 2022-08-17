@@ -19,6 +19,7 @@ export default function Group({ category }) {
 
   let transparentHeader = cardHeaderStyle === "transparent";
   let borderless = cardHeaderStyle === "borderless";
+  let solid = cardHeaderStyle === "solid";
 
   useEffect(() => {
     setIsLoading(true);
@@ -30,12 +31,16 @@ export default function Group({ category }) {
       }
     };
     fetch();
-  }, []);
+  }, [category.id]);
 
   return (
     <div
       className={`w-full border rounded-lg overflow-hidden shadow-xl ${
-        useImageAsBg ? "backdrop-blur-lg" : "bg-white dark:bg-transparent"
+        useImageAsBg
+          ? solid
+            ? "bg-white dark:bg-gray-800"
+            : "backdrop-blur-lg bg-white/30 dark:bg-gray-900/30"
+          : "bg-white dark:bg-transparent"
       }`}
       style={{
         borderColor: borderless ? "#00000000" : backgroundColor,
@@ -56,8 +61,8 @@ export default function Group({ category }) {
       </div>
       <div className="flex flex-col space-y-1 my-3 mx-3">
         {isLoading === true ? (
-          [...Array(3)].map((i) => (
-            <div className="px-4 py-2 flex space-x-3">
+          [...Array(3)].map((value, idx) => (
+            <div key={idx} className="px-4 py-2 flex space-x-3">
               <div className="w-6 h-6 flex-none rounded-full dark:bg-white/10 bg-black/10 animate-pulse"></div>
               <div className="w-full rounded dark:bg-white/10 bg-black/10 animate-pulse"></div>
             </div>
