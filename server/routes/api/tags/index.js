@@ -8,6 +8,26 @@ const {
   updateTagById,
   findTags,
 } = require("../../../db/tags");
+const { getUserByUUID } = require("../../../db/users");
+
+/**
+ *
+ * @param {import("fastify").FastifyRequest} request
+ * @param {import("fastify").FastifyReply} reply
+ */
+async function requestForbidden(request, reply) {
+  try {
+    let SSID = request.cookies.SSID;
+    if (SSID) {
+      let user = await getUserByUUID(SSID);
+      if (user === undefined) {
+        throw reply.unauthorized("You must login to use this method");
+      }
+    } else throw reply.unauthorized("You must login to use this method");
+  } catch {
+    throw reply.unauthorized("You must login to use this method");
+  }
+}
 
 const postOptions = {
   schema: {
@@ -19,6 +39,7 @@ const postOptions = {
       },
     },
   },
+  preHandler: requestForbidden,
 };
 
 /**
@@ -27,16 +48,24 @@ const postOptions = {
  * @param {*} opts
  */
 module.exports = async function (fastify, opts) {
-  fastify.get("/", async function (request, reply) {
-    let { q } = request.query;
-    if (q) return findTags(q);
-    return getAllTags();
-  });
+  fastify.get(
+    "/",
+    { preHandler: requestForbidden },
+    async function (request, reply) {
+      let { q } = request.query;
+      if (q) return findTags(q);
+      return getAllTags();
+    }
+  );
 
-  fastify.get("/:id", async function (request, reply) {
-    let { id } = request.params;
-    return getTagById(id);
-  });
+  fastify.get(
+    "/:id",
+    { preHandler: requestForbidden },
+    async function (request, reply) {
+      let { id } = request.params;
+      return getTagById(id);
+    }
+  );
 
   fastify.post("/", postOptions, async function (request, reply) {
     let { name } = request.body;
@@ -57,10 +86,14 @@ module.exports = async function (fastify, opts) {
     return { id, name };
   });
 
-  fastify.delete("/:id", async function (request, reply) {
-    let { id } = request.params;
-    let status = deleteBookmarkById(id);
-    if (status) return true;
-    throw new Error("cannot delete");
-  });
+  fastify.delete(
+    "/:id",
+    { preHandler: requestForbidden },
+    async function (request, reply) {
+      let { id } = request.params;
+      let status = deleteBookmarkById(id);
+      if (status) return true;
+      throw new Error("cannot delete");
+    }
+  );
 };

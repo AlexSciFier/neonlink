@@ -2,6 +2,7 @@
 const { parseHtml } = require("./parsePage");
 const { parseBookmarkFile } = require("./bookmarkParser");
 const { batchUpdateLinks } = require("./batchUpdateLinks");
+const saveFileToPublic = require("./saveFile");
 
 const axios = require("axios").default;
 /**
@@ -47,4 +48,9 @@ module.exports = async function (fastify, opts) {
   fastify.get("/updatelinks", {}, async function (request, reply) {
     return batchUpdateLinks();
   });
+
+  // fastify.post("/savefile", {}, async function (request, reply) {
+  //   const file = request.raw.files.file;
+  //   return saveFileToPublic(file.name, file.data);
+  // });
 };
