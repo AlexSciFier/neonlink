@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "dev-init": "npm intsall && cd ./frontend && npm install && cd ../server && npm install",
+    "dev-init": "npm install && cd ./frontend && npm install && cd ../server && npm install",
     "dev-client": "cd ./frontend && npm run start",
     "dev-server": "cd ./server && npm run dev",
     "dev-start": "concurrently --kill-others \"npm run dev-server\" \"npm run dev-client\"",
