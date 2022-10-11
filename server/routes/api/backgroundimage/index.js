@@ -31,7 +31,8 @@ module.exports = async function (fastify, opts) {
     "/",
     { preHandler: requestForbidden },
     async function (request, reply) {
-      return bgImages.getAllImages();
+      let uuid = request.cookies.SSID;
+      return bgImages.getAllImages(uuid);
     }
   );
   fastify.get(
@@ -39,7 +40,8 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      return bgImages.getImageById(id);
+      let uuid = request.cookies.SSID;
+      return bgImages.getImageById(id, uuid);
     }
   );
   fastify.post(
@@ -60,9 +62,10 @@ module.exports = async function (fastify, opts) {
     },
     async function (request, reply) {
       let { url } = request.body;
+      let uuid = request.cookies.SSID;
       if (bgImages.getImageByUrl(url).length > 0)
         throw reply.notAcceptable("Already exist");
-      return bgImages.addImage(url);
+      return bgImages.addImage(url, uuid);
     }
   );
   fastify.delete(
@@ -70,7 +73,8 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      return bgImages.deleteImage(id);
+      let uuid = request.cookies.SSID;
+      return bgImages.deleteImage(id, uuid);
     }
   );
 };

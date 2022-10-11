@@ -62,7 +62,8 @@ function init() {
   db.prepare(
     `CREATE TABLE IF NOT EXISTS bgImages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    url INTEGER
+    url INTEGER,
+    uuid TEXT
   )`
   ).run();
 }
