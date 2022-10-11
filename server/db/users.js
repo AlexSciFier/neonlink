@@ -126,7 +126,7 @@ async function isPasswordValid(username, password) {
  * @returns {Promise<boolean>}
  */
 async function changePassword(username, newPassword) {
-  let hashedPassword = encodePassword(password);
+  let hashedPassword = encodePassword(newPassword);
   db.prepare(
     "UPDATE users SET passwordHash=:passwordHash, salt=:salt WHERE username=:username"
   ).run({
