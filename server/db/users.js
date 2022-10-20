@@ -153,21 +153,19 @@ async function setUserSetting(uuid, parameter, value) {
     .prepare("SELECT uuid FROM userSettings WHERE uuid=:uuid")
     .get({ uuid });
 
-  switch (parameter) {
-    case "bgImage":
-      if (foundedUUID) {
-        return db
-          .prepare("UPDATE userSettings SET bgImage=:value WHERE uuid=:uuid")
-          .run({ uuid, value });
-      } else {
-        return db
-          .prepare(
-            "INSERT INTO userSettings (uuid, bgImage) VALUES (:uuid,:value)"
-          )
-          .run({ uuid, value });
-      }
-    default:
-      break;
+  if (typeof value === "boolean") {
+    value = Number(value);
+  }
+
+  let updateQuery = `UPDATE userSettings SET ${parameter}=:value WHERE uuid=:uuid`;
+  let insertQuery = `INSERT INTO userSettings (uuid, ${parameter}) VALUES (:uuid,:value)`;
+
+  if (foundedUUID) {
+    console.log("UPDATE", parameter, value);
+    return db.prepare(updateQuery).run({ uuid, value });
+  } else {
+    console.log("INSERT", parameter, value);
+    return db.prepare(insertQuery).run({ uuid, value });
   }
 }
 /**

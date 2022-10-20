@@ -69,7 +69,14 @@ function init() {
   db.prepare(
     `CREATE TABLE IF NOT EXISTS userSettings (
     uuid TEXT PRIMARY KEY,
-    bgImage TEXT
+    maxNumberOfLinks INTEGER,
+    linkInNewTab INTEGER,
+    useBgImage INTEGER,
+    bgImage TEXT,
+    columns INTEGER,
+    cardStyle TEXT,
+    enableNeonShadows INTEGER,
+    cardPosition TEXT  
   )`
   ).run();
 }

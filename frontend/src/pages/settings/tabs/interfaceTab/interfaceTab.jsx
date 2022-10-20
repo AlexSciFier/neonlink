@@ -2,12 +2,9 @@ import React from "react";
 import InputGroup from "../../components/inputGroup";
 import SwitchButton from "../../components/SwitchButton";
 import { useInterfaceSettings } from "../../../../context/interfaceSettingsContext";
-import { useLocalStorage } from "../../../../hooks/useLocalStorage";
 import {
   CARD_HEADER_STYLE,
   CARD_VERTICAL_ALIGMENT,
-  DEF_COLUMNS,
-  DEF_MAX_ITEMS,
 } from "../../../../helpers/constants";
 import RadioButtonGroup from "../../../../components/RadioButtonGroup";
 import InputItem from "../../components/inputItem";
@@ -32,21 +29,16 @@ export default function InterfaceTab() {
     openLinkInNewTab,
     useNeonShadow,
     cardVerticalAligment,
+    columns,
+    maxItemsInList,
     setUseImageAsBg,
     setCardHeaderStyle,
     setOpenLinkInNewTab,
     setUseNeonShadow,
     setCardVerticalAligment,
+    setColumns,
+    setMaxItemsInList,
   } = useInterfaceSettings();
-
-  const [columns, setColumns] = useLocalStorage(
-    "dashboardColumns",
-    DEF_COLUMNS
-  );
-  const [maxItemsInList, setMaxItemsInList] = useLocalStorage(
-    "maxItemsInList",
-    DEF_MAX_ITEMS
-  );
 
   function changeTheme(e) {
     let isChecked = e.target.checked;

@@ -3,6 +3,17 @@ const db = require("../../../db/connect");
 const crypto = require("crypto");
 const { setUserSetting, getUserSettings } = require("../../../db/connect");
 
+const settingsFields = {
+  maxNumberOfLinks: { type: "number" },
+  linkInNewTab: { type: "boolean" },
+  useBgImage: { type: "boolean" },
+  bgImage: { type: "string" },
+  columns: { type: "number" },
+  cardStyle: { type: "string" },
+  enableNeonShadows: { type: "boolean" },
+  cardPosition: { type: "string" },
+};
+
 /**
  *
  * @param {import("fastify").FastifyRequest} request
@@ -34,7 +45,7 @@ module.exports = async function (fastify, opts) {
             properties: {
               username: { type: "string" },
               usergroup: { type: "number" },
-              bgImage: { type: "string" },
+              ...settingsFields,
             },
           },
         },
@@ -122,17 +133,18 @@ module.exports = async function (fastify, opts) {
       schema: {
         body: {
           type: "object",
-          properties: {
-            bgImage: { type: "string" },
-          },
+          properties: settingsFields,
         },
       },
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
-      request.body?.bgImage &&
-        setUserSetting(uuid, "bgImage", request.body?.bgImage);
-      return true;
+      let res = {};
+      for (const key in request.body) {
+        setUserSetting(uuid, key, request.body?.[key]);
+        res[key] = request.body?.[key];
+      }
+      return res;
     }
   );
 
@@ -144,9 +156,7 @@ module.exports = async function (fastify, opts) {
         response: {
           200: {
             type: "object",
-            properties: {
-              bgImage: { type: "string" },
-            },
+            properties: settingsFields,
           },
         },
       },
