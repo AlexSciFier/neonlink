@@ -65,7 +65,12 @@ function addUUID(username, uuid) {
 }
 
 async function getUserByUUID(uuid) {
-  return db.prepare("SELECT * FROM users WHERE uuid=?").get(uuid);
+  let userSettings = db
+    .prepare("SELECT * FROM userSettings WHERE uuid=?")
+    .get(uuid);
+  let user = db.prepare("SELECT * FROM users WHERE uuid=?").get(uuid);
+  if (user === undefined) return undefined;
+  return { ...user, ...userSettings };
 }
 
 /**
@@ -143,6 +148,39 @@ async function isUsersTableEmpty() {
   return db.prepare("SELECT COUNT(*) AS count FROM users").get().count === 0;
 }
 
+async function setUserSetting(uuid, parameter, value) {
+  let foundedUUID = db
+    .prepare("SELECT uuid FROM userSettings WHERE uuid=:uuid")
+    .get({ uuid });
+
+  switch (parameter) {
+    case "bgImage":
+      if (foundedUUID) {
+        return db
+          .prepare("UPDATE userSettings SET bgImage=:value WHERE uuid=:uuid")
+          .run({ uuid, value });
+      } else {
+        return db
+          .prepare(
+            "INSERT INTO userSettings (uuid, bgImage) VALUES (:uuid,:value)"
+          )
+          .run({ uuid, value });
+      }
+    default:
+      break;
+  }
+}
+/**
+ *
+ * @param {string} uuid
+ * @returns
+ */
+async function getUserSettings(uuid) {
+  return db
+    .prepare("SELECT * FROM userSettings WHERE uuid=:uuid")
+    .get({ uuid });
+}
+
 module.exports = {
   addUser,
   addUUID,
@@ -154,4 +192,6 @@ module.exports = {
   isUserExist,
   changePassword,
   isUsersTableEmpty,
+  setUserSetting,
+  getUserSettings,
 };

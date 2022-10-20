@@ -1,6 +1,7 @@
 "use strict";
 const db = require("../../../db/connect");
 const crypto = require("crypto");
+const { setUserSetting, getUserSettings } = require("../../../db/connect");
 
 /**
  *
@@ -10,8 +11,6 @@ const crypto = require("crypto");
 async function requestForbidden(request, reply) {
   if (await db.isUsersTableEmpty())
     throw reply.notFound("No registrated users");
-  if (request.cookies === undefined)
-    throw reply.unauthorized("You must login to use this method");
   let { SSID } = request.cookies;
   let user = await db.getUserByUUID(SSID);
   if (user === undefined)
@@ -35,6 +34,7 @@ module.exports = async function (fastify, opts) {
             properties: {
               username: { type: "string" },
               usergroup: { type: "number" },
+              bgImage: { type: "string" },
             },
           },
         },
@@ -76,6 +76,7 @@ module.exports = async function (fastify, opts) {
   fastify.put(
     "/changePassword",
     {
+      preHandler: requestForbidden,
       schema: {
         body: {
           type: "object",
@@ -111,6 +112,48 @@ module.exports = async function (fastify, opts) {
       let { id } = request.params;
       if (db.deleteUser(id)) return { status: "OK" };
       else throw fastify.httpErrors.notFound("User with this id is not found");
+    }
+  );
+
+  fastify.post(
+    "/settings",
+    {
+      preHandler: requestForbidden,
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            bgImage: { type: "string" },
+          },
+        },
+      },
+    },
+    async function (request, reply) {
+      let uuid = request.cookies.SSID;
+      request.body?.bgImage &&
+        setUserSetting(uuid, "bgImage", request.body?.bgImage);
+      return true;
+    }
+  );
+
+  fastify.get(
+    "/settings",
+    {
+      preHandler: requestForbidden,
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              bgImage: { type: "string" },
+            },
+          },
+        },
+      },
+    },
+    async function (request, reply) {
+      let uuid = request.cookies.SSID;
+      return getUserSettings(uuid);
     }
   );
 

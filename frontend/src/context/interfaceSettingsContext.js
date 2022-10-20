@@ -1,11 +1,13 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import {
   CARD_HEADER_STYLE,
   CARD_VERTICAL_ALIGMENT,
   DEF_OPEN_LINK_IN_NEW_TAB,
   DEF_USE_NEON_SHADOW,
 } from "../helpers/constants";
+import { postJSON } from "../helpers/fetch";
 import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useIsloggedIn } from "./isLoggedIn";
 
 function getPreferedScheme() {
   if (
@@ -24,13 +26,34 @@ export function useInterfaceSettings() {
 }
 
 export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
+  const { profile } = useIsloggedIn();
+
   const [lSTheme, setLSTheme] = useLocalStorage(
     "theme-mode",
     getPreferedScheme()
   );
 
   const [theme, setTheme] = useState(lSTheme);
-  const [bgUrl, setBgUrl] = useLocalStorage("bg-url", "");
+  const [bgUrl, setBgUrl] = useState(profile?.bgImage);
+  const abortController = useRef(null);
+  useEffect(() => {
+    setBgUrl(profile?.bgImage);
+  }, [profile?.bgImage]);
+
+  useEffect(() => {
+    abortController.current = new AbortController();
+    if (bgUrl && bgUrl !== "")
+      postJSON(
+        "/api/users/settings",
+        { bgImage: bgUrl },
+        abortController.current.signal
+      );
+
+    return () => {
+      abortController.current.abort();
+    };
+  }, [bgUrl]);
+
   const [useImageAsBg, setUseImageAsBg] = useLocalStorage(
     "use-image-as-bg",
     false
@@ -68,6 +91,7 @@ export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
 
   useEffect(() => {
     rawSetTheme(theme);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme]);
 
   return (

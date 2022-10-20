@@ -60,8 +60,10 @@ export default function BackgroundImageSettings() {
   }
 
   function handleSelect(image) {
-    setSelectedId(image.id);
-    setBgUrl(image.url);
+    postJSON("/api/users/settings", { bgImage: image.url }).then(() => {
+      setSelectedId(image.id);
+      setBgUrl(image.url);
+    });
   }
 
   async function handleImageDelete() {
