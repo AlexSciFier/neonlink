@@ -79,6 +79,11 @@ function init() {
     cardPosition TEXT  
   )`
   ).run();
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS appSettings (
+    useNologin INTEGER  
+  )`
+  ).run();
 }
 
 module.exports = {

@@ -8,11 +8,12 @@ const appSettings = require("../../../db/appSettings");
 async function requestForbidden(request, reply) {
   try {
     const noLogin = appSettings.getNologin();
-    console.log("PREHANDLER", noLogin);
+    console.log("PREHANDLER NOLOGIN", noLogin);
     if (noLogin) {
       return;
     }
     let SSID = request.cookies.SSID;
+    console.log("PREHANDLER SSID", noLogin);
     if (SSID) {
       let user = await usersDB.getUserByUUID(SSID);
       if (user === undefined) {

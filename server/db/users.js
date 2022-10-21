@@ -1,5 +1,6 @@
 const Database = require("better-sqlite3");
 const crypto = require("node:crypto");
+const { getNologin } = require("./appSettings");
 
 let db = new Database("./db/bookmarks.sqlite");
 /**
@@ -11,6 +12,7 @@ let db = new Database("./db/bookmarks.sqlite");
  * @property {number} usergroup
  * @property {string} uuid
  */
+
 function generateSalt() {
   let length = 32;
   return crypto
@@ -64,11 +66,22 @@ function addUUID(username, uuid) {
     }).changes;
 }
 
+/**
+ *
+ * @param {string} uuid
+ * @returns {Promise<User>}
+ */
 async function getUserByUUID(uuid) {
   let userSettings = db
     .prepare("SELECT * FROM userSettings WHERE uuid=?")
     .get(uuid);
   let user = db.prepare("SELECT * FROM users WHERE uuid=?").get(uuid);
+  if (getNologin() === true) {
+    user = db.prepare("SELECT * FROM users WHERE usergroup=0 LIMIT 1").get();
+    userSettings = db
+      .prepare("SELECT * FROM userSettings WHERE uuid=?")
+      .get(user.uuid);
+  }
   if (user === undefined) return undefined;
   return { ...user, ...userSettings };
 }

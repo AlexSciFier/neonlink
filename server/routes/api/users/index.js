@@ -1,7 +1,13 @@
 "use strict";
 const db = require("../../../db/connect");
 const crypto = require("crypto");
-const { setUserSetting, getUserSettings } = require("../../../db/connect");
+const {
+  setUserSetting,
+  getUserSettings,
+  getUserByUUID,
+} = require("../../../db/connect");
+const { requestForbidden } = require("../utils/preHandler");
+const { setNologin, getNologin } = require("../../../db/appSettings");
 
 const settingsFields = {
   maxNumberOfLinks: { type: "number" },
@@ -19,7 +25,7 @@ const settingsFields = {
  * @param {import("fastify").FastifyRequest} request
  * @param {import("fastify").FastifyReply} reply
  */
-async function requestForbidden(request, reply) {
+async function requestForbiddenUser(request, reply) {
   if (await db.isUsersTableEmpty())
     throw reply.notFound("No registrated users");
   let { SSID } = request.cookies;
@@ -145,6 +151,43 @@ module.exports = async function (fastify, opts) {
         res[key] = request.body?.[key];
       }
       return res;
+    }
+  );
+
+  fastify.post(
+    "/settings/global",
+    {
+      preHandler: requestForbidden,
+      schema: {
+        body: {
+          type: "object",
+          properties: { noLogin: { type: "boolean" } },
+        },
+      },
+    },
+    async function (request, reply) {
+      let uuid = request.cookies.SSID;
+      let user = await getUserByUUID(uuid);
+      if (user.usergroup === 0) {
+        if (request.body?.noLogin !== undefined)
+          setNologin(request.body.noLogin);
+      }
+      return request.body;
+    }
+  );
+
+  fastify.get(
+    "/settings/global",
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: { noLogin: { type: "boolean" } },
+        },
+      },
+    },
+    async function (request, reply) {
+      return { noLogin: getNologin() };
     }
   );
 
