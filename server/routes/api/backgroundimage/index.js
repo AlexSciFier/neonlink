@@ -1,6 +1,8 @@
 const { default: fastify } = require("fastify");
+const path = require("path");
 const bgImages = require("../../../db/bgImages");
 const usersDB = require("../../../db/users");
+const { deleteFileFromPublic } = require("../utils/fsHandler");
 const { requestForbidden } = require("../utils/preHandler");
 
 /**
@@ -47,7 +49,8 @@ module.exports = async function (fastify, opts) {
       let uuid = request.cookies.SSID;
       if (bgImages.getImageByUrl(url).length > 0)
         throw reply.notAcceptable("Already exist");
-      return bgImages.addImage(url, uuid);
+      let lastRow = bgImages.addImage(url, uuid);
+      return { id: lastRow, url };
     }
   );
   fastify.delete(
@@ -56,7 +59,21 @@ module.exports = async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let uuid = request.cookies.SSID;
-      return bgImages.deleteImage(id, uuid);
+      let imageInDB = bgImages.getImageById(id, uuid);
+      if (imageInDB.length === 0) {
+        throw "Image id doesn't exist";
+      }
+      let imageName = path.basename(imageInDB[0].url);
+      let changes = bgImages.deleteImage(id, uuid);
+      if (changes > 0) {
+        try {
+          await deleteFileFromPublic(imageName);
+        } catch (error) {
+          throw `Error while deleting image: ${error.message}`;
+        }
+        return true;
+      }
+      return false;
     }
   );
 };

@@ -7,7 +7,7 @@ async function saveFileToPublic(filename, data) {
     "../../../public/static/media",
     filename
   );
-
+  console.log(`Create ${publicPath}`);
   return await fs
     .writeFile(publicPath, data)
     .then(() => {
@@ -17,4 +17,14 @@ async function saveFileToPublic(filename, data) {
       return err;
     });
 }
-module.exports = saveFileToPublic;
+async function deleteFileFromPublic(filename) {
+  let publicPath = path.join(
+    __dirname,
+    "../../../public/static/media",
+    filename
+  );
+  console.log(`Delete ${publicPath}`);
+  return await fs.rm(publicPath);
+}
+
+module.exports = { saveFileToPublic, deleteFileFromPublic };

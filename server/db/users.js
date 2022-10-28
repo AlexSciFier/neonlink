@@ -162,10 +162,11 @@ async function isUsersTableEmpty() {
 }
 
 async function setUserSetting(uuid, parameter, value) {
+  if (uuid === undefined) uuid = "guest";
+
   let foundedUUID = db
     .prepare("SELECT uuid FROM userSettings WHERE uuid=:uuid")
     .get({ uuid });
-
   if (typeof value === "boolean") {
     value = Number(value);
   }
@@ -174,10 +175,8 @@ async function setUserSetting(uuid, parameter, value) {
   let insertQuery = `INSERT INTO userSettings (uuid, ${parameter}) VALUES (:uuid,:value)`;
 
   if (foundedUUID) {
-    console.log("UPDATE", parameter, value);
     return db.prepare(updateQuery).run({ uuid, value });
   } else {
-    console.log("INSERT", parameter, value);
     return db.prepare(insertQuery).run({ uuid, value });
   }
 }
