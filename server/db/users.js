@@ -11,6 +11,14 @@ let db = new Database("./db/bookmarks.sqlite");
  * @property {string} salt
  * @property {number} usergroup
  * @property {string} uuid
+ * @property {number} maxNumberOfLinks
+ * @property {boolean} linkInNewTab
+ * @property {boolean} useBgImage
+ * @property {string} bgImage
+ * @property {number} columns
+ * @property {string} cardStyle
+ * @property {boolean} enableNeonShadows
+ * @property {string} cardPosition
  */
 
 function generateSalt() {
@@ -72,9 +80,9 @@ function addUUID(username, uuid) {
  * @returns {Promise<User>}
  */
 async function getUserByUUID(uuid) {
-  let userSettings = db
-    .prepare("SELECT * FROM userSettings WHERE uuid=?")
-    .get(uuid);
+  let userSettings =
+    db.prepare("SELECT * FROM userSettings WHERE uuid=?").get(uuid) ??
+    initDefaultSettings(uuid);
   let user = db.prepare("SELECT * FROM users WHERE uuid=?").get(uuid);
   if (getNologin() === true) {
     user = db.prepare("SELECT * FROM users WHERE usergroup=0 LIMIT 1").get();
@@ -177,8 +185,47 @@ async function setUserSetting(uuid, parameter, value) {
   if (foundedUUID) {
     return db.prepare(updateQuery).run({ uuid, value });
   } else {
-    return db.prepare(insertQuery).run({ uuid, value });
+    return initDefaultSettings(uuid);
   }
+}
+
+/**
+ * @typedef UserSettings
+ * @property {string} uuid
+ * @property {number} maxNumberOfLinks
+ * @property {boolean} linkInNewTab
+ * @property {boolean} useBgImage
+ * @property {string} bgImage
+ * @property {number} columns
+ * @property {string} cardStyle
+ * @property {boolean} enableNeonShadows
+ * @property {string} cardPosition
+ */
+/**
+ *
+ * @param {string} uuid
+ * @returns {UserSettings}
+ */
+function initDefaultSettings(uuid) {
+  const DEF_SETTINGS = {
+    uuid,
+    maxNumberOfLinks: 20,
+    linkInNewTab: 1,
+    useBgImage: 0,
+    bgImage: "",
+    columns: 3,
+    cardStyle: "default",
+    enableNeonShadows: 1,
+    cardPosition: "top",
+  };
+
+  let keys = Object.keys(DEF_SETTINGS).join(", ");
+  let values = Object.keys(DEF_SETTINGS)
+    .map((key) => `:${key}`)
+    .join(", ");
+  let query = `INSERT INTO userSettings (${keys}) VALUES (${values})`;
+  db.prepare(query).run(DEF_SETTINGS);
+  return db.prepare("SELECT * FROM userSettings WHERE uuid=?").get(uuid);
 }
 /**
  *

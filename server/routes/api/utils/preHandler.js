@@ -12,13 +12,15 @@ async function requestForbidden(request, reply) {
       return;
     }
     let SSID = request.cookies.SSID;
+
     if (SSID) {
       let user = await usersDB.getUserByUUID(SSID);
       if (user === undefined) {
         throw reply.unauthorized("You must login to use this method");
       }
     } else throw reply.unauthorized("You must login to use this method");
-  } catch {
+  } catch (err) {
+    console.error(err);
     throw reply.unauthorized("You must login to use this method");
   }
 }
