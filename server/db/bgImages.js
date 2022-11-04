@@ -27,7 +27,9 @@ function addImage(url, uuid) {
  */
 function deleteImage(id, uuid) {
   return db
-    .prepare("DELETE FROM bgImages WHERE id=:id AND uuid=:uuid")
+    .prepare(
+      "DELETE FROM bgImages WHERE id=:id AND (uuid=:uuid OR uuid IS NULL)"
+    )
     .run({ id, uuid }).changes;
 }
 
@@ -36,7 +38,9 @@ function deleteImage(id, uuid) {
  * @returns {BgImage[]}
  */
 function getAllImages(uuid) {
-  return db.prepare("SELECT * FROM bgImages WHERE uuid=:uuid").all({ uuid });
+  return db
+    .prepare("SELECT * FROM bgImages WHERE uuid=:uuid OR uuid IS NULL")
+    .all({ uuid });
 }
 /**
  *
@@ -46,7 +50,9 @@ function getAllImages(uuid) {
  */
 function getImageById(id, uuid) {
   return db
-    .prepare("SELECT * FROM bgImages WHERE id=:id AND uuid=:uuid")
+    .prepare(
+      "SELECT * FROM bgImages WHERE id=:id AND (uuid=:uuid OR uuid IS NULL)"
+    )
     .all({ id, uuid });
 }
 /**
@@ -56,7 +62,9 @@ function getImageById(id, uuid) {
  */
 function getImageByUrl(url, uuid) {
   return db
-    .prepare("SELECT * FROM bgImages WHERE url=:url AND uuid=:uuid")
+    .prepare(
+      "SELECT * FROM bgImages WHERE url=:url AND (uuid=:uuid OR uuid IS NULL)"
+    )
     .all({ url, uuid });
 }
 

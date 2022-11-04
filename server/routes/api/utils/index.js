@@ -55,7 +55,7 @@ module.exports = async function (fastify, opts) {
     const uuid = request.cookies.SSID;
     let res = saveFileToPublic(file.name, file.data);
     if (res === false) throw "File upload error";
-    let fileUrl = `/static/media/${file.name}`;
+    let fileUrl = `/static/media/background/${file.name}`;
     if (getImageByUrl(fileUrl).length > 0)
       throw reply.notAcceptable("Already exist");
     let lastRow = addImage(fileUrl, uuid);

@@ -23,6 +23,7 @@ export default function BackgroundImageSettings() {
   const [show, setShow] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [isFile, setIsFile] = useState(false);
+  const [isUrl, setIsUrl] = useState(false);
 
   useEffect(() => {
     let image = images.filter((image) => image.url === bgUrl);
@@ -113,9 +114,10 @@ export default function BackgroundImageSettings() {
                 name="add-bgimage-url"
                 placeholder={"Image url"}
                 disabled={isFile}
-                onChange={() => {
+                onChange={(e) => {
                   setError(false);
                   setIsLoading(false);
+                  setIsUrl(e.target.value !== "");
                 }}
                 className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white disabled:bg-neutral-100"
               />
@@ -124,6 +126,7 @@ export default function BackgroundImageSettings() {
                 accept="image/*"
                 name="add-bgimage-file"
                 placeholder={"Image file"}
+                disabled={isUrl}
                 onChange={(e) => {
                   setError(false);
                   setIsLoading(false);
