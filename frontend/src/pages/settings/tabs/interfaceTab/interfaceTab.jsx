@@ -14,6 +14,7 @@ import {
   LightBulbIcon,
   MoonIcon,
   PhotographIcon,
+  RefreshIcon,
   SelectorIcon,
   ViewBoardsIcon,
   ViewGridIcon,
@@ -31,6 +32,7 @@ export default function InterfaceTab() {
     cardVerticalAligment,
     columns,
     maxItemsInList,
+    syncSettings,
     setUseImageAsBg,
     setCardHeaderStyle,
     setOpenLinkInNewTab,
@@ -38,6 +40,7 @@ export default function InterfaceTab() {
     setCardVerticalAligment,
     setColumns,
     setMaxItemsInList,
+    setSyncSettings,
   } = useInterfaceSettings();
 
   function changeTheme(e) {
@@ -50,6 +53,25 @@ export default function InterfaceTab() {
   }
 
   const settings = [
+    {
+      title: "Main",
+      items: [
+        {
+          title: "Sync settings",
+          description: "Sync settings across all devices",
+          icon:<RefreshIcon/>,
+          input: (
+            <SwitchButton
+              id={"sync-settings"}
+              name={"sync-settings"}
+              text={""}
+              checked={syncSettings}
+              onChange={(e) => setSyncSettings(e.target.checked)}
+            />
+          ),
+        },
+      ],
+    },
     {
       title: "Appearance",
       items: [

@@ -35,59 +35,76 @@ export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
     getPreferedScheme()
   );
 
+  const [syncSettings, setSyncSettings] = useLocalStorage(
+    "sync-settings",
+    false
+  );
+
   const [theme, setTheme] = useState(lSTheme);
 
   const abortController = useRef(null);
 
-  const [useImageAsBg, setUseImageAsBg] = useState(
+  const [useImageAsBg, setUseImageAsBg] = useLocalStorage(
+    "use-image-as-bg",
     profile?.useBgImage || false
   );
-  const [bgUrl, setBgUrl] = useState(profile?.bgImage || "");
-  const [cardHeaderStyle, setCardHeaderStyle] = useState(
+  const [bgUrl, setBgUrl] = useLocalStorage("bg-url",profile?.bgImage || "");
+  const [cardHeaderStyle, setCardHeaderStyle] = useLocalStorage(
+    "card-header-style",
     profile?.cardStyle || CARD_HEADER_STYLE[0]
   );
-  const [openLinkInNewTab, setOpenLinkInNewTab] = useState(
+  const [openLinkInNewTab, setOpenLinkInNewTab] = useLocalStorage(
+    "open-links-in-new-tab",
     profile?.linkInNewTab || DEF_OPEN_LINK_IN_NEW_TAB
   );
-  const [useNeonShadow, setUseNeonShadow] = useState(
+  const [useNeonShadow, setUseNeonShadow] = useLocalStorage(
+    "useNeonShadow",
     profile?.enableNeonShadows || DEF_USE_NEON_SHADOW
   );
-  const [cardVerticalAligment, setCardVerticalAligment] = useState(
+  const [cardVerticalAligment, setCardVerticalAligment] = useLocalStorage(
+    "card-vertical-aligment",
     profile?.cardPosition || CARD_VERTICAL_ALIGMENT[0]
   );
-  const [columns, setColumns] = useState(profile?.columns || DEF_COLUMNS);
-  const [maxItemsInList, setMaxItemsInList] = useState(
+  const [columns, setColumns] = useLocalStorage(
+    "columns",
+    profile?.columns || DEF_COLUMNS
+  );
+  const [maxItemsInList, setMaxItemsInList] = useLocalStorage(
+    "max-items-in-list",
     profile?.maxNumberOfLinks || DEF_MAX_ITEMS
   );
 
   useEffect(() => {
-    setBgUrl(profile?.bgImage);
-    setUseImageAsBg(profile?.useBgImage);
-    setCardHeaderStyle(profile?.cardStyle);
-    setOpenLinkInNewTab(profile?.linkInNewTab);
-    setUseNeonShadow(profile?.enableNeonShadows);
-    setCardVerticalAligment(profile?.cardPosition);
-    setColumns(profile?.columns);
-    setMaxItemsInList(profile?.maxNumberOfLinks);
-  }, [profile]);
+    if (syncSettings) {
+      setBgUrl(profile?.bgImage);
+      setUseImageAsBg(profile?.useBgImage);
+      setCardHeaderStyle(profile?.cardStyle);
+      setOpenLinkInNewTab(profile?.linkInNewTab);
+      setUseNeonShadow(profile?.enableNeonShadows);
+      setCardVerticalAligment(profile?.cardPosition);
+      setColumns(profile?.columns);
+      setMaxItemsInList(profile?.maxNumberOfLinks);
+    }
+  }, [profile, syncSettings]);
 
   useEffect(() => {
     abortController.current = new AbortController();
-    postJSON(
-      "/api/users/settings",
-      {
-        bgImage: bgUrl,
-        useBgImage: useImageAsBg,
-        cardStyle: cardHeaderStyle,
-        linkInNewTab: openLinkInNewTab,
-        enableNeonShadows: useNeonShadow,
-        cardPosition: cardVerticalAligment,
-        columns: columns,
-        maxNumberOfLinks: maxItemsInList,
-      },
-      abortController.current.signal
-    );
-
+    if (syncSettings) {
+      postJSON(
+        "/api/users/settings",
+        {
+          bgImage: bgUrl,
+          useBgImage: useImageAsBg,
+          cardStyle: cardHeaderStyle,
+          linkInNewTab: openLinkInNewTab,
+          enableNeonShadows: useNeonShadow,
+          cardPosition: cardVerticalAligment,
+          columns: columns,
+          maxNumberOfLinks: maxItemsInList,
+        },
+        abortController.current.signal
+      );
+    }
     return () => {
       abortController.current.abort();
     };
@@ -133,6 +150,7 @@ export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
         cardVerticalAligment,
         columns,
         maxItemsInList,
+        syncSettings,
         setUseImageAsBg,
         setBgUrl,
         setTheme,
@@ -142,6 +160,7 @@ export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
         setCardVerticalAligment,
         setColumns,
         setMaxItemsInList,
+        setSyncSettings,
       }}
     >
       {children}

@@ -10,6 +10,7 @@ import {
   postFormData,
   postJSON,
 } from "../../../../helpers/fetch";
+import { fixBgUrl } from "../../../../helpers/url";
 const ENDPOINT = "/api/backgroundimage";
 
 export default function BackgroundImageSettings() {
@@ -80,10 +81,8 @@ export default function BackgroundImageSettings() {
   }
 
   function handleSelect(image) {
-    postJSON("/api/users/settings", { bgImage: image.url }).then(() => {
-      setSelectedId(image.id);
-      setBgUrl(image.url);
-    });
+    setSelectedId(image.id);
+    setBgUrl(image.url);
   }
 
   async function handleImageDelete() {
@@ -172,6 +171,8 @@ export default function BackgroundImageSettings() {
             className="flex relative justify-center items-center"
           >
             <img
+              width={20}
+              height={20}
               onClick={() => {
                 handleSelect(image);
               }}
@@ -179,7 +180,7 @@ export default function BackgroundImageSettings() {
                 selectedId === image.id ? "border-2 border-cyan-500" : ""
               }`}
               alt={`bg-img-${image.id}`}
-              src={image.url}
+              src={fixBgUrl(image.url)}
             />
 
             {selectedId === image.id && (

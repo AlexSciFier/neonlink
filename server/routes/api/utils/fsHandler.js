@@ -7,7 +7,7 @@ async function saveFileToPublic(filename, data) {
   await fs.access(dirPath).catch(async (err) => {
     console.error(err.message);
     console.log(`Creating ${dirPath}`);
-    await fs.mkdir(dirPath);
+    await fs.mkdir(dirPath,{recursive:true});
   });
 
   console.log(`Create ${publicPath}`);
