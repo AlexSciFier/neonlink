@@ -9,7 +9,7 @@
   "scripts": {
     "test": "tap \"test/**/*.test.js\"",
     "start": "fastify start -a \"0.0.0.0\" -l info --body-limit 5242880 app.js",
-    "dev": "fastify start -a \"0.0.0.0\" -w -l info -P app.js"
+    "dev": "fastify start -a \"0.0.0.0\" -w --ignore-watch='db/bookmarks.sqlite' --body-limit 5242880 -l info -P app.js"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +30,6 @@
     "node-html-parser": "^5.3.3"
   },
   "devDependencies": {
-    "tap": "^15.1.6"
+    "tap": "^16.3.0"
   }
 }

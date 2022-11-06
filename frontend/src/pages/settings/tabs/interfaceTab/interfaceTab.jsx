@@ -2,12 +2,9 @@ import React from "react";
 import InputGroup from "../../components/inputGroup";
 import SwitchButton from "../../components/SwitchButton";
 import { useInterfaceSettings } from "../../../../context/interfaceSettingsContext";
-import { useLocalStorage } from "../../../../hooks/useLocalStorage";
 import {
   CARD_HEADER_STYLE,
   CARD_VERTICAL_ALIGMENT,
-  DEF_COLUMNS,
-  DEF_MAX_ITEMS,
 } from "../../../../helpers/constants";
 import RadioButtonGroup from "../../../../components/RadioButtonGroup";
 import InputItem from "../../components/inputItem";
@@ -17,6 +14,7 @@ import {
   LightBulbIcon,
   MoonIcon,
   PhotographIcon,
+  RefreshIcon,
   SelectorIcon,
   ViewBoardsIcon,
   ViewGridIcon,
@@ -32,21 +30,18 @@ export default function InterfaceTab() {
     openLinkInNewTab,
     useNeonShadow,
     cardVerticalAligment,
+    columns,
+    maxItemsInList,
+    syncSettings,
     setUseImageAsBg,
     setCardHeaderStyle,
     setOpenLinkInNewTab,
     setUseNeonShadow,
     setCardVerticalAligment,
+    setColumns,
+    setMaxItemsInList,
+    setSyncSettings,
   } = useInterfaceSettings();
-
-  const [columns, setColumns] = useLocalStorage(
-    "dashboardColumns",
-    DEF_COLUMNS
-  );
-  const [maxItemsInList, setMaxItemsInList] = useLocalStorage(
-    "maxItemsInList",
-    DEF_MAX_ITEMS
-  );
 
   function changeTheme(e) {
     let isChecked = e.target.checked;
@@ -58,6 +53,25 @@ export default function InterfaceTab() {
   }
 
   const settings = [
+    {
+      title: "Main",
+      items: [
+        {
+          title: "Sync settings",
+          description: "Sync settings across all devices",
+          icon:<RefreshIcon/>,
+          input: (
+            <SwitchButton
+              id={"sync-settings"}
+              name={"sync-settings"}
+              text={""}
+              checked={syncSettings}
+              onChange={(e) => setSyncSettings(e.target.checked)}
+            />
+          ),
+        },
+      ],
+    },
     {
       title: "Appearance",
       items: [

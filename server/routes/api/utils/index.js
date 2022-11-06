@@ -2,7 +2,8 @@
 const { parseHtml } = require("./parsePage");
 const { parseBookmarkFile } = require("./bookmarkParser");
 const { batchUpdateLinks } = require("./batchUpdateLinks");
-const saveFileToPublic = require("./saveFile");
+const { saveFileToPublic } = require("./fsHandler");
+const { getImageByUrl, addImage } = require("../../../db/bgImages");
 
 const axios = require("axios").default;
 /**
@@ -49,8 +50,15 @@ module.exports = async function (fastify, opts) {
     return batchUpdateLinks();
   });
 
-  // fastify.post("/savefile", {}, async function (request, reply) {
-  //   const file = request.raw.files.file;
-  //   return saveFileToPublic(file.name, file.data);
-  // });
+  fastify.post("/savefile", {}, async function (request, reply) {
+    const file = request.raw.files.file;
+    const uuid = request.cookies.SSID;
+    let res = saveFileToPublic(file.name, file.data);
+    if (res === false) throw "File upload error";
+    let fileUrl = `/static/media/background/${file.name}`;
+    if (getImageByUrl(fileUrl).length > 0)
+      throw reply.notAcceptable("Already exist");
+    let lastRow = addImage(fileUrl, uuid);
+    return { id: lastRow, url: fileUrl };
+  });
 };

@@ -1,17 +1,33 @@
 "use strict";
 const db = require("../../../db/connect");
 const crypto = require("crypto");
+const {
+  setUserSetting,
+  getUserSettings,
+  getUserByUUID,
+} = require("../../../db/connect");
+const { requestForbidden } = require("../utils/preHandler");
+const { setNologin, getNologin } = require("../../../db/appSettings");
+
+const settingsFields = {
+  maxNumberOfLinks: { type: "number" },
+  linkInNewTab: { type: "boolean" },
+  useBgImage: { type: "boolean" },
+  bgImage: { type: "string" },
+  columns: { type: "number" },
+  cardStyle: { type: "string" },
+  enableNeonShadows: { type: "boolean" },
+  cardPosition: { type: "string" },
+};
 
 /**
  *
  * @param {import("fastify").FastifyRequest} request
  * @param {import("fastify").FastifyReply} reply
  */
-async function requestForbidden(request, reply) {
+async function requestForbiddenUser(request, reply) {
   if (await db.isUsersTableEmpty())
     throw reply.notFound("No registrated users");
-  if (request.cookies === undefined)
-    throw reply.unauthorized("You must login to use this method");
   let { SSID } = request.cookies;
   let user = await db.getUserByUUID(SSID);
   if (user === undefined)
@@ -35,6 +51,7 @@ module.exports = async function (fastify, opts) {
             properties: {
               username: { type: "string" },
               usergroup: { type: "number" },
+              ...settingsFields,
             },
           },
         },
@@ -76,6 +93,7 @@ module.exports = async function (fastify, opts) {
   fastify.put(
     "/changePassword",
     {
+      preHandler: requestForbidden,
       schema: {
         body: {
           type: "object",
@@ -111,6 +129,84 @@ module.exports = async function (fastify, opts) {
       let { id } = request.params;
       if (db.deleteUser(id)) return { status: "OK" };
       else throw fastify.httpErrors.notFound("User with this id is not found");
+    }
+  );
+
+  fastify.post(
+    "/settings",
+    {
+      preHandler: requestForbidden,
+      schema: {
+        body: {
+          type: "object",
+          properties: settingsFields,
+        },
+      },
+    },
+    async function (request, reply) {
+      let uuid = request.cookies.SSID;
+      let res = {};
+      for (const key in request.body) {
+        setUserSetting(uuid, key, request.body?.[key]);
+        res[key] = request.body?.[key];
+      }
+      return res;
+    }
+  );
+
+  fastify.post(
+    "/settings/global",
+    {
+      preHandler: requestForbidden,
+      schema: {
+        body: {
+          type: "object",
+          properties: { noLogin: { type: "boolean" } },
+        },
+      },
+    },
+    async function (request, reply) {
+      let uuid = request.cookies.SSID;
+      let user = await getUserByUUID(uuid);
+      if (user.usergroup === 0) {
+        if (request.body?.noLogin !== undefined)
+          setNologin(request.body.noLogin);
+      }
+      return request.body;
+    }
+  );
+
+  fastify.get(
+    "/settings/global",
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: { noLogin: { type: "boolean" } },
+        },
+      },
+    },
+    async function (request, reply) {
+      return { noLogin: getNologin() };
+    }
+  );
+
+  fastify.get(
+    "/settings",
+    {
+      preHandler: requestForbidden,
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: settingsFields,
+          },
+        },
+      },
+    },
+    async function (request, reply) {
+      let uuid = request.cookies.SSID;
+      return getUserSettings(uuid);
     }
   );
 

@@ -4,7 +4,13 @@ import { useState } from "react";
 import Modal from "../../../../components/Modal";
 import { useInterfaceSettings } from "../../../../context/interfaceSettingsContext";
 import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
-import { deleteJSON, getJSON, postJSON } from "../../../../helpers/fetch";
+import {
+  deleteJSON,
+  getJSON,
+  postFormData,
+  postJSON,
+} from "../../../../helpers/fetch";
+import { fixBgUrl } from "../../../../helpers/url";
 const ENDPOINT = "/api/backgroundimage";
 
 export default function BackgroundImageSettings() {
@@ -17,6 +23,8 @@ export default function BackgroundImageSettings() {
   const [error, setError] = useState();
   const [show, setShow] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [isFile, setIsFile] = useState(false);
+  const [isUrl, setIsUrl] = useState(false);
 
   useEffect(() => {
     let image = images.filter((image) => image.url === bgUrl);
@@ -43,15 +51,28 @@ export default function BackgroundImageSettings() {
     setError();
     try {
       let url = e.target["add-bgimage-url"].value;
-      let res = await postJSON(ENDPOINT, { url });
-      setIsLoading(false);
-      if (res.ok) {
-        e.target["add-bgimage-url"].value = "";
-        let id = await res.text();
-        setImages((prev) => [...prev, { id, url }]);
-        setShow(false);
+      let file = e.target["add-bgimage-file"].files[0];
+      if (url) {
+        let res = await postJSON(ENDPOINT, { url });
+        setIsLoading(false);
+        if (res.ok) {
+          e.target["add-bgimage-url"].value = "";
+          let resBody = await res.json();
+          setImages((prev) => [...prev, { id: resBody.id, url: resBody.url }]);
+          setShow(false);
+        } else {
+          setError((await res.json())?.message);
+        }
       } else {
-        setError((await res.json())?.message);
+        let res = await postFormData("/api/utils/savefile", { file });
+        setIsLoading(false);
+        if (res.ok) {
+          let resBody = await res.json();
+          setImages((prev) => [...prev, { id: resBody.id, url: resBody.url }]);
+          setShow(false);
+        } else {
+          setError((await res.json())?.message);
+        }
       }
     } catch (err) {
       setIsLoading(true);
@@ -86,15 +107,29 @@ export default function BackgroundImageSettings() {
         <Modal show={show} onClose={() => setShow(false)}>
           <Modal.Header closeButton>Add image</Modal.Header>
           <Modal.Body>
-            <form className="flex gap-1" onSubmit={handleAdd}>
+            <form className="flex flex-col gap-2" onSubmit={handleAdd}>
               <input
                 type={"url"}
                 name="add-bgimage-url"
                 placeholder={"Image url"}
-                required={true}
-                onChange={() => {
+                disabled={isFile}
+                onChange={(e) => {
                   setError(false);
                   setIsLoading(false);
+                  setIsUrl(e.target.value !== "");
+                }}
+                className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white disabled:bg-neutral-100"
+              />
+              <input
+                type={"file"}
+                accept="image/*"
+                name="add-bgimage-file"
+                placeholder={"Image file"}
+                disabled={isUrl}
+                onChange={(e) => {
+                  setError(false);
+                  setIsLoading(false);
+                  setIsFile(e.target.files[0] !== undefined);
                 }}
                 className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
               />
@@ -136,6 +171,8 @@ export default function BackgroundImageSettings() {
             className="flex relative justify-center items-center"
           >
             <img
+              width={20}
+              height={20}
               onClick={() => {
                 handleSelect(image);
               }}
@@ -143,7 +180,7 @@ export default function BackgroundImageSettings() {
                 selectedId === image.id ? "border-2 border-cyan-500" : ""
               }`}
               alt={`bg-img-${image.id}`}
-              src={image.url}
+              src={fixBgUrl(image.url)}
             />
 
             {selectedId === image.id && (

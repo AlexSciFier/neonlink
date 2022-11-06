@@ -1,5 +1,6 @@
 const Database = require("better-sqlite3");
 const crypto = require("node:crypto");
+const { getNologin } = require("./appSettings");
 
 let db = new Database("./db/bookmarks.sqlite");
 /**
@@ -10,7 +11,16 @@ let db = new Database("./db/bookmarks.sqlite");
  * @property {string} salt
  * @property {number} usergroup
  * @property {string} uuid
+ * @property {number} maxNumberOfLinks
+ * @property {boolean} linkInNewTab
+ * @property {boolean} useBgImage
+ * @property {string} bgImage
+ * @property {number} columns
+ * @property {string} cardStyle
+ * @property {boolean} enableNeonShadows
+ * @property {string} cardPosition
  */
+
 function generateSalt() {
   let length = 32;
   return crypto
@@ -64,8 +74,24 @@ function addUUID(username, uuid) {
     }).changes;
 }
 
+/**
+ *
+ * @param {string} uuid
+ * @returns {Promise<User>}
+ */
 async function getUserByUUID(uuid) {
-  return db.prepare("SELECT * FROM users WHERE uuid=?").get(uuid);
+  let userSettings =
+    db.prepare("SELECT * FROM userSettings WHERE uuid=?").get(uuid) ??
+    initDefaultSettings(uuid);
+  let user = db.prepare("SELECT * FROM users WHERE uuid=?").get(uuid);
+  if (getNologin() === true) {
+    user = db.prepare("SELECT * FROM users WHERE usergroup=0 LIMIT 1").get();
+    userSettings = db
+      .prepare("SELECT * FROM userSettings WHERE uuid=?")
+      .get(user.uuid);
+  }
+  if (user === undefined) return undefined;
+  return { ...user, ...userSettings };
 }
 
 /**
@@ -126,7 +152,7 @@ async function isPasswordValid(username, password) {
  * @returns {Promise<boolean>}
  */
 async function changePassword(username, newPassword) {
-  let hashedPassword = encodePassword(password);
+  let hashedPassword = encodePassword(newPassword);
   db.prepare(
     "UPDATE users SET passwordHash=:passwordHash, salt=:salt WHERE username=:username"
   ).run({
@@ -143,6 +169,75 @@ async function isUsersTableEmpty() {
   return db.prepare("SELECT COUNT(*) AS count FROM users").get().count === 0;
 }
 
+async function setUserSetting(uuid, parameter, value) {
+  if (uuid === undefined) uuid = "guest";
+
+  let foundedUUID = db
+    .prepare("SELECT uuid FROM userSettings WHERE uuid=:uuid")
+    .get({ uuid });
+  if (typeof value === "boolean") {
+    value = Number(value);
+  }
+
+  let updateQuery = `UPDATE userSettings SET ${parameter}=:value WHERE uuid=:uuid`;
+  let insertQuery = `INSERT INTO userSettings (uuid, ${parameter}) VALUES (:uuid,:value)`;
+
+  if (foundedUUID) {
+    return db.prepare(updateQuery).run({ uuid, value });
+  } else {
+    return initDefaultSettings(uuid);
+  }
+}
+
+/**
+ * @typedef UserSettings
+ * @property {string} uuid
+ * @property {number} maxNumberOfLinks
+ * @property {boolean} linkInNewTab
+ * @property {boolean} useBgImage
+ * @property {string} bgImage
+ * @property {number} columns
+ * @property {string} cardStyle
+ * @property {boolean} enableNeonShadows
+ * @property {string} cardPosition
+ */
+/**
+ *
+ * @param {string} uuid
+ * @returns {UserSettings}
+ */
+function initDefaultSettings(uuid) {
+  const DEF_SETTINGS = {
+    uuid,
+    maxNumberOfLinks: 20,
+    linkInNewTab: 1,
+    useBgImage: 0,
+    bgImage: "",
+    columns: 3,
+    cardStyle: "default",
+    enableNeonShadows: 1,
+    cardPosition: "top",
+  };
+
+  let keys = Object.keys(DEF_SETTINGS).join(", ");
+  let values = Object.keys(DEF_SETTINGS)
+    .map((key) => `:${key}`)
+    .join(", ");
+  let query = `INSERT INTO userSettings (${keys}) VALUES (${values})`;
+  db.prepare(query).run(DEF_SETTINGS);
+  return db.prepare("SELECT * FROM userSettings WHERE uuid=?").get(uuid);
+}
+/**
+ *
+ * @param {string} uuid
+ * @returns
+ */
+async function getUserSettings(uuid) {
+  return db
+    .prepare("SELECT * FROM userSettings WHERE uuid=:uuid")
+    .get({ uuid });
+}
+
 module.exports = {
   addUser,
   addUUID,
@@ -154,4 +249,6 @@ module.exports = {
   isUserExist,
   changePassword,
   isUsersTableEmpty,
+  setUserSetting,
+  getUserSettings,
 };

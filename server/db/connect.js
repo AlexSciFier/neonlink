@@ -62,9 +62,47 @@ function init() {
   db.prepare(
     `CREATE TABLE IF NOT EXISTS bgImages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    url INTEGER
+    url TEXT,
+    uuid TEXT
   )`
   ).run();
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS userSettings (
+    uuid TEXT PRIMARY KEY,
+    maxNumberOfLinks INTEGER,
+    linkInNewTab INTEGER,
+    useBgImage INTEGER,
+    bgImage TEXT,
+    columns INTEGER,
+    cardStyle TEXT,
+    enableNeonShadows INTEGER,
+    cardPosition TEXT  
+  )`
+  ).run();
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS appSettings (
+    useNologin INTEGER  
+  )`
+  ).run();
+
+  path();
+}
+
+function path() {
+  //Path bgImages. Add uuid column.
+  if (columnExist("bgImages", "uuid") === false) {
+    console.log("Patching bgImage table");
+    try {
+      db.prepare("ALTER TABLE bgImages ADD COLUMN uuid TEXT").run();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+function columnExist(tableName, columnName) {
+  let columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
+  return columns.map((col) => col.name).includes(columnName);
 }
 
 module.exports = {

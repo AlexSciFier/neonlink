@@ -5,48 +5,69 @@ let db = new Database("./db/bookmarks.sqlite");
  * @typedef BgImage
  * @property {number} id
  * @property {string} url
+ * @property {string} uuid
  */
-/**
- *
- * @param {string} url
- * @return {number} last inserted row
- */
-function addImage(url) {
-  return db.prepare("INSERT INTO bgImages (url) VALUES(:url)").run({ url })
-    .lastInsertRowid;
-}
-/**
- *
- * @param {number} id
- * @returns {number} changes
- */
-function deleteImage(id) {
-  return db.prepare("DELETE FROM bgImages WHERE id=:id").run({ id }).changes;
-}
 
 /**
  *
- * @returns {BgImage[]}
+ * @param {string} url
+ * @param {string} uuid
+ * @return {number} last inserted row
  */
-function getAllImages() {
-  return db.prepare("SELECT * FROM bgImages").all();
+function addImage(url, uuid) {
+  return db
+    .prepare("INSERT INTO bgImages (url, uuid) VALUES(:url, :uuid)")
+    .run({ url, uuid }).lastInsertRowid;
 }
 /**
  *
  * @param {number} id
+ * @param {string} uuid
+ * @returns {number} changes
+ */
+function deleteImage(id, uuid) {
+  return db
+    .prepare(
+      "DELETE FROM bgImages WHERE id=:id AND (uuid=:uuid OR uuid IS NULL)"
+    )
+    .run({ id, uuid }).changes;
+}
+
+/**
+ * @param {string} uuid
  * @returns {BgImage[]}
  */
-function getImageById(id) {
-  return db.prepare("SELECT * FROM bgImages WHERE id=:id").all({ id });
+function getAllImages(uuid) {
+  return db
+    .prepare("SELECT * FROM bgImages WHERE uuid=:uuid OR uuid IS NULL")
+    .all({ uuid });
 }
 /**
  *
+ * @param {number} id
+ * @param {string} uuid
+ * @returns {BgImage[]}
+ */
+function getImageById(id, uuid) {
+  return db
+    .prepare(
+      "SELECT * FROM bgImages WHERE id=:id AND (uuid=:uuid OR uuid IS NULL)"
+    )
+    .all({ id, uuid });
+}
+/**
+ * @param {string} uuid
  * @param {string} url
  * @returns {BgImage[]}
  */
-function getImageByUrl(url) {
-  return db.prepare("SELECT * FROM bgImages WHERE url=:url").all({ url });
+function getImageByUrl(url, uuid) {
+  return db
+    .prepare(
+      "SELECT * FROM bgImages WHERE url=:url AND (uuid=:uuid OR uuid IS NULL)"
+    )
+    .all({ url, uuid });
 }
+
 module.exports = {
   addImage,
   deleteImage,

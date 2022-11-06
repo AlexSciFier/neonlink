@@ -23,7 +23,7 @@ function timeDifference(current, previous) {
 }
 
 export function prettyfyDate(dateString) {
-  let rtf = new Intl.RelativeTimeFormat("ru", {
+  let rtf = new Intl.RelativeTimeFormat("en", {
     localeMatcher: "best fit",
     numeric: "auto",
     style: "long",

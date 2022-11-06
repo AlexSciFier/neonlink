@@ -49,7 +49,7 @@ export default function ChangePassword() {
     }
   }
   return (
-    <div className="flex flex-col gap-2 items-start">
+    <div className="flex flex-col gap-2 items-start py-3">
       <div className="text-xl">{profile.username}</div>
       <div className="flex flex-col gap-2">
         <PasswordBox

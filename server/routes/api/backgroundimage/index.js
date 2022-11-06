@@ -1,25 +1,9 @@
 const { default: fastify } = require("fastify");
+const path = require("path");
 const bgImages = require("../../../db/bgImages");
 const usersDB = require("../../../db/users");
-
-/**
- *
- * @param {import("fastify").FastifyRequest} request
- * @param {import("fastify").FastifyReply} reply
- */
-async function requestForbidden(request, reply) {
-  try {
-    let SSID = request.cookies.SSID;
-    if (SSID) {
-      let user = await usersDB.getUserByUUID(SSID);
-      if (user === undefined) {
-        throw reply.unauthorized("You must login to use this method");
-      }
-    } else throw reply.unauthorized("You must login to use this method");
-  } catch {
-    throw reply.unauthorized("You must login to use this method");
-  }
-}
+const { deleteFileFromPublic } = require("../utils/fsHandler");
+const { requestForbidden } = require("../utils/preHandler");
 
 /**
  *
@@ -31,7 +15,8 @@ module.exports = async function (fastify, opts) {
     "/",
     { preHandler: requestForbidden },
     async function (request, reply) {
-      return bgImages.getAllImages();
+      let uuid = request.cookies.SSID;
+      return bgImages.getAllImages(uuid);
     }
   );
   fastify.get(
@@ -39,7 +24,8 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      return bgImages.getImageById(id);
+      let uuid = request.cookies.SSID;
+      return bgImages.getImageById(id, uuid);
     }
   );
   fastify.post(
@@ -60,9 +46,11 @@ module.exports = async function (fastify, opts) {
     },
     async function (request, reply) {
       let { url } = request.body;
+      let uuid = request.cookies.SSID;
       if (bgImages.getImageByUrl(url).length > 0)
         throw reply.notAcceptable("Already exist");
-      return bgImages.addImage(url);
+      let lastRow = bgImages.addImage(url, uuid);
+      return { id: lastRow, url };
     }
   );
   fastify.delete(
@@ -70,7 +58,22 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      return bgImages.deleteImage(id);
+      let uuid = request.cookies.SSID;
+      let imageInDB = bgImages.getImageById(id, uuid);
+      if (imageInDB.length === 0) {
+        throw "Image id doesn't exist";
+      }
+      let imageName = path.basename(imageInDB[0].url);
+      let changes = bgImages.deleteImage(id, uuid);
+      if (changes > 0) {
+        try {
+          await deleteFileFromPublic(imageName);
+        } catch (error) {
+          throw `Error while deleting image: ${error.message}`;
+        }
+        return true;
+      }
+      return false;
     }
   );
 };
