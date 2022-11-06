@@ -16,7 +16,7 @@ async function requestForbidden(request, reply) {
     if (SSID) {
       let user = await usersDB.getUserByUUID(SSID);
       if (user === undefined) {
-        throw reply.unauthorized("You must login to use this method");
+        throw reply.notFound("User not found");
       }
     } else throw reply.unauthorized("You must login to use this method");
   } catch (err) {

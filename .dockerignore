@@ -1,5 +1,6 @@
 */node_modules
 server/db/bookmarks.sqlite
+server/public
 .dockerignore
 Dockerfile
 Dockerfile.prod
