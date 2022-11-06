@@ -80,17 +80,18 @@ function addUUID(username, uuid) {
  * @returns {Promise<User>}
  */
 async function getUserByUUID(uuid) {
-  let userSettings =
-    db.prepare("SELECT * FROM userSettings WHERE uuid=?").get(uuid) ??
-    initDefaultSettings(uuid);
   let user = db.prepare("SELECT * FROM users WHERE uuid=?").get(uuid);
+  if (user === undefined) return undefined;
   if (getNologin() === true) {
     user = db.prepare("SELECT * FROM users WHERE usergroup=0 LIMIT 1").get();
     userSettings = db
       .prepare("SELECT * FROM userSettings WHERE uuid=?")
       .get(user.uuid);
+    return { ...user, ...userSettings };
   }
-  if (user === undefined) return undefined;
+  let userSettings =
+    db.prepare("SELECT * FROM userSettings WHERE uuid=?").get(uuid) ??
+    initDefaultSettings(uuid);
   return { ...user, ...userSettings };
 }
 
