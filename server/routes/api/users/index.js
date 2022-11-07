@@ -43,6 +43,7 @@ module.exports = async function (fastify, opts) {
   fastify.get(
     "/me",
     {
+      preHandler: requestForbiddenUser,
       schema: {
         response: {
           200: {
@@ -58,9 +59,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       let { SSID } = request.cookies;
-      let user = await db.getUserByUUID(SSID);
-      if (user === undefined) reply.notFound("User not found");
-      return user;
+      return await db.getUserByUUID(SSID);
     }
   );
 
