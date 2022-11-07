@@ -5,6 +5,7 @@ services:
     image: alexscifier/neonlink
     volumes:
       - ./bookmarks.sqlite:/app/server/db/bookmarks.sqlite
+      - ./background:/app/server/public/static/media/background
     restart: always
     ports:
       - "80:3333"
