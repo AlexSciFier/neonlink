@@ -31,14 +31,18 @@ NeonLink is a simple and open-source self-hosted bookmark service. It is lightwe
 [DockerHub](https://hub.docker.com/r/alexscifier/neonlink)
 
 You can easily install an application using Docker. The images are also optimized for RaspberryPi.
-First, create an empty `bookmarks.sqlite` file in a convenient place for you. Then run the command which will install the Docker container.
+
+**First, create an empty `bookmarks.sqlite` file in a convenient place for you.**
+
+Then run the command which will install the Docker container.
 
 ```sh
-docker run -p {80}:3333 -v {/path/to/bookmarks.sqlite}:/app/server/db/bookmarks.sqlite alexscifier/neonlink:latest
+docker run -p {80}:3333 -v {/path/to/bookmarks.sqlite}:/app/server/db/bookmarks.sqlite -v {/path/to/backgroundimages}:/app/server/public/static/media/background alexscifier/neonlink:latest
 ```
 
 - Replace {80} with any port you like.
 - Replace {/path/to/bookmarks.sqlite} with the absolute path to the `bookmarks.sqlite` file you created earlier.
+- Replace {/path/to/backgroundimages} with the path to folder with background images
 
 Or you can install with `doker-compose.yml` file
 
