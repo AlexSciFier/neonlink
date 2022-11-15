@@ -15,6 +15,7 @@ const InputBox = React.forwardRef(
       refreshHandler,
       icon,
       isLoading,
+      autoFocus = false,
       required = false,
     },
     ref
@@ -22,6 +23,7 @@ const InputBox = React.forwardRef(
     return (
       <div className="relative">
         <input
+          autoFocus={autoFocus}
           className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
           type={type}
           placeholder={placeholder}

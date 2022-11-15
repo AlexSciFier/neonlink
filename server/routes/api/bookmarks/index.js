@@ -116,14 +116,8 @@ module.exports = async function (fastify, opts) {
 
       let existingBookmark = db.getBookmarkByUrl(url);
       if (existingBookmark) {
-        return db.updateBookmarkById(
-          existingBookmark.id,
-          url,
-          title,
-          desc,
-          icon,
-          categoryId,
-          tags
+        throw fastify.httpErrors.badRequest(
+          "Bookmark with this url is already exist"
         );
       }
       reply.statusCode = 201;
