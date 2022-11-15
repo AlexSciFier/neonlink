@@ -60,13 +60,17 @@ export default function AddPage() {
 
   useEffect(() => {
     debounced(url);
-    if (url === "")
+    if (url === "") {
       setFormData({
         ...formData,
         desc: "",
         title: "",
         icon: "",
       });
+      setError(undefined);
+      setIsLoading(false);
+      setSending(false);
+    }
     return debounced.cancel;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounced, url]);
