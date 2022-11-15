@@ -83,15 +83,10 @@ export default function AddPage() {
   };
 
   async function fetchUrl(url) {
+    setUrlError(undefined);
     if (url === "") return;
-
-    try {
-      setUrlError(undefined);
-      url = new URL(url).toString();
-    } catch (error) {
-      console.error(error.message);
-      setUrlError(error.message);
-      return;
+    if (!/^https?:\/\//i.test(url)) {
+      setUrl("https://" + url);
     }
 
     setIsLoading(true);
@@ -162,6 +157,7 @@ export default function AddPage() {
             icon={formData.icon}
             ref={urlRef}
             isLoading={isLoading}
+            autoFocus={true}
             required={true}
           ></InputBox>
           <input
