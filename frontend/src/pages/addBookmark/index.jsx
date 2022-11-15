@@ -109,7 +109,11 @@ export default function AddPage() {
   }
 
   function inputHandler(e) {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    let { name, value } = e.target;
+    if (name === "categoryId") {
+      value = Number(value);
+    }
+    setFormData({ ...formData, [name]: value });
   }
 
   const handleSubmit = async (e) => {
@@ -138,7 +142,10 @@ export default function AddPage() {
       : false;
   }
 
-  if (complete) return <Navigate to={"/"} />;
+  if (complete) {
+    if (formData.categoryId === 0) return <Navigate to={"/links"} />;
+    return <Navigate to={"/"} />;
+  }
 
   return (
     <Page>
@@ -188,7 +195,7 @@ export default function AddPage() {
             name={"categoryId"}
             onChange={inputHandler}
           >
-            <option className="text-black" value={undefined}>
+            <option className="text-black" value={0}>
               None
             </option>
             {categories.map((category) => (
