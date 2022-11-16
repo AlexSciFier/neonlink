@@ -1,5 +1,9 @@
-import { ChevronRightIcon } from "@heroicons/react/outline";
-import React, { useRef, useState } from "react";
+import ChevronRightIcon from "@heroicons/react/outline/ChevronRightIcon";
+import TrashIcon from "@heroicons/react/outline/TrashIcon";
+import PencilIcon from "@heroicons/react/outline/PencilIcon";
+import CheckIcon from "@heroicons/react/outline/CheckIcon";
+import XIcon from "@heroicons/react/outline/XIcon";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useBookMarkList } from "../../../context/bookmarkList";
 import { getDomain } from "../../../helpers/url";
@@ -7,33 +11,64 @@ import { prettyfyDate } from "../../../helpers/date";
 import { Link } from "react-router-dom";
 import { useInterfaceSettings } from "../../../context/interfaceSettingsContext";
 
-function Options({ className, bookmarkId, setShowOptions }) {
+function Options({ className, bookmarkId, showOptions, setShowOptions }) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeletingRequested, setIsDeletingRequested] = useState(false);
   const navigate = useNavigate();
   const { deleteBookmark } = useBookMarkList();
+
+  useEffect(() => {
+    if (showOptions === false) setIsDeleting(false);
+  }, [showOptions]);
 
   function handleEdit(e) {
     navigate(`/edit/${bookmarkId}`);
   }
 
-  async function handleDelete(e) {
+  function handleDelete() {
     setIsDeleting(true);
+  }
+
+  async function handleDeleteConfirm() {
+    setIsDeletingRequested(true);
     await deleteBookmark(bookmarkId);
+    setIsDeletingRequested(false);
     setShowOptions(false);
     setIsDeleting(false);
+  }
+
+  function handleCancel() {
+    setIsDeleting(false);
+  }
+
+  if (isDeleting) {
+    return (
+      <div className={`flex h-full w-full ${className}`}>
+        <button
+          className="bg-red-500 px-3 disabled:bg-gray-500 disabled:animate-pulse text-white"
+          onClick={handleDeleteConfirm}
+          disabled={isDeletingRequested}
+        >
+          <CheckIcon className="w-5 h-5" />
+        </button>
+        <button className="bg-cyan-500 px-3 text-white" onClick={handleCancel}>
+          <XIcon className="w-5 h-5" />
+        </button>
+      </div>
+    );
   }
 
   return (
     <div className={`flex h-full w-full ${className}`}>
       <button className="bg-cyan-500 px-3 text-white" onClick={handleEdit}>
-        Edit
+        <PencilIcon className="w-5 h-5" />
       </button>
       <button
         className="bg-red-500 px-3 disabled:bg-gray-500 disabled:animate-pulse text-white"
         disabled={isDeleting}
         onClick={handleDelete}
       >
-        Delete
+        <TrashIcon className="w-5 h-5" />
       </button>
     </div>
   );
@@ -100,7 +135,11 @@ export default function LinkTemplate({ bookmark }) {
         ref={optionBlock}
         className="absolute translate-x-full-plus-one transform-gpu right-0 top-0 bottom-0 flex items-center text-gray-400"
       >
-        <Options bookmarkId={bookmark.id} setShowOptions={setShowOptions} />
+        <Options
+          bookmarkId={bookmark.id}
+          showOptions={showOptions}
+          setShowOptions={setShowOptions}
+        />
       </div>
     </div>
   );
