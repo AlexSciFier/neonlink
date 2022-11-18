@@ -1,18 +1,18 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 
-export default function TagItem({ tag }) {
+export default function CategoryItem({ category }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  let selected = searchParams.get("tag") === tag.name;
+  let selected = searchParams.get("category") === category.name;
 
-  if (searchParams.has("tag")) {
-    if (searchParams.get("tag") === tag.name) {
-      searchParams.delete("tag");
+  if (searchParams.has("category")) {
+    if (searchParams.get("category") === category.name) {
+      searchParams.delete("category");
     } else {
-      searchParams.set("tag", tag.name);
+      searchParams.set("category", category.name);
     }
   } else {
-    searchParams.append("tag", tag.name);
+    searchParams.append("category", category.name);
   }
 
   return (
@@ -22,7 +22,7 @@ export default function TagItem({ tag }) {
         selected && "bg-cyan-400 text-white font-medium"
       }`}
     >
-      #{tag.name}
+      {category.name}
     </div>
   );
 }
