@@ -7,7 +7,7 @@ import Page from "../../components/Page";
 export default function LinksPage() {
   return (
     <Page>
-      <div className="flex flex-col gap-4 justify-center w-full md:flex-row">
+      <div className="flex flex-col gap-4 md:justify-center w-full md:flex-row">
         <BookMarkListProvider>
           <BookmarksList />
           <RightPanel />

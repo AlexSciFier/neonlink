@@ -4,6 +4,7 @@ import { useBookMarkList } from "../../../context/bookmarkList";
 import { DEF_MAX_ITEMS } from "../../../helpers/constants";
 import { useLocalStorage } from "../../../hooks/useLocalStorage";
 import { useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 
 export default function BookmarksHeader() {
   const [query, setQuery] = useState("");
@@ -13,6 +14,7 @@ export default function BookmarksHeader() {
 
   const { fetchBookmarks } = useBookMarkList();
   const [maxItemsInList] = useLocalStorage("maxItemsInList", DEF_MAX_ITEMS);
+  const [searchParams] = useSearchParams();
 
   const firstUpdate = useRef(true);
   useEffect(() => {
@@ -25,7 +27,10 @@ export default function BookmarksHeader() {
   }, [delayedQuery, query]);
 
   function updateBookmarkList() {
-    fetchBookmarks({ offset: 0, limit: maxItemsInList, query });
+    let tag = searchParams.get("tag");
+    let category = searchParams.get("category");
+
+    fetchBookmarks({ offset: 0, limit: maxItemsInList, query, tag, category });
   }
 
   return (
