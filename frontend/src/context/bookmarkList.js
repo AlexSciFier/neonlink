@@ -19,7 +19,13 @@ export function BookMarkListProvider({ children }) {
     abortController.current.abort();
   }
 
-  async function fetchBookmarks({ offset = 0, limit = 25, query, tag }) {
+  async function fetchBookmarks({
+    offset = 0,
+    limit = 25,
+    query,
+    tag,
+    category,
+  }) {
     setIsBookmarksLoading(true);
     setErrorBookmarks(undefined);
 
@@ -30,6 +36,7 @@ export function BookMarkListProvider({ children }) {
     searchParams.append("limit", limit);
     if (query) searchParams.append("q", query);
     if (tag) searchParams.append("tag", tag);
+    if (category) searchParams.append("category", category);
     let res = await getJSON(
       `/api/bookmarks/?${searchParams.toString()}`,
       abortController.current.signal

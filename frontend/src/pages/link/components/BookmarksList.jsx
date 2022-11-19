@@ -27,8 +27,10 @@ export default function BookmarksList() {
     let offset = (page - 1) * limit;
 
     let tag = searchParams.get("tag");
-    if (tag) {
-      fetchBookmarks({ offset, limit, tag });
+    let category = searchParams.get("category")
+
+    if (tag || category) {
+      fetchBookmarks({ offset, limit, tag, category });
       return;
     }
     fetchBookmarks({ offset, limit });

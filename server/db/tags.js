@@ -27,7 +27,6 @@ function findTags(query) {
   return db
     .prepare(
       `SELECT tags.id AS id, tags.name AS name FROM tags
-    INNER JOIN bookmarksTags ON tags.id = bookmarksTags.tagId
     WHERE tags.name LIKE :query
     GROUP BY tags.id
     ORDER BY tags.name`

@@ -20,8 +20,9 @@ module.exports = async function (fastify, opts) {
       let limit = query.get("limit") ?? undefined;
       let q = query.get("q") ?? undefined;
       let tag = query.get("tag") ?? undefined;
-      if (q !== undefined) return db.findBookmark(q, limit, offset);
-      if (tag !== undefined) return db.findBookmarkByTag(tag, limit, offset);
+      let category = query.get("category") ?? undefined;
+      if (q || tag || category)
+        return db.findBookmark(q || "", tag, category, limit, offset);
       return db.getAllBookmarks(offset, limit);
     }
   );

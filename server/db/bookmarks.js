@@ -143,16 +143,33 @@ function getBookmarkByUrl(url) {
 /**
  *
  * @param {string} query
+ * @param {string?} tag
+ * @param {string?} category
  * @param {number} limit
  * @param {number} offset
  * @returns {Bookmark[]} Array of bookmarks
  */
-function findBookmark(query, limit = 10, offset = 0) {
+function findBookmark(
+  query,
+  tag = undefined,
+  category = undefined,
+  limit = 10,
+  offset = 0
+) {
+  let countQuery = `SELECT 
+    COUNT(*) as count
+  FROM bookmarks 
+    LEFT JOIN category ON category.id = bookmarks.categoryId
+    LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
+    LEFT JOIN tags ON bookmarksTags.tagId = tags.id
+  WHERE bookmarks.search LIKE :query
+  ${tag !== undefined ? "AND tags.name = :tag" : ""}
+  ${category !== undefined ? "AND category.name = :category" : ""}`;
+
   let total = db
-    .prepare(
-      "SELECT COUNT(*) AS count FROM bookmarks WHERE title LIKE :query OR desc LIKE :query OR url LIKE :query"
-    )
-    .get({ query: `%${query}%` }).count;
+    .prepare(countQuery)
+    .get({ query: `%${query}%`, tag, category: category }).count;
+
   let maxPage = Math.ceil(total / limit);
   let currentPage = offset / limit + 1;
   let bookmarks = db
@@ -163,16 +180,26 @@ function findBookmark(query, limit = 10, offset = 0) {
       title,
       desc,
       created,
+      categoryId,
       group_concat(tags.name, ',') as tags
     FROM bookmarks 
+      LEFT JOIN category ON category.id = bookmarks.categoryId
       LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
       LEFT JOIN tags ON bookmarksTags.tagId = tags.id
     WHERE bookmarks.search LIKE :query
+    ${tag !== undefined ? "AND tags.name = :tag" : ""}
+    ${category !== undefined ? "AND category.name = :category" : ""}
     GROUP BY bookmarks.id
     ORDER BY bookmarks.created
     LIMIT :limit OFFSET :offset`
     )
-    .all({ query: `%${query.toLocaleLowerCase()}%`, limit, offset })
+    .all({
+      query: `%${query.toLocaleLowerCase()}%`,
+      tag,
+      category: category,
+      limit,
+      offset,
+    })
     .map((bookmark) => {
       return { ...bookmark, tags: bookmark.tags?.split(",") };
     });
