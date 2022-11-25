@@ -143,13 +143,16 @@ export default function EditBookmark() {
             value={formData.categoryId}
             onChange={inputHandler}
           >
-            <option className="text-black" value={0}>
+            <option
+              className="text-black dark:bg-gray-900 dark:text-white"
+              value={0}
+            >
               None
             </option>
             {categories.map((category) => (
               <option
                 // selected={category.id === formData.categoryId}
-                className="text-black"
+                className="dark:bg-gray-900 dark:text-white"
                 key={category.id}
                 value={category.id}
               >

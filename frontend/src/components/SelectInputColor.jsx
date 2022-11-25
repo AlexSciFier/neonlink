@@ -51,7 +51,7 @@ export default function SelectInputColor({
         <SelectorIcon className="w-5 h-5" />
       </button>
       {isMenuOpen && (
-        <ul className="absolute left-0 right-0 mt-1 bg-white text-black py-1 rounded shadow-xl">
+        <ul className="absolute left-0 right-0 mt-1 bg-white text-black py-1 rounded shadow-xl dark:bg-gray-900 dark:text-white dark:border">
           {options.map((option, idx) => (
             <li
               key={idx}
