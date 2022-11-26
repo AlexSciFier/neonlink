@@ -82,16 +82,12 @@ export default function AddPage() {
 
   const refreshHandler = (e) => {
     e.preventDefault();
-    let url = urlRef.current.value;
-    fetchUrl(url);
+    fetchUrl();
   };
 
-  async function fetchUrl(url) {
+  async function fetchUrl() {
     setUrlError(undefined);
     if (url === "") return;
-    if (!/^https?:\/\//i.test(url)) {
-      setUrl("https://" + url);
-    }
 
     setIsLoading(true);
     let res;
@@ -123,7 +119,7 @@ export default function AddPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSending(true);
-    let submitData = { ...formData, url: urlRef.current.value };
+    let submitData = { ...formData, url };
     let res;
     try {
       res = await postJSON("/api/bookmarks", submitData);
@@ -137,6 +133,12 @@ export default function AddPage() {
     } else {
       setError(await res.json());
       setSending(false);
+    }
+  };
+
+  const autocompleteUrl = () => {
+    if (!/^https?:\/\//i.test(url) && url !== "") {
+      setUrl("https://" + url);
     }
   };
 
@@ -163,6 +165,7 @@ export default function AddPage() {
             name={"url"}
             placeholder="URL"
             onChange={(e) => setUrl(e.target.value)}
+            onBlur={(e) => autocompleteUrl()}
             refreshHandler={refreshHandler}
             value={url}
             icon={formData.icon}

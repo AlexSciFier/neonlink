@@ -10,6 +10,7 @@ const InputBox = React.forwardRef(
       type,
       placeholder,
       onChange,
+      onBlur,
       value,
       name,
       refreshHandler,
@@ -32,6 +33,7 @@ const InputBox = React.forwardRef(
           name={name}
           ref={ref}
           required={required}
+          onBlur={onBlur}
         ></input>
         {refreshHandler ? (
           <button
