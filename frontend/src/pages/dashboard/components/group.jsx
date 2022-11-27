@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useInterfaceSettings } from "../../../context/interfaceSettingsContext";
 import { pickColorBasedOnBgColor } from "../../../helpers/color";
 import { getJSON } from "../../../helpers/fetch";
+import LazyIcon from "../../../components/LazyIcon";
 
 export default function Group({ category }) {
   const { useImageAsBg, cardHeaderStyle, useNeonShadow } =
@@ -78,13 +79,9 @@ export default function Group({ category }) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <div
-                className="w-6 h-6 flex-none"
-                style={{
-                  backgroundImage: `url(${bookmark.icon})`,
-                  backgroundSize: "cover",
-                }}
-              ></div>
+              <div className="flex-none relative">
+                <LazyIcon id={bookmark.id} title={bookmark.title} />
+              </div>
               <div className="truncate w-full dark:text-white">
                 {bookmark.title}
               </div>
