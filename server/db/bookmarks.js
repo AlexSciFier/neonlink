@@ -127,7 +127,12 @@ function getBookmarkById(id) {
  */
 function getBookmarkByCategoryId(categoryId) {
   return db
-    .prepare("SELECT * FROM bookmarks WHERE categoryId = ?")
+    .prepare(
+      `SELECT id, url, title, desc, bookmarks.categoryId, created, bookmarkPosition.position FROM bookmarks 
+      LEFT JOIN bookmarkPosition ON bookmarks.id = bookmarkPosition.bookmarkId
+      WHERE bookmarks.categoryId = ?
+      ORDER BY bookmarkPosition.position`
+    )
     .all(categoryId);
 }
 
@@ -326,6 +331,30 @@ function updateBookmarkById(id, url, title, desc, icon, categoryId, tags) {
     ? true
     : false;
 }
+
+/**
+ *
+ * @param {IdPositionPair[]} idPositionPairArray
+ * @param {number} categoryId
+ */
+function updatePostitions(idPositionPairArray, categoryId) {
+  const insert = db.prepare(
+    "INSERT OR REPLACE INTO bookmarkPosition (bookmarkId, categoryId, position) VALUES (:bookmarkId, :categoryId, :position)"
+  );
+
+  const insertMany = db.transaction((items) => {
+    for (const item of items)
+      insert.run({
+        categoryId: categoryId,
+        bookmarkId: item.id,
+        position: item.position,
+      });
+  });
+
+  insertMany(idPositionPairArray);
+  return true;
+}
+
 module.exports = {
   addBookmark,
   getAllBookmarks,
@@ -337,4 +366,5 @@ module.exports = {
   updateBookmarkById,
   deleteBookmarkById,
   getIconByBookmarkId,
+  updatePostitions,
 };
