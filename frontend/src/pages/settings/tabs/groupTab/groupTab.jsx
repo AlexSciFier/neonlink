@@ -2,19 +2,8 @@ import React, { useEffect } from "react";
 import { useCategoriesList } from "../../../../context/categoriesList";
 import InputGroup from "../../components/inputGroup";
 import { AddCategoryInput } from "./AddCategoryInput";
-import { CategoryItem } from "./CategoryItem";
-import {
-  DndContext,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-} from "@dnd-kit/sortable";
+import { arrayMove } from "@dnd-kit/sortable";
+import SortableList from "./SortableList";
 
 export default function GroupTab() {
   const {
@@ -25,22 +14,6 @@ export default function GroupTab() {
     fetchCategories,
     abort,
   } = useCategoriesList();
-
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      // Require the mouse to move by 10 pixels before activating
-      activationConstraint: {
-        distance: 5,
-      },
-    }),
-    useSensor(TouchSensor, {
-      // Press delay of 250ms, with tolerance of 5px of movement
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    })
-  );
 
   useEffect(() => {
     fetchCategories();
@@ -75,30 +48,15 @@ export default function GroupTab() {
       <InputGroup title={"List of categories"}>
         <div>
           <AddCategoryInput />
-          <ul className="space-y-1 md:w-2/3 w-full">
+          <div className="space-y-1 md:w-2/3 w-full">
             {isLoading ? (
               <div>Is Loading</div>
             ) : categories.length === 0 ? (
               "No categories"
             ) : (
-              <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
-                <SortableContext
-                  items={categories}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {categories?.map((category) => (
-                    <CategoryItem
-                      id={category.id}
-                      name={category.name}
-                      color={category.color}
-                      position={category.position}
-                      key={category.id}
-                    />
-                  ))}
-                </SortableContext>
-              </DndContext>
+              <SortableList handleDragEnd={handleDragEnd} items={categories} />
             )}
-          </ul>
+          </div>
         </div>
       </InputGroup>
     </div>

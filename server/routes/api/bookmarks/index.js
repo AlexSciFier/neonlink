@@ -1,6 +1,6 @@
 "use strict";
 const { default: fastify } = require("fastify");
-const db = require("../../../db/connect");
+const bookmark = require("../../../db/bookmarks")
 const netscape = require("../../../utils/bookmarkFileGenerator");
 const { imgUrlToBase64 } = require("../../../utils/imgUrlToBase64");
 const { requestForbidden } = require("../utils/preHandler");
@@ -22,8 +22,8 @@ module.exports = async function (fastify, opts) {
       let tag = query.get("tag") ?? undefined;
       let category = query.get("category") ?? undefined;
       if (q || tag || category)
-        return db.findBookmark(q || "", tag, category, limit, offset);
-      return db.getAllBookmarks(offset, limit);
+        return bookmark.findBookmark(q || "", tag, category, limit, offset);
+      return bookmark.getAllBookmarks(offset, limit);
     }
   );
 
@@ -32,7 +32,7 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      let bookmark = db.getBookmarkById(id);
+      let bookmark = bookmark.getBookmarkById(id);
       if (bookmark) return bookmark;
       throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
     }
@@ -43,7 +43,7 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      let icon = db.getIconByBookmarkId(id);
+      let icon = bookmark.getIconByBookmarkId(id);
       if (icon) {
         let type = icon.split(";")[0].split(":")[1];
         reply
@@ -61,7 +61,7 @@ module.exports = async function (fastify, opts) {
     "/export",
     { preHandler: requestForbidden },
     async function (request, reply) {
-      let bookmarks = db.getAllBookmarks(0, 999999)?.bookmarks;
+      let bookmarks = bookmark.getAllBookmarks(0, 999999)?.bookmarks;
       let maped = {};
       for (const key in bookmarks) {
         if (Object.hasOwnProperty.call(bookmarks, key)) {
@@ -79,7 +79,7 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      let bookmarks = db.getBookmarkByCategoryId(id);
+      let bookmarks = bookmark.getBookmarkByCategoryId(id);
       if (bookmarks) return bookmarks;
       throw fastify.httpErrors.notFound(
         `bookmarks with category id ${id} not found`
@@ -115,14 +115,14 @@ module.exports = async function (fastify, opts) {
 
       if (icon !== "") icon = await imgUrlToBase64(icon);
 
-      let existingBookmark = db.getBookmarkByUrl(url);
+      let existingBookmark = bookmark.getBookmarkByUrl(url);
       if (existingBookmark) {
         throw fastify.httpErrors.badRequest(
           "Bookmark with this url is already exist"
         );
       }
       reply.statusCode = 201;
-      return db.addBookmark(url, title, desc, icon, categoryId, tags);
+      return bookmark.addBookmark(url, title, desc, icon, categoryId, tags);
     }
   );
 
@@ -151,9 +151,9 @@ module.exports = async function (fastify, opts) {
           throw fastify.httpErrors.notAcceptable(
             `url shoud not be empty ${title}`
           );
-        let existingBookmark = db.getBookmarkByUrl(url);
+        let existingBookmark = bookmark.getBookmarkByUrl(url);
         if (existingBookmark) return;
-        db.addBookmark(url, title, "", icon, undefined, []);
+        bookmark.addBookmark(url, title, "", icon, undefined, []);
         reply.statusCode = 201;
       });
       return true;
@@ -184,7 +184,7 @@ module.exports = async function (fastify, opts) {
       let { url, title, desc, icon, categoryId, tags } = request.body;
       if (url === "") throw new Error("Url shoud not be empty string");
       if (icon && icon.startsWith("http")) icon = await imgUrlToBase64(icon);
-      if (db.updateBookmarkById(id, url, title, desc, icon, categoryId, tags))
+      if (bookmark.updateBookmarkById(id, url, title, desc, icon, categoryId, tags))
         return { url, title, desc };
       throw fastify.httpErrors.notFound();
     }
@@ -195,8 +195,39 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      if (db.deleteBookmarkById(id)) return true;
+      if (bookmark.deleteBookmarkById(id)) return true;
       else throw fastify.httpErrors.notFound();
+    }
+  );
+
+  fastify.put(
+    "/changePositions",
+    {
+      preHandler: requestForbidden,
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            categoryId: { type: "number" },
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["id", "position"],
+                properties: {
+                  id: { type: "number" },
+                  position: { type: "number" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    async function (request, reply) {
+      let { items, categoryId } = request.body;
+      if (bookmark.updatePostitions(items,categoryId)) return true;
+      return { items, categoryId };
     }
   );
 };

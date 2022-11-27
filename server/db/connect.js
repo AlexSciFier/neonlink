@@ -84,7 +84,13 @@ function init() {
     useNologin INTEGER  
   )`
   ).run();
-
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS bookmarkPosition (
+      bookmarkId INTEGER PRIMARY KEY,
+      categoryId INTEGER,
+      position INTEGER 
+  )`
+  ).run();
   path();
 }
 

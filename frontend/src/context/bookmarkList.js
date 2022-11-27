@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useRef, useState } from "react";
-import { deleteJSON, getJSON } from "../helpers/fetch";
+import { deleteJSON, getJSON, putJSON } from "../helpers/fetch";
 
 const BookMarkList = createContext();
 
@@ -65,6 +65,15 @@ export function BookMarkListProvider({ children }) {
     }
   }
 
+  async function changePositions(idPositionPairArray) {
+    abortController.current = new AbortController();
+    await putJSON(
+      `api/bookmarks/changePositions`,
+      idPositionPairArray,
+      abortController.current.signal
+    );
+  }
+
   return (
     <BookMarkList.Provider
       value={{
@@ -75,6 +84,7 @@ export function BookMarkListProvider({ children }) {
         isBookmarksLoading,
         fetchBookmarks,
         deleteBookmark,
+        changePositions,
         abort,
       }}
     >
