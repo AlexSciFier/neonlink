@@ -32,8 +32,8 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      let bookmark = bookmark.getBookmarkById(id);
-      if (bookmark) return bookmark;
+      let foundedBookmark = bookmark.getBookmarkById(id);
+      if (foundedBookmark) return foundedBookmark;
       throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
     }
   );

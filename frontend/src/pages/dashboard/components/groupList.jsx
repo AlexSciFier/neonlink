@@ -3,11 +3,13 @@ import React from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCategoriesList } from "../../../context/categoriesList";
-import { useLocalStorage } from "../../../hooks/useLocalStorage";
+import { useInterfaceSettings } from "../../../context/interfaceSettingsContext";
 import Group from "../components/group";
 
 export default function GroupList() {
   let { categories, isLoading, fetchCategories, abort } = useCategoriesList();
+
+  const {columns} = useInterfaceSettings()
 
   useEffect(() => {
     fetchCategories();
@@ -17,7 +19,6 @@ export default function GroupList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [columns] = useLocalStorage("dashboardColumns", 3);
   if (isLoading) return <div></div>;
   if (categories.length === 0) {
     return (
