@@ -37,7 +37,7 @@ You can easily install an application using Docker. The images are also optimize
 Then run the command which will install the Docker container.
 
 ```sh
-docker run -p {80}:3333 -v {/path/to/bookmarks.sqlite}:/app/server/db/bookmarks.sqlite -v {/path/to/backgroundimages}:/app/server/public/static/media/background alexscifier/neonlink:latest
+docker run -p {80}:3333 -v {/path/to/bookmarks.sqlite}:/app/db/bookmarks.sqlite -v {/path/to/backgroundimages}:/app/public/static/media/background alexscifier/neonlink:latest
 ```
 
 - Replace {80} with any port you like.
