@@ -1,4 +1,4 @@
-FROM node:lts-alpine AS ui-build
+FROM node:16-alpine AS ui-build
 WORKDIR /app/client
 
 ENV PATH /app/client/node_modules/.bin:$PATH
@@ -13,22 +13,31 @@ RUN npm ci --only=production
 COPY ./frontend .
 RUN npm run build
 
-FROM node:lts-alpine AS build
+FROM node:16-alpine AS build
 
 WORKDIR /app/server
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 ENV NPM_CONFIG_LOGLEVEL=warn
-ENV PORT=3333
+
 
 COPY ./server/package*.json ./
 
 RUN npm ci --only=production
 
-EXPOSE 3333
+FROM node:16-alpine
 
+WORKDIR /app
 COPY ./server ./
+COPY --from=build /app/server ./
 COPY --from=ui-build /app/client/build ./public
 
-CMD ["npm", "run", "start"]
+ENV PORT=3333
+ENV FASTIFY_BODY_LIMIT=5242880
+ENV FASTIFY_ADDRESS=0.0.0.0
+ENV FASTIFY_LOG_LEVEL=error
+
+EXPOSE 3333
+
+CMD ["node", "server.js"]
