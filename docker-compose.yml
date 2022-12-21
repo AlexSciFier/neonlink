@@ -3,9 +3,10 @@ version: "3.8"
 services:
   neonlink:
     image: alexscifier/neonlink
+    container_name: neonlink
     volumes:
       - ./bookmarks.sqlite:/app/db/bookmarks.sqlite
       - ./background:/app/public/static/media/background
-    restart: always
+    restart: unless-stopped
     ports:
       - "80:3333"
