@@ -20,7 +20,7 @@ const routes = [
 export default function PrivateWrapper({ profile }) {
   const { pathname } = useLocation();
   if (profile === undefined) {
-    <Navigate to="/login" />;
+    return <Navigate to="/login" />;
   }
 
   return (
