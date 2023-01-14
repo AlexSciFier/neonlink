@@ -1,23 +1,13 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useIsloggedIn } from "./context/isLoggedIn";
-import { Navigate, Outlet } from "react-router";
 import React, { useEffect } from "react";
 import { getJSON } from "./helpers/fetch";
 import { APP_NAME } from "./helpers/constants";
+import PrivateWrapper from "./components/PrivateWrapper";
 
 const RegisterPage = React.lazy(() => import("./pages/register"));
-const Dashboard = React.lazy(() => import("./pages/dashboard"));
-const NotFound = React.lazy(() => import("./pages/notFound"));
-const EditBookmark = React.lazy(() => import("./pages/editBookmark"));
-const AddPage = React.lazy(() => import("./pages/addBookmark"));
-const SettingsPage = React.lazy(() => import("./pages/settings"));
-const LinksPage = React.lazy(() => import("./pages/link"));
 const LoginPage = React.lazy(() => import("./pages/login"));
-
-function PrivateWrapper({ profile }) {
-  return profile ? <Outlet /> : <Navigate to="/login" />;
-}
 
 function App() {
   let {
@@ -57,14 +47,6 @@ function App() {
 
   if (isProfileLoading) return <LoadScreen />;
 
-  const routes = [
-    { path: "/", element: <Dashboard /> },
-    { path: "/settings", element: <SettingsPage /> },
-    { path: "/add", element: <AddPage /> },
-    { path: "/edit/:id", element: <EditBookmark /> },
-    { path: "/links", element: <LinksPage /> },
-  ];
-
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-cyan-600 to-fuchsia-600 overflow-auto dark:from-gray-900 dark:to-gray-900">
       <Router>
@@ -86,31 +68,7 @@ function App() {
               </React.Suspense>
             }
           />
-
-          {routes.map((route) => (
-            <Route
-              key={route.path}
-              element={<PrivateWrapper profile={profile} />}
-            >
-              <Route
-                path={route.path}
-                element={
-                  <React.Suspense fallback={<LoadScreen />}>
-                    {route.element}
-                  </React.Suspense>
-                }
-              />
-            </Route>
-          ))}
-
-          <Route
-            path="*"
-            element={
-              <React.Suspense fallback={<LoadScreen />}>
-                <NotFound />
-              </React.Suspense>
-            }
-          />
+          <Route path="/*" element={<PrivateWrapper profile={profile} />} />
         </Routes>
       </Router>
     </div>

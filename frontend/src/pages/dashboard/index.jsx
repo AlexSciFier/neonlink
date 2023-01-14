@@ -21,7 +21,7 @@ export default function Dashboard() {
       aligmentClass = "";
       break;
   }
-  
+
   return (
     <div
       className="h-full flex flex-col bg-cover bg-center"
