@@ -10,7 +10,7 @@ function parseBookmarkFile(data) {
 
   let urlArray = urlArrayRaw.map((node) => ({
     href: node.getAttribute("href"),
-    date: new Date(Number.parseInt(node.getAttribute("add_date")) * 1000),
+    date: new Date(Number.parseInt(node.getAttribute("add_date")) * 1000 || Date.now()),
     name: node.textContent,
     icon: node.getAttribute("icon"),
   }));
