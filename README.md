@@ -44,7 +44,7 @@ docker run -p {80}:3333 -v {/path/to/bookmarks.sqlite}:/app/db/bookmarks.sqlite 
 - Replace {/path/to/bookmarks.sqlite} with the absolute path to the `bookmarks.sqlite` file you created earlier.
 - Replace {/path/to/backgroundimages} with the path to folder with background images
 
-Or you can install with `doker-compose.yml` file
+Or you can install with `docker-compose.yml` file
 
 ```sh
 #clone repo
