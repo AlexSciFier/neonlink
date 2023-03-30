@@ -94,9 +94,25 @@ function range(maxPage, currentPage, siblings) {
   if (totalPageNumbers >= maxPage) {
     return [...Array(maxPage).keys()].map((idx) => ++idx);
   }
-  let centerArray = [...Array(siblings * 2 + 1).keys()];
-  centerArray = centerArray.map((idx) => {
+  let padedArray = [...Array(siblings * 2 + 1).keys()];
+
+  let startArray = padedArray.map((idx) => {
+    return idx + 1;
+  });
+
+  let centerArray = padedArray.map((idx) => {
     return idx + currentPage - siblings;
   });
+
+  let endArray = padedArray.reverse().map((idx) => {
+    return maxPage - idx;
+  });
+
+  if (currentPage <= 1 + siblings * 2 - 1) {
+    return [...startArray, "DOTS", maxPage];
+  }
+  if (currentPage > maxPage - siblings * 2) {
+    return [1, "DOTS", ...endArray];
+  }
   return [1, "DOTS", ...centerArray, "DOTS", maxPage];
 }
