@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useRef, useState } from "react";
 import { deleteJSON, getJSON, putJSON } from "../helpers/fetch";
+import { useInterfaceSettings } from "./interfaceSettingsContext";
 
 const BookMarkList = createContext();
 
@@ -8,6 +9,8 @@ export function useBookMarkList() {
 }
 
 export function BookMarkListProvider({ children }) {
+  const { maxItemsInList } = useInterfaceSettings();
+
   const [bookmarkList, setBookmarkList] = useState([]);
   const [isBookmarksLoading, setIsBookmarksLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,7 +24,7 @@ export function BookMarkListProvider({ children }) {
 
   async function fetchBookmarks({
     offset = 0,
-    limit = 25,
+    limit = maxItemsInList,
     query,
     tag,
     category,
