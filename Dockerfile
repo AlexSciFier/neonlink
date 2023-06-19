@@ -27,11 +27,11 @@ COPY ./server/package*.json ./
 RUN npm ci --only=production
 
 FROM node:16-alpine
-
+USER node
 WORKDIR /app
-COPY ./server ./
-COPY --from=build /app/server ./
-COPY --from=ui-build /app/client/build ./public
+COPY --chown=node ./server ./
+COPY --chown=node --from=build /app/server ./
+COPY --chown=node --from=ui-build /app/client/build ./public
 
 ENV PORT=3333
 ENV FASTIFY_BODY_LIMIT=5242880
