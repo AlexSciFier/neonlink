@@ -125,7 +125,11 @@ function isUserExist(username) {
  * @returns {User}
  */
 function getUser(username) {
-  return db.prepare("SELECT * FROM users WHERE username = ?").get(username);
+  let user = db.prepare("SELECT * FROM users WHERE username = ?").get(username);
+  let userSettings =
+    db.prepare("SELECT * FROM userSettings WHERE uuid=?").get(user.uuid) ??
+    initDefaultSettings(user.uuid);
+  return { ...user, ...userSettings };
 }
 
 /**

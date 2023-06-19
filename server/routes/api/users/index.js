@@ -220,6 +220,7 @@ module.exports = async function (fastify, opts) {
           properties: {
             username: { type: "string" },
             password: { type: "string" },
+            ...settingsFields,
           },
         },
       },
