@@ -5,7 +5,7 @@ services:
     image: alexscifier/neonlink
     container_name: neonlink
     volumes:
-      - ./bookmarks.sqlite:/app/db/bookmarks.sqlite
+      - ./data:/app/data
       - ./background:/app/public/static/media/background
     restart: unless-stopped
     ports:

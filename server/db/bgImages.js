@@ -1,5 +1,5 @@
 const Database = require("better-sqlite3");
-let db = new Database("./db/bookmarks.sqlite");
+let db = new Database("./data/bookmarks.sqlite");
 
 /**
  * @typedef BgImage

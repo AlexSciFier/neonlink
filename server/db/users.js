@@ -2,7 +2,7 @@ const Database = require("better-sqlite3");
 const crypto = require("node:crypto");
 const { getNologin } = require("./appSettings");
 
-let db = new Database("./db/bookmarks.sqlite");
+let db = new Database("./data/bookmarks.sqlite");
 /**
  * @typedef {Object} User
  * @property {number} id
