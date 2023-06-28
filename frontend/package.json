@@ -13,12 +13,12 @@
     "install": "^0.13.0",
     "lodash": "^4.17.21",
     "node-html-parser": "^5.3.3",
-    "npm": "^8.12.1",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "npm": "^9.7.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-router": "^6.3.0",
     "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.0",
+    "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -46,8 +46,8 @@
     ]
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.4",
-    "postcss": "^8.4.12",
-    "tailwindcss": "^3.0.23"
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.3.2"
   }
 }
