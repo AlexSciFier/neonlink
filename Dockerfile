@@ -9,7 +9,7 @@ ENV NPM_CONFIG_LOGLEVEL=warn
 
 COPY ./frontend/package*.json ./
 
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 COPY ./frontend .
 RUN npm run build
 
@@ -22,7 +22,7 @@ ENV NPM_CONFIG_LOGLEVEL=warn
 
 COPY ./server/package*.json ./
 
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 FROM node:16-alpine
 USER node
