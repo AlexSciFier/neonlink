@@ -1,19 +1,17 @@
-"use strict";
-const { default: fastify } = require("fastify");
-const db = require("../../../db/connect");
-const { requestForbidden } = require("../utils/preHandler");
+import { requestForbidden } from "../utils/preHandler.js";
+import { stores } from "../../../db/stores.js";
 
 /**
  *
  * @param {import("fastify").FastifyInstance} fastify
  * @param {*} opts
  */
-module.exports = async function (fastify, opts) {
+export default async function (fastify, opts) {
   fastify.get(
     "/",
     { preHandler: requestForbidden },
     async function (request, reply) {
-      return db.getAllCategories();
+      return stores.categories.getAllCategories();
     }
   );
 
@@ -22,7 +20,7 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      let category = db.getCategoryById(id);
+      let category = store.categories.getCategoryById(id);
       if (category) return category;
       throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
     }
@@ -47,10 +45,10 @@ module.exports = async function (fastify, opts) {
     async function (request, reply) {
       let { name, color, position } = request.body;
 
-      let existingCategory = db.getCategoryByName(name);
+      let existingCategory = stores.categories.getCategoryByName(name);
 
       if (existingCategory) {
-        return db.updateCategoryById(
+        return stores.categories.updateCategoryById(
           existingCategory.id,
           name,
           color,
@@ -58,7 +56,7 @@ module.exports = async function (fastify, opts) {
         );
       }
       reply.statusCode = 201;
-      return db.addCategory(name, color, position);
+      return stores.categories.addCategory(name, color, position);
     }
   );
 
@@ -80,7 +78,7 @@ module.exports = async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let { name, color } = request.body;
-      if (db.updateCategoryById(id, name, color)) return { id, name, color };
+      if (stores.categories.updateCategoryById(id, name, color)) return { id, name, color };
       throw fastify.httpErrors.notFound();
     }
   );
@@ -105,7 +103,7 @@ module.exports = async function (fastify, opts) {
     },
     async function (request, reply) {
       let array = request.body;
-      if (db.updatePostitions(array)) return true;
+      if (stores.categories.updatePostitions(array)) return true;
       throw fastify.httpErrors.notFound();
     }
   );
@@ -115,7 +113,7 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      if (db.deleteCategoryById(id)) return true;
+      if (stores.categories.deleteCategoryById(id)) return true;
       else throw fastify.httpErrors.notFound();
     }
   );

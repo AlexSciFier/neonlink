@@ -1,11 +1,11 @@
-const axios = require("axios").default;
+import axios from "axios";
 
-const db = require("../../../db/connect");
-const { imgUrlToBase64 } = require("../../../utils/imgUrlToBase64");
-const { parseHtml } = require("./parsePage");
+import { imgUrlToBase64 } from "../../../utils/imgUrlToBase64.js";
+import { parseHtml } from "./parsePage.js";
+import { stores } from "../../../db/stores.js"
 
-function batchUpdateLinks() {
-  let bookmarks = db.getAllBookmarks(0, 999999);
+export function batchUpdateLinks() {
+  let bookmarks = stores.bookmarks.getAllBookmarks(0, 999999);
 
   bookmarks.bookmarks.forEach(async (bookmark) => {
     let response;
@@ -19,7 +19,7 @@ function batchUpdateLinks() {
     let html = await response.data;
     let urlInfo = await parseHtml(html, bookmark.url);
     let icon = await imgUrlToBase64(urlInfo.icon);
-    db.updateBookmarkById(
+    stores.bookmarks.updateBookmarkById(
       bookmark.id,
       bookmark.url,
       urlInfo.title || bookmark.title,
@@ -31,4 +31,3 @@ function batchUpdateLinks() {
   });
   return true;
 }
-module.exports = { batchUpdateLinks };

@@ -1,7 +1,5 @@
-const Database = require("better-sqlite3");
-const { changePassword, getUser } = require("./db/users");
-
-const argv = require("node:process").argv;
+import { argv } from "node:process";
+import { stores } from "./db/stores.js";
 
 const username = argv[2];
 const password = argv[3];
@@ -19,6 +17,6 @@ if (password === undefined) {
   );
   return;
 }
-changePassword(username, password);
+stores.users.changePassword(username, password);
 
 console.log("Password changed!");

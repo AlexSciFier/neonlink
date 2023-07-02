@@ -1,11 +1,8 @@
-'use strict'
 
-// This file contains code that we reuse
-// between our tests.
+import { build as buildApplication } from 'fastify-cli/helper'
+import { join } from 'path'
 
-const { build: buildApplication } = require('fastify-cli/helper')
-const path = require('path')
-const AppPath = path.join(__dirname, '..', 'app.js')
+const AppPath = join(__dirname, '..', 'app.js')
 
 // Fill in this config with all the configurations
 // needed for testing the application
@@ -29,7 +26,7 @@ async function build (t) {
   return app
 }
 
-module.exports = {
+export default {
   config,
   build
 }

@@ -1,22 +1,20 @@
-const { default: fastify } = require("fastify");
-const path = require("path");
-const bgImages = require("../../../db/bgImages");
-const usersDB = require("../../../db/users");
-const { deleteFileFromPublic } = require("../utils/fsHandler");
-const { requestForbidden } = require("../utils/preHandler");
+import { basename } from "path";
+import { stores } from "../../../db/stores.js";
+import { deleteFileFromPublic } from "../utils/fsHandler.js";
+import { requestForbidden } from "../utils/preHandler.js";
 
 /**
  *
  * @param {import("fastify").FastifyInstance} fastify
  * @param {*} opts
  */
-module.exports = async function (fastify, opts) {
+export default async function (fastify, opts) {
   fastify.get(
     "/",
     { preHandler: requestForbidden },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
-      return bgImages.getAllImages(uuid);
+      return stores.backgroundImages.getAllImages(uuid);
     }
   );
   fastify.get(
@@ -25,7 +23,7 @@ module.exports = async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let uuid = request.cookies.SSID;
-      return bgImages.getImageById(id, uuid);
+      return stores.backgroundImages.getImageById(id, uuid);
     }
   );
   fastify.post(
@@ -47,9 +45,9 @@ module.exports = async function (fastify, opts) {
     async function (request, reply) {
       let { url } = request.body;
       let uuid = request.cookies.SSID;
-      if (bgImages.getImageByUrl(url).length > 0)
+      if (stores.backgroundImages.getImageByUrl(url).length > 0)
         throw reply.notAcceptable("Already exist");
-      let lastRow = bgImages.addImage(url, uuid);
+      let lastRow = stores.backgroundImages.addImage(url, uuid);
       return { id: lastRow, url };
     }
   );
@@ -59,12 +57,12 @@ module.exports = async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let uuid = request.cookies.SSID;
-      let imageInDB = bgImages.getImageById(id, uuid);
+      let imageInDB = stores.backgroundImages.getImageById(id, uuid);
       if (imageInDB.length === 0) {
         throw "Image id doesn't exist";
       }
-      let imageName = path.basename(imageInDB[0].url);
-      let changes = bgImages.deleteImage(id, uuid);
+      let imageName = basename(imageInDB[0].url);
+      let changes = stores.backgroundImages.deleteImage(id, uuid);
       if (changes > 0) {
         try {
           await deleteFileFromPublic(imageName);

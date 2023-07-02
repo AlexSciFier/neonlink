@@ -1,15 +1,5 @@
-"use strict";
-
-const { deleteBookmarkById } = require("../../../db/bookmarks");
-const {
-  getAllTags,
-  getTagById,
-  addTag,
-  updateTagById,
-  findTags,
-} = require("../../../db/tags");
-const { getUserByUUID } = require("../../../db/users");
-const { requestForbidden } = require("../utils/preHandler");
+import { requestForbidden } from "../utils/preHandler.js";
+import { stores } from "../../../db/stores.js";
 
 const postOptions = {
   schema: {
@@ -29,14 +19,14 @@ const postOptions = {
  * @param {import("fastify").FastifyInstance} fastify
  * @param {*} opts
  */
-module.exports = async function (fastify, opts) {
+export default async function (fastify, opts) {
   fastify.get(
     "/",
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { q } = request.query;
-      if (q) return findTags(q);
-      return getAllTags();
+      if (q) return stores.tags(q);
+      return stores.tags.getAllTags();
     }
   );
 
@@ -45,14 +35,14 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      return getTagById(id);
+      return stores.tags.getTagById(id);
     }
   );
 
   fastify.post("/", postOptions, async function (request, reply) {
     let { name } = request.body;
     if (name === "") throw new Error("name cannot be empty");
-    let id = addTag(name);
+    let id = stores.tags.addTag(name);
     reply.statusCode = 201;
     return { id, name };
   });
@@ -61,10 +51,10 @@ module.exports = async function (fastify, opts) {
     let { id } = request.params;
     let { name } = request.body;
     if (name === "") throw new Error("name cannot be empty");
-    let tag = getTagById(id);
+    let tag = stores.tags.getTagById(id);
     if (tag === undefined)
       throw fastify.httpErrors.notFound("tag with this id doesnt exist");
-    updateTagById(id, name);
+    stores.tags.updateTagById(id, name);
     return { id, name };
   });
 
@@ -73,7 +63,7 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      let status = deleteBookmarkById(id);
+      let status = stores.bookmarks.deleteBookmarkById(id);
       if (status) return true;
       throw new Error("cannot delete");
     }

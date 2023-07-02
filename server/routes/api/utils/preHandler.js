@@ -1,20 +1,21 @@
-const usersDB = require("../../../db/connect");
-const appSettings = require("../../../db/appSettings");
+
+import { stores } from "../../../db/stores.js";
+
 /**
  *
  * @param {import("fastify").FastifyRequest} request
  * @param {import("fastify").FastifyReply} reply
  */
-async function requestForbidden(request, reply) {
+export async function requestForbidden(request, reply) {
   try {
-    const noLogin = appSettings.getNologin();
+    const noLogin = stores.appSettings.getNologin();
     if (noLogin) {
       return;
     }
     let SSID = request.cookies.SSID;
 
     if (SSID) {
-      let user = await usersDB.getUserByUUID(SSID);
+      let user = await stores.users.getUserByUUID(SSID, stores.appSettings.getNologin());
       if (user === undefined) {
         throw reply.notFound("User not found");
       }
@@ -24,5 +25,3 @@ async function requestForbidden(request, reply) {
     throw reply.unauthorized("You must login to use this method");
   }
 }
-
-module.exports = { requestForbidden };

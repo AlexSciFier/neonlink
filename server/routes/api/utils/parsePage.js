@@ -1,5 +1,4 @@
-"use strict";
-const { parse } = require("node-html-parser");
+import { parse } from "node-html-parser";
 
 /**
  *
@@ -33,10 +32,9 @@ function parseTitle(doc) {
  * @param {string} baseurl
  */
 
-async function parseHtml(html, baseurl) {
+export async function parseHtml(html, baseurl) {
   let doc = parse(html);
   let icon = parseIcon(doc, baseurl);
   let { title, desc } = parseTitle(doc);
   return { icon, title, desc };
 }
-exports.parseHtml = parseHtml;

@@ -1,47 +1,40 @@
-"use strict";
+import AutoLoad from 'fastify-autoload';
+import Dotenv from 'dotenv'
+import Fastify from 'fastify';
 
-// Read the .env file.
-require("dotenv").config();
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
-// Require the framework
-const Fastify = require("fastify");
+try {
+  // Read environment variables
+  Dotenv.config()
 
-// Require library to exit fastify process, gracefully (if possible)
-const closeWithGrace = require("close-with-grace");
+  // Initialize Fastify
+  const app = Fastify({
+    logger: { level: process.env.FASTIFY_LOG_LEVEL || "info" },
+    bodyLimit: 5242880,
+  });
 
-// Instantiate Fastify with some config
-const app = Fastify({
-  logger: { level: process.env.FASTIFY_LOG_LEVEL || "info" },
-  bodyLimit: 5242880,
-});
+  const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Register your application as a normal plugin.
-const appService = require("./app.js");
-app.register(appService);
+  // Load all plugins
+  app.register(AutoLoad, {
+    dir: join(__dirname, "./plugins")
+  });
 
-// delay is the number of milliseconds for the graceful close to finish
-const closeListeners = closeWithGrace(
-  { delay: 500 },
-  async function ({ signal, err, manual }) {
-    if (err) {
-      app.log.error(err);
-    }
-    await app.close();
-  }
-);
+  const PORT = process.env.PORT || 3000;
+  const HOST = process.env.FASTIFY_ADDRESS || "0.0.0.0";
 
-app.addHook("onClose", async (instance, done) => {
-  closeListeners.uninstall();
-  done();
-});
-
-// Start listening.
-app.listen(
-  { port: process.env.PORT || 3000, host: process.env.FASTIFY_ADDRESS || "0.0.0.0" },
-  (err) => {
-    if (err) {
-      app.log.error(err);
+  // Start fastify
+  app.listen({ port: PORT, host: HOST })
+    .then((address) => {
+      console.log(`Server started listening on ${address}`);
+    }).catch((err) => {
+      console.error(err);
       process.exit(1);
-    }
-  }
-);
+    });
+}
+catch(err) {
+  console.log(err);
+  process.exit(1);
+}

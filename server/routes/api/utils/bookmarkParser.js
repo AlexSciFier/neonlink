@@ -1,10 +1,10 @@
-const { parse } = require("node-html-parser");
+import { parse } from "node-html-parser";
 
 /**
  *
  * @param {Buffer} data
  */
-function parseBookmarkFile(data) {
+export function parseBookmarkFile(data) {
   let document = parse(data.toString());
   let urlArrayRaw = document.querySelectorAll("a");
 
@@ -17,5 +17,3 @@ function parseBookmarkFile(data) {
 
   return urlArray;
 }
-
-module.exports = { parseBookmarkFile };

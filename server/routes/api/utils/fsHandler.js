@@ -1,18 +1,48 @@
-const fs = require("fs/promises");
-const path = require("path");
+import fs from 'fs'
+import util from 'util';
 
-async function saveFileToPublic(filename, data) {
-  let dirPath = path.join(__dirname, "../../../public/static/media/background");
-  let publicPath = path.join(dirPath, filename);
-  await fs.access(dirPath).catch(async (err) => {
+import { access, mkdir, writeFile, rm } from "fs/promises";
+import { join } from "path";
+import { pipeline } from 'stream';
+
+const pump = util.promisify(pipeline)
+
+export async function saveFileStreamToPublic(fileName, sourceStream) {
+  let dirPath = join(__dirname, "../../../public/static/media/background");
+  let publicPath = join(dirPath, fileName);
+  await access(dirPath).catch(async (err) => {
     console.error(err.message);
     console.log(`Creating ${dirPath}`);
-    await fs.mkdir(dirPath,{recursive:true});
+    await mkdir(dirPath,{recursive:true});
+  });
+
+  var destinationStream = fs.createWriteStream(publicPath);
+  try {
+  await pump(sourceStream, destinationStream)
+    .then(() => {
+      return true;
+    })
+    .catch((err) => {
+      return err;
+    });
+  }
+  finally
+  {
+    destinationStream.close();
+  }
+}
+
+export async function saveFileToPublic(filename, data) {
+  let dirPath = join(__dirname, "../../../public/static/media/background");
+  let publicPath = join(dirPath, filename);
+  await access(dirPath).catch(async (err) => {
+    console.error(err.message);
+    console.log(`Creating ${dirPath}`);
+    await mkdir(dirPath,{recursive:true});
   });
 
   console.log(`Create ${publicPath}`);
-  return await fs
-    .writeFile(publicPath, data)
+  return await writeFile(publicPath, data)
     .then(() => {
       return true;
     })
@@ -20,17 +50,16 @@ async function saveFileToPublic(filename, data) {
       return err;
     });
 }
-async function deleteFileFromPublic(filename) {
-  let dirPath = path.join(__dirname, "../../../public/static/media/background");
-  let publicPath = path.join(dirPath, filename);
+
+export async function deleteFileFromPublic(filename) {
+  let dirPath = join(__dirname, "../../../public/static/media/background");
+  let publicPath = join(dirPath, filename);
   console.log(`Delete ${publicPath}`);
   try {
-    await fs.rm(publicPath);
+    await rm(publicPath);
     return true;
   } catch (error) {
     console.error(error);
     return false;
   }
 }
-
-module.exports = { saveFileToPublic, deleteFileFromPublic };

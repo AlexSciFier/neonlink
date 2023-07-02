@@ -1,17 +1,16 @@
-"use strict";
-const { parseHtml } = require("./parsePage");
-const { parseBookmarkFile } = require("./bookmarkParser");
-const { batchUpdateLinks } = require("./batchUpdateLinks");
-const { saveFileToPublic } = require("./fsHandler");
-const { getImageByUrl, addImage } = require("../../../db/bgImages");
+import { batchUpdateLinks } from "./batchUpdateLinks.js";
+import { parseBookmarkFile } from "./bookmarkParser.js";
+import { parseHtml } from "./parsePage.js";
+import { saveFileStreamToPublic } from "./fsHandler.js";
+import { stores } from "../../../db/stores.js";
 
-const axios = require("axios").default;
+import axios from "axios";
 /**
  *
  * @param {import("fastify").FastifyInstance} fastify
  * @param {*} opts
  */
-module.exports = async function (fastify, opts) {
+export default async function (fastify, opts) {
   fastify.post(
     "/urlinfo",
     {
@@ -51,14 +50,14 @@ module.exports = async function (fastify, opts) {
   });
 
   fastify.post("/savefile", {}, async function (request, reply) {
-    const file = request.raw.files.file;
+    const file = await request.file();
     const uuid = request.cookies.SSID;
-    let res = saveFileToPublic(file.name, file.data);
+    let res = saveFileStreamToPublic(file.filename, file.file);
     if (res === false) throw "File upload error";
-    let fileUrl = `/static/media/background/${file.name}`;
-    if (getImageByUrl(fileUrl).length > 0)
+    let fileUrl = `/static/media/background/${file.filename}`;
+    if (stores.bookmarks.getImageByUrl(fileUrl).length > 0)
       throw reply.notAcceptable("Already exist");
-    let lastRow = addImage(fileUrl, uuid);
+    let lastRow = stores.bookmarks.addImage(fileUrl, uuid);
     return { id: lastRow, url: fileUrl };
   });
 };

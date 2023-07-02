@@ -1,6 +1,6 @@
-const { default: axios } = require("axios");
+import axios from "axios";
 
-async function imgUrlToBase64(url) {
+export async function imgUrlToBase64(url) {
   try {
     let image = await axios.get(url, { responseType: "arraybuffer" });
     let raw = Buffer.from(image.data).toString("base64");
@@ -10,4 +10,4 @@ async function imgUrlToBase64(url) {
     return undefined;
   }
 }
-module.exports = { imgUrlToBase64 };
+
