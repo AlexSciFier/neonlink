@@ -1,4 +1,4 @@
-import { CheckIcon, PlusIcon, TrashIcon } from "@heroicons/react/outline";
+import { CheckIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import Modal from "../../../../components/Modal";

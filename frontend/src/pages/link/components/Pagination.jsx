@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router";
 import { createSearchParams } from "react-router-dom";
-import { ChevronRightIcon } from "@heroicons/react/outline";
-import { ChevronLeftIcon } from "@heroicons/react/outline";
+import { ChevronRightIcon } from "@heroicons/react/24/outline";
+import { ChevronLeftIcon } from "@heroicons/react/24/outline";
 
 function PaginationButton({ children, disabled, isCurrent, onClick }) {
   return (

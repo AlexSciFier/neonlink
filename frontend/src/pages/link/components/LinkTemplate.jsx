@@ -1,8 +1,8 @@
-import ChevronRightIcon from "@heroicons/react/outline/ChevronRightIcon";
-import TrashIcon from "@heroicons/react/outline/TrashIcon";
-import PencilIcon from "@heroicons/react/outline/PencilIcon";
-import CheckIcon from "@heroicons/react/outline/CheckIcon";
-import XIcon from "@heroicons/react/outline/XIcon";
+import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
+import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
+import PencilIcon from "@heroicons/react/24/outline/PencilIcon";
+import CheckIcon from "@heroicons/react/24/outline/CheckIcon";
+import XMarkIcon from "@heroicons/react/24/outline/XMarkIcon";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useBookMarkList } from "../../../context/bookmarkList";
@@ -53,7 +53,7 @@ function Options({ className, bookmarkId, showOptions, setShowOptions }) {
           <CheckIcon className="w-5 h-5" />
         </button>
         <button className="bg-cyan-500 px-3 text-white" onClick={handleCancel}>
-          <XIcon className="w-5 h-5" />
+          <XMarkIcon className="w-5 h-5" />
         </button>
       </div>
     );
