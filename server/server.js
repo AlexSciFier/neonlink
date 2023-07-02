@@ -1,6 +1,6 @@
-import AutoLoad from 'fastify-autoload';
 import Dotenv from 'dotenv'
 import Fastify from 'fastify';
+import FastifyAutoLoad from '@fastify/autoload';
 
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -18,7 +18,7 @@ try {
   const __dirname = dirname(fileURLToPath(import.meta.url));
 
   // Load all plugins
-  app.register(AutoLoad, {
+  app.register(FastifyAutoLoad, {
     dir: join(__dirname, "./plugins")
   });
 

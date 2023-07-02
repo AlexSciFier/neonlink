@@ -66,10 +66,10 @@ export default async function (fastify, opts) {
           properties: {
             username: { type: "string" },
             password: { type: "string" },
-            isAdmin: { type: "boolean" },
-          },
-        },
-      },
+            isAdmin: { type: "boolean" }
+          }
+        }
+      }
     },
     async function (request) {
       let { username, password } = request.body;
@@ -133,8 +133,8 @@ export default async function (fastify, opts) {
         body: {
           type: "object",
           properties: settingsFields,
-        },
-      },
+        }
+      }
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
@@ -155,8 +155,8 @@ export default async function (fastify, opts) {
         body: {
           type: "object",
           properties: { noLogin: { type: "boolean" } },
-        },
-      },
+        }
+      }
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
@@ -173,11 +173,13 @@ export default async function (fastify, opts) {
     "/settings/global",
     {
       schema: {
-        body: {
-          type: "object",
-          properties: { noLogin: { type: "boolean" } },
-        },
-      },
+        response: {
+          200: {
+            type: "object",
+            properties: { noLogin: { type: "boolean" } }
+          }
+        }
+      }
     },
     async function (request, reply) {
       return { noLogin: stores.appSettings.getNologin() };
@@ -193,9 +195,9 @@ export default async function (fastify, opts) {
           200: {
             type: "object",
             properties: settingsFields,
-          },
-        },
-      },
+          }
+        }
+      }
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;

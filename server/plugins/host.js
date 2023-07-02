@@ -1,8 +1,8 @@
-import AutoLoad from 'fastify-autoload';
-import FastifyCookie from "fastify-cookie";
-import FastifyCors from "fastify-cors";
+import FastifyAutoLoad from '@fastify/autoload';
+import FastifyCookie from "@fastify/cookie";
+import FastifyCors from "@fastify/cors";
 import FastifyMultipart from '@fastify/multipart';
-import FastifySensible from 'fastify-sensible';
+import FastifySensible from '@fastify/sensible';
 import FastifyStatic from '@fastify/static';
 
 import fp from "fastify-plugin";
@@ -13,17 +13,6 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default fp(function (fastify, opts, next) {
-  // This loads all plugins defined in routes
-  // define your routes in one of these
-  fastify.register(AutoLoad, {
-    dir: join(__dirname, "../routes"),
-    options: Object.assign({}, opts),
-  });
-
-  // This allows us to handle static files
-  fastify.register(FastifyStatic, {
-    root: join(__dirname, "../public"),
-  });
 
   // Handle some plugins
   fastify.register(FastifyMultipart, {});
@@ -32,6 +21,22 @@ export default fp(function (fastify, opts, next) {
     origin: true,
     credentials: true,
     methods: ["PUT", "OPTIONS", "POST", "DELETE"],
+  });
+
+  fastify.register(FastifySensible, {
+    errorHandler: false
+  });
+
+  // This loads all plugins defined in routes
+  // define your routes in one of these
+  fastify.register(FastifyAutoLoad, {
+    dir: join(__dirname, "../routes"),
+    options: Object.assign({}, opts),
+  });
+
+  // This allows us to handle static files
+  fastify.register(FastifyStatic, {
+    root: join(__dirname, "../public"),
   });
 
   // This allows us to handle unexpected errors
@@ -46,11 +51,6 @@ export default fp(function (fastify, opts, next) {
   // This allows us to handle Error 404
   fastify.setNotFoundHandler((req,rep)=>{
     rep.sendFile("index.html", "public")
-  });
-
-  // Adds some tools to handle errors
-  fastify.register(FastifySensible, {
-    errorHandler: false
   });
 
   console.log("Host plugin initialization completed.");

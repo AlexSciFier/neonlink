@@ -2,9 +2,11 @@ import fs from 'fs'
 import util from 'util';
 
 import { access, mkdir, writeFile, rm } from "fs/promises";
-import { join } from "path";
+import { dirname, join } from "path";
 import { pipeline } from 'stream';
+import { fileURLToPath } from 'url';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const pump = util.promisify(pipeline)
 
 export async function saveFileStreamToPublic(fileName, sourceStream) {
