@@ -64,7 +64,7 @@ export default async function (fastify, opts) {
     if (stores.backgroundImages.getImageByUrl(fileUrl).length > 0)
         throw reply.notAcceptable("Already exist");
 
-    let res = saveFileStreamToPublic(file.filename, file.file);
+    let res = await saveFileStreamToPublic(file.filename, file.file);
     if (res === false) throw "File upload error";
     try
     {

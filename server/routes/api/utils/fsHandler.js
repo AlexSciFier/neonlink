@@ -20,13 +20,13 @@ export async function saveFileStreamToPublic(fileName, sourceStream) {
 
   var destinationStream = fs.createWriteStream(publicPath);
   try {
-  await pump(sourceStream, destinationStream)
-    .then(() => {
-      return true;
-    })
-    .catch((err) => {
-      return err;
-    });
+    await pump(sourceStream, destinationStream)
+      .then(() => {
+        return true;
+      })
+      .catch((err) => {
+        return err;
+      });
   }
   finally
   {
