@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { UploadIcon } from "@heroicons/react/outline";
+import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { getJSON, postFormData, postJSON } from "../../../../helpers/fetch";
 import { useEffect } from "react";
@@ -75,7 +75,7 @@ export default function ImportBookmark() {
             className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 rounded-r flex gap-1 items-center disabled:bg-gray-500"
             disabled={isLoading || isEmptyFile}
           >
-            <UploadIcon className="w-5 h-5" />
+            <ArrowUpTrayIcon className="w-5 h-5" />
             <div className="hidden md:block">
               {isLoading ? "Uploading ..." : "Upload"}
             </div>

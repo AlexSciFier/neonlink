@@ -1,4 +1,4 @@
-import { ViewGridAddIcon } from "@heroicons/react/outline";
+import { SquaresPlusIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -24,7 +24,7 @@ export default function GroupList() {
     return (
       <div className="w-fit self-center flex items-center gap-3 bg-white px-6 py-2 rounded shadow-xl dark:text-white dark:bg-gray-700 dark:shadow-cyan-500/10">
         <div className="h-10 w-10 text-fuchsia-600">
-          <ViewGridAddIcon />
+          <SquaresPlusIcon />
         </div>
         <div>
           <div className="text-xl">No groups.</div>
