@@ -64,7 +64,7 @@ export default function BackgroundImageSettings() {
           setError((await res.json())?.message);
         }
       } else {
-        let res = await postFormData("/api/utils/savefile", { file });
+        let res = await postFormData("/api/backgroundimage/add", { file });
         setIsLoading(false);
         if (res.ok) {
           let resBody = await res.json();

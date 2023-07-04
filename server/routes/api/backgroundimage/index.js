@@ -1,7 +1,10 @@
-import { basename } from "path";
-import { stores } from "../../../db/stores.js";
-import { deleteFileFromPublic } from "../utils/fsHandler.js";
 import { requestForbidden } from "../utils/preHandler.js";
+import { 
+  addBackground, 
+  deleteBackground, 
+  getBackgroundById, 
+  getBackgroundByUrl, 
+  getAllBackgrounds } from "../../../logics/backgrounds.js"
 
 /**
  *
@@ -9,23 +12,28 @@ import { requestForbidden } from "../utils/preHandler.js";
  * @param {*} opts
  */
 export default async function (fastify, opts) {
+
   fastify.get(
     "/",
     { preHandler: requestForbidden },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
-      return stores.backgroundImages.getAllImages(uuid);
+
+      return getAllBackgrounds(uuid);
     }
   );
+
   fastify.get(
     "/:id",
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
       let uuid = request.cookies.SSID;
-      return stores.backgroundImages.getImageById(id, uuid);
+      return getBackgroundById(id, uuid);
     }
   );
+
+  // TODO: Check if there is an actual need for this
   fastify.post(
     "/",
     {
@@ -45,33 +53,43 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { url } = request.body;
       let uuid = request.cookies.SSID;
-      if (stores.backgroundImages.getImageByUrl(url).length > 0)
+
+      let res = getBackgroundByUrl(url, uuid);
+      if (res === false)
         throw reply.notAcceptable("Already exist");
-      let lastRow = stores.backgroundImages.addImage(url, uuid);
-      return { id: lastRow, url };
+      return res;
     }
   );
+
+  fastify.post(
+    "/add", 
+    {
+      schema: {
+        consumes: ["multipart/form-data"]
+      },
+      preHandler: requestForbidden
+    }, 
+    async function (request, reply) {
+    const file = await request.file();
+    const uuid = request.cookies.SSID;
+
+    let res = addBackground(file.filename, file.file, uuid);
+
+    if (res === false)
+        throw reply.notAcceptable("Background already exist.");
+    
+    return res;
+  });
+
   fastify.delete(
     "/:id",
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
       let uuid = request.cookies.SSID;
-      let imageInDB = stores.backgroundImages.getImageById(id, uuid);
-      if (imageInDB.length === 0) {
-        throw "Image id doesn't exist";
-      }
-      let imageName = basename(imageInDB[0].url);
-      let changes = stores.backgroundImages.deleteImage(id, uuid);
-      if (changes > 0) {
-        try {
-          await deleteFileFromPublic(imageName);
-        } catch (error) {
-          throw `Error while deleting image: ${error.message}`;
-        }
-        return true;
-      }
-      return false;
+
+      if (!deleteBackground(id, uuid))
+        throw reply.notAcceptable("Background doesn't exist.");
     }
   );
 };

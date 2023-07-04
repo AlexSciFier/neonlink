@@ -1,8 +1,6 @@
 import { batchUpdateLinks } from "./batchUpdateLinks.js";
 import { parseBookmarkFile } from "./bookmarkParser.js";
 import { parseHtml } from "./parsePage.js";
-import { saveFileStreamToPublic, deleteFileFromPublic } from "./fsHandler.js";
-import { stores } from "../../../db/stores.js";
 
 import axios from "axios";
 /**
@@ -47,35 +45,5 @@ export default async function (fastify, opts) {
 
   fastify.get("/updatelinks", {}, async function (request, reply) {
     return batchUpdateLinks();
-  });
-
-  fastify.post(
-    "/savefile", 
-    {
-      schema: {
-        consumes: ["multipart/form-data"]
-      }
-    }, 
-    async function (request, reply) {
-    const file = await request.file();
-    const uuid = request.cookies.SSID;
-
-    let fileUrl = `/static/media/background/${file.filename}`;
-    if (stores.backgroundImages.getImageByUrl(fileUrl).length > 0)
-        throw reply.notAcceptable("Already exist");
-
-    let res = await saveFileStreamToPublic(file.filename, file.file);
-    if (res === false) throw "File upload error";
-    try
-    {
-      let lastRow = stores.backgroundImages.addImage(fileUrl, uuid);
-      return { id: lastRow, url: fileUrl };
-    }
-    catch(error)
-    {
-      deleteFileFromPublic(file.filename);
-      throw(error);
-    }
-    
   });
 };
