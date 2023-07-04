@@ -11,7 +11,7 @@ import {
   postJSON,
 } from "../../../../helpers/fetch";
 import { fixBgUrl } from "../../../../helpers/url";
-const ENDPOINT = "/api/backgroundimage";
+const ENDPOINT = "/api/backgrounds";
 
 export default function BackgroundImageSettings() {
   const { setBgUrl, bgUrl } = useInterfaceSettings();
@@ -64,7 +64,7 @@ export default function BackgroundImageSettings() {
           setError((await res.json())?.message);
         }
       } else {
-        let res = await postFormData("/api/backgroundimage/add", { file });
+        let res = await postFormData("/api/backgrounds/add", { file });
         setIsLoading(false);
         if (res.ok) {
           let resBody = await res.json();

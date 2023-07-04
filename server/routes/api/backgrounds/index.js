@@ -6,11 +6,6 @@ import {
   getBackgroundByUrl, 
   getAllBackgrounds } from "../../../logics/backgrounds.js"
 
-/**
- *
- * @param {import("fastify").FastifyInstance} fastify
- * @param {*} opts
- */
 export default async function (fastify, opts) {
 
   fastify.get(
