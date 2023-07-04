@@ -1,4 +1,4 @@
-import { requestForbidden } from "../utils/preHandler.js";
+import { requestForbidden } from "../../../logics/handlers.js";
 import { stores } from "../../../db/stores.js";
 
 /**

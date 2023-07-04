@@ -1,6 +1,4 @@
-import { batchUpdateLinks } from "./batchUpdateLinks.js";
-import { parseBookmarkFile } from "./bookmarkParser.js";
-import { parseHtml } from "./parsePage.js";
+import { batchUpdateLinks, parseBookmarkFile, parseHtml } from "../../../logics/bookmarks.js";
 
 import axios from "axios";
 /**

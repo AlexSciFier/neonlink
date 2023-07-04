@@ -1,6 +1,6 @@
-import netscape from "../../../utils/bookmarkFileGenerator.js";
-import { imgUrlToBase64 } from "../../../utils/imgUrlToBase64.js";
-import { requestForbidden } from "../utils/preHandler.js";
+import { imgUrlToBase64 } from "../../../helpers/images.js";
+import { netscape } from "../../../helpers/netscape.js";
+import { requestForbidden } from "../../../logics/handlers.js";
 import { stores } from "../../../db/stores.js";
 
 /**

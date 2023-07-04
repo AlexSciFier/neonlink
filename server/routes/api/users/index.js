@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { requestForbidden } from "../utils/preHandler.js";
+import { requestForbidden, requestForbiddenUser } from "../../../logics/handlers.js";
 import { stores } from "../../../db/stores.js"
 
 const settingsFields = {
@@ -13,19 +13,7 @@ const settingsFields = {
   cardPosition: { type: "string" },
 };
 
-/**
- *
- * @param {import("fastify").FastifyRequest} request
- * @param {import("fastify").FastifyReply} reply
- */
-async function requestForbiddenUser(request, reply) {
-  if (await stores.users.isUsersTableEmpty())
-    throw reply.notFound("No registrated users");
-  let { SSID } = request.cookies;
-  let user = await stores.users.getUserByUUID(SSID, stores.appSettings.getNologin());
-  if (user === undefined)
-    throw reply.unauthorized("You must login to use this method");
-}
+
 
 /**
  *

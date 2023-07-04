@@ -13,14 +13,8 @@ var header = [
 ].join("\n");
 var urlfields = ["add_date", "last_visit", "last_modified", "icon", "image"];
 
-// exports
-export default netscape;
-
-/**
- * Entry point to the module
- */
-function netscape(bookmarks) {
-  var s = header;
+export function netscape(bookmarks) {
+  let s = header;
   s += makehtml(bookmarks);
   return s;
 }
@@ -31,7 +25,7 @@ function netscape(bookmarks) {
 function makehtml(obj, indent, foldername) {
   indent = indent || 0;
 
-  var s = [];
+  let s = [];
   if (foldername)
     s.push(format("%s<DT><H3>%s</H3>", pad(indent), foldername));
 
@@ -39,7 +33,7 @@ function makehtml(obj, indent, foldername) {
   // loop the bookmarks
   for (var i in obj) {
     if (typeof obj[i] === "string") obj[i] = { url: obj[i] };
-    var bookmark = obj[i];
+    let bookmark = obj[i];
 
     // check if we have a directory or a bookmark file
     if (bookmark.contents) {
@@ -49,9 +43,9 @@ function makehtml(obj, indent, foldername) {
       s.push(format("%s<HR>", pad(indent + 1)));
     } else {
       // bookmark, create the link
-      var link = format('<A HREF="%s"', bookmark.url);
+      let link = format('<A HREF="%s"', bookmark.url);
       for (var j in urlfields) {
-        var field = urlfields[j];
+        let field = urlfields[j];
         if (bookmark[field])
           link += format(' %s="%s"', field.toUpperCase(), bookmark[field]);
       }
