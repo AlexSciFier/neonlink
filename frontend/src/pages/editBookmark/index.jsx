@@ -167,7 +167,7 @@ export default function EditBookmark() {
               type="submit"
               disabled={isButtonDisabled()}
             >
-              {sending ? <LoadCircle /> : "Edit"}
+              {sending ? <LoadCircle /> : "Save"}
             </button>
           </div>
         </form>
