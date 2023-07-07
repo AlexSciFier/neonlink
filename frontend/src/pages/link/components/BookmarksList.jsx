@@ -14,7 +14,7 @@ export default function BookmarksList() {
   const {
     bookmarkList,
     currentPage,
-    maxPage,
+    lastPage,
     isBookmarksLoading,
     fetchBookmarks,
     abort,
@@ -54,7 +54,7 @@ export default function BookmarksList() {
               ))}
           </div>
           <Pagination
-            maxPage={maxPage}
+            lastPage={lastPage}
             currentPage={currentPage}
             siblings={1}
           />

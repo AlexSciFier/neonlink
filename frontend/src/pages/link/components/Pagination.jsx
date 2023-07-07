@@ -22,10 +22,10 @@ function PaginationButton({ children, disabled, isCurrent, onClick }) {
   );
 }
 
-export default function Pagination({ maxPage, currentPage, siblings }) {
+export default function Pagination({ lastPage, currentPage, siblings }) {
   const navigate = useNavigate();
   const isFirst = currentPage === 1;
-  const isLast = currentPage === maxPage;
+  const isLast = currentPage === lastPage;
 
   function onNextClick(e) {
     e.preventDefault();
@@ -65,7 +65,7 @@ export default function Pagination({ maxPage, currentPage, siblings }) {
       >
         <ChevronLeftIcon />
       </button>
-      {range(maxPage, currentPage, siblings).map((value, idx) => (
+      {range(lastPage, currentPage, siblings).map((value, idx) => (
         <PaginationButton
           isCurrent={value === currentPage}
           key={idx}
@@ -88,11 +88,11 @@ export default function Pagination({ maxPage, currentPage, siblings }) {
   );
 }
 
-function range(maxPage, currentPage, siblings) {
+function range(lastPage, currentPage, siblings) {
   const totalPageNumbers = siblings * 2 + 5;
 
-  if (totalPageNumbers >= maxPage) {
-    return [...Array(maxPage).keys()].map((idx) => ++idx);
+  if (totalPageNumbers >= lastPage) {
+    return [...Array(lastPage).keys()].map((idx) => ++idx);
   }
   let padedArray = [...Array(siblings * 2 + 1).keys()];
 
@@ -105,14 +105,14 @@ function range(maxPage, currentPage, siblings) {
   });
 
   let endArray = padedArray.reverse().map((idx) => {
-    return maxPage - idx;
+    return lastPage - idx;
   });
 
   if (currentPage <= 1 + siblings * 2 - 1) {
-    return [...startArray, "DOTS", maxPage];
+    return [...startArray, "DOTS", lastPage];
   }
-  if (currentPage > maxPage - siblings * 2) {
+  if (currentPage > lastPage - siblings * 2) {
     return [1, "DOTS", ...endArray];
   }
-  return [1, "DOTS", ...centerArray, "DOTS", maxPage];
+  return [1, "DOTS", ...centerArray, "DOTS", lastPage];
 }
