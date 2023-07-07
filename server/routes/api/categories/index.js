@@ -11,7 +11,7 @@ export default async function (fastify, opts) {
     "/",
     { preHandler: requestForbidden },
     async function (request, reply) {
-      return stores.categories.getAllCategories();
+      return stores.categories.getAll();
     }
   );
 
@@ -45,10 +45,10 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { name, color, position } = request.body;
 
-      let existingCategory = stores.categories.getCategoryByName(name);
+      let existingCategory = stores.categories.getItemByName(name);
 
       if (existingCategory) {
-        return stores.categories.updateCategoryById(
+        return stores.categories.updateItem(
           existingCategory.id,
           name,
           color,
@@ -56,7 +56,7 @@ export default async function (fastify, opts) {
         );
       }
       reply.statusCode = 201;
-      return stores.categories.addCategory(name, color, position);
+      return stores.categories.addItem(name, color, position);
     }
   );
 
@@ -78,7 +78,7 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let { name, color } = request.body;
-      if (stores.categories.updateCategoryById(id, name, color)) return { id, name, color };
+      if (stores.categories.updateItem(id, name, color)) return { id, name, color };
       throw fastify.httpErrors.notFound();
     }
   );
@@ -103,7 +103,7 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let array = request.body;
-      if (stores.categories.updatePostitions(array)) return true;
+      if (stores.categories.updatePositions(array)) return true;
       throw fastify.httpErrors.notFound();
     }
   );
@@ -113,7 +113,7 @@ export default async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      if (stores.categories.deleteCategoryById(id)) return true;
+      if (stores.categories.deleteItem(id)) return true;
       else throw fastify.httpErrors.notFound();
     }
   );

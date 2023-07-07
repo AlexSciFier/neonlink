@@ -56,4 +56,7 @@ export default fp(function (fastify, opts, next) {
   console.log("Host plugin initialization completed.");
 
   next();
+}, {
+  fastify: "4.x",
+  name: "host-plugin"
 });

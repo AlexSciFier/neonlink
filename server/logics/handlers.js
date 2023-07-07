@@ -1,3 +1,4 @@
+import { loadUserWithSettingsByUUID } from "./users.js";
 import { stores } from "../db/stores.js";
 
 export async function requestForbidden(request, reply) {
@@ -9,7 +10,7 @@ export async function requestForbidden(request, reply) {
     let SSID = request.cookies.SSID;
 
     if (SSID) {
-      let user = await stores.users.getUserByUUID(SSID, stores.appSettings.getNologin());
+      let user = await loadUserWithSettingsByUUID(SSID);
       if (user === undefined) {
         throw reply.notFound("User not found");
       }
@@ -23,10 +24,10 @@ export async function requestForbidden(request, reply) {
 }
 
 export async function requestForbiddenUser(request, reply) {
-  if (await stores.users.isUsersTableEmpty())
-    throw reply.notFound("No registrated users");
+  if (await stores.users.checkWhetherTableIsEmpty())
+    throw reply.notFound("No registered users");
   let { SSID } = request.cookies;
-  let user = await stores.users.getUserByUUID(SSID, stores.appSettings.getNologin());
+  let user = await loadUserWithSettingsByUUID(SSID);
   if (user === undefined)
     throw reply.unauthorized("You must login to use this method");
 }

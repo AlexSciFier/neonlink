@@ -28,7 +28,6 @@ export default async function (fastify, opts) {
     }
   );
 
-  // TODO: Check if there is an actual need for this
   fastify.post(
     "/",
     {

@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { requestForbidden, requestForbiddenUser } from "../../../logics/handlers.js";
+import { createUser, isPasswordValid, loadUserWithSettingsByUUID, loadUserWithSettingsByUsername, updatePassword } from "../../../logics/users.js";
 import { stores } from "../../../db/stores.js"
 
 const settingsFields = {
@@ -40,7 +41,7 @@ export default async function (fastify, opts) {
     },
     async (request, reply) => {
       let { SSID } = request.cookies;
-      return await stores.users.getUserByUUID(SSID, stores.appSettings.getNologin());
+      return await loadUserWithSettingsByUUID(SSID);
     }
   );
 
@@ -59,15 +60,15 @@ export default async function (fastify, opts) {
         }
       }
     },
-    async function (request) {
+    function (request) {
       let { username, password } = request.body;
       let isAdmin = request.body?.isAdmin || false;
-      if (stores.users.isUsersTableEmpty() === false)
+      if (stores.users.checkWhetherTableIsEmpty() === false)
         throw fastify.httpErrors.notAcceptable("Users limit reach");
-      if (stores.users.isUserExist(username))
+      if (stores.users.checkWhetherUserExists(username))
         throw fastify.httpErrors.notAcceptable("This username already exist");
-      if (stores.users.isUsersTableEmpty()) isAdmin === true;
-      return await stores.users.addUser(username, password, isAdmin);
+      if (stores.users.checkWhetherTableEmpty()) isAdmin === true;
+      return createUser(username, password, isAdmin);
     }
   );
 
@@ -89,14 +90,14 @@ export default async function (fastify, opts) {
     },
     async function (request) {
       let { username, currentPassword, newPassword } = request.body;
-      if (stores.users.isUserExist(username) === false) {
+      if (stores.users.checkWhetherUserExists(username) === false) {
         throw fastify.httpErrors.notFound("Username not found");
       } else {
-        let isValid = await stores.users.isPasswordValid(username, currentPassword);
+        let isValid = await isPasswordValid(username, currentPassword);
         if (isValid === false) {
           throw fastify.httpErrors.forbidden("Password is incorrect");
         } else {
-          stores.users.changePassword(username, newPassword);
+          updatePassword(username, newPassword);
           return true;
         }
       }
@@ -128,7 +129,7 @@ export default async function (fastify, opts) {
       let uuid = request.cookies.SSID;
       let res = {};
       for (const key in request.body) {
-        stores.users.setUserSetting(uuid, key, request.body?.[key]);
+        stores.userSettings.updateItem(uuid, key, request.body?.[key]);
         res[key] = request.body?.[key];
       }
       return res;
@@ -148,7 +149,7 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
-      let user = await stores.users.getUserByUUID(uuid, stores.appSettings.getNologin());
+      let user = await loadUserWithSettingsByUUID(uuid);
       if (user.usergroup === 0) {
         if (request.body?.noLogin !== undefined)
           stores.appSettings.setNologin(request.body.noLogin);
@@ -189,7 +190,7 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
-      return stores.users.getUserSettings(uuid);
+      return stores.userSettings.getItem(uuid);
     }
   );
 
@@ -210,11 +211,11 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let { username, password } = request.body;
-      if (stores.users.getUser(username) === undefined)
+      let user = loadUserWithSettingsByUsername(username);
+      if (user === undefined)
         throw reply.notFound("Username or password is incorrect");
-      let isValid = await stores.users.isPasswordValid(username, password);
+      let isValid = await isPasswordValid(username, password);
       if (isValid) {
-        let user = stores.users.getUser(username);
         let userId = user.uuid || randomUUID();
         reply.setCookie("SSID", userId, {
           path: "/",

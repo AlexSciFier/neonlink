@@ -58,5 +58,5 @@ profile*
 *clinic*
 *flamegraph*
 
-#db
-db/*sqlite
+# data
+data

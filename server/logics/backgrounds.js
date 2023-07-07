@@ -6,12 +6,12 @@ const backgroundsPath = join(rootPath, "public/static/media/background");
 
 export async function addBackground(fileName, sourceStream, uuid) {
     let fileUrl = `/static/media/background/${fileName}`;
-    if (stores.backgroundImages.getImageByUrl(fileUrl).length > 0)
+    if (stores.backgrounds.getItemByUrl(fileUrl).length > 0)
         return false;
 
     await saveFileStream(backgroundsPath, fileName, sourceStream);
     try {
-        let lastRow = stores.backgroundImages.addImage(fileUrl, uuid);
+        let lastRow = stores.backgrounds.addItem(fileUrl, uuid);
         return { id: lastRow, url: fileUrl };
     }
     catch(error)
@@ -22,12 +22,12 @@ export async function addBackground(fileName, sourceStream, uuid) {
 }
 
 export async function deleteBackground(id, uuid) {
-    let backgroundImage = stores.backgroundImages.getImageById(id, uuid);
+    let backgroundImage = stores.backgrounds.getItemById(id, uuid);
     if (backgroundImage.length === 0) 
       return false;
 
     let imageName = basename(imageInDB[0].url);
-    if (stores.backgroundImages.deleteImage(id, uuid) > 0) {
+    if (stores.backgrounds.deleteItem(id, uuid) > 0) {
       await deleteFile(backgroundsPath, imageName);
       return true;
     }
@@ -37,17 +37,16 @@ export async function deleteBackground(id, uuid) {
 }
 
 export function getAllBackgrounds(uuid) {
-    return stores.backgroundImages.getAllImages(uuid);
+    return stores.backgrounds.getAll(uuid);
 }
 
 export function getBackgroundById(id, uuid) {
-    return stores.backgroundImages.getImageById(id, uuid);
+    return stores.backgrounds.getItemById(id, uuid);
 }
 
-// TODO: Check if there is an actual need for this
 export function getBackgroundByUrl(url, uuid) {
-  if (stores.backgroundImages.getImageByUrl(url).length > 0)
+  if (stores.backgrounds.getItemByUrl(url).length > 0)
     return false;
-  let lastRow = stores.backgroundImages.addImage(url, uuid);
+  let lastRow = stores.backgrounds.addItem(url, uuid);
   return { id: lastRow, url };
 }

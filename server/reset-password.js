@@ -1,5 +1,5 @@
 import { argv } from "node:process";
-import { stores } from "./db/stores.js";
+import { updatePassword } from "./logics/users.js";
 
 const username = argv[2];
 const password = argv[3];
@@ -17,6 +17,6 @@ if (password === undefined) {
   );
   return;
 }
-stores.users.changePassword(username, password);
+updatePassword(username, password);
 
 console.log("Password changed!");
