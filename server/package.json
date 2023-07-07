@@ -8,7 +8,8 @@
     "test": "test"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node server.js",
+    "dev": "fastify start -a \"0.0.0.0\" -w --ignore-watch='data/bookmarks.sqlite' --body-limit 5242880 -l info -P app.js"
   },
   "keywords": [],
   "author": "",
