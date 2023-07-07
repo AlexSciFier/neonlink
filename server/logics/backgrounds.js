@@ -26,7 +26,7 @@ export async function deleteBackground(id, uuid) {
     if (backgroundImage.length === 0) 
       return false;
 
-    let imageName = basename(imageInDB[0].url);
+    let imageName = basename(backgroundImage[0].url);
     if (stores.backgrounds.deleteItem(id, uuid) > 0) {
       await deleteFile(backgroundsPath, imageName);
       return true;
