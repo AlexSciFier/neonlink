@@ -1,9 +1,7 @@
 import Dotenv from 'dotenv'
 import Fastify from 'fastify';
 import FastifyAutoLoad from '@fastify/autoload';
-
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import fs from './helpers/fileSystem.js';
 
 try {
   // Read environment variables
@@ -15,11 +13,9 @@ try {
     bodyLimit: 5242880,
   });
 
-  const __dirname = dirname(fileURLToPath(import.meta.url));
-
   // Load all plugins
   app.register(FastifyAutoLoad, {
-    dir: join(__dirname, "./plugins")
+    dir: fs.joinPath(fs.extractDirectory(fs.convertToPath(import.meta.url)), "./plugins")
   });
 
   const PORT = process.env.PORT || 3000;

@@ -6,11 +6,7 @@ import FastifySensible from '@fastify/sensible';
 import FastifyStatic from '@fastify/static';
 
 import fp from "fastify-plugin";
-
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import fs from "../helpers/fileSystem.js"
 
 export default fp(function (fastify, opts, next) {
 
@@ -30,13 +26,13 @@ export default fp(function (fastify, opts, next) {
   // This loads all plugins defined in routes
   // define your routes in one of these
   fastify.register(FastifyAutoLoad, {
-    dir: join(__dirname, "../routes"),
+    dir: fs.joinPath(fs.rootPath, "./routes"),
     options: Object.assign({}, opts),
   });
 
   // This allows us to handle static files
   fastify.register(FastifyStatic, {
-    root: join(__dirname, "../public"),
+    root: fs.joinPath(fs.rootPath, "./public"),
   });
 
   // This allows us to handle unexpected errors
