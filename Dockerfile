@@ -31,9 +31,11 @@ COPY --chown=node ./server ./
 COPY --chown=node --from=srv-build /app/server ./
 COPY --chown=node --from=ui-build /app/client/build ./public
 
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 ENV PORT=3333
 ENV FASTIFY_BODY_LIMIT=5242880
 ENV FASTIFY_ADDRESS=0.0.0.0
 ENV FASTIFY_LOG_LEVEL=error
 
-CMD ["node", "app.js"]
+CMD ["node", "server.js"]
