@@ -1,12 +1,39 @@
-import fs from 'fs'
+import fs from 'fs';
 import util from 'util';
+import { join, relative } from 'path';
 import { pipeline } from 'stream';
-import { dirname, join } from "path";
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const pump = util.promisify(pipeline)
 
-export const rootPath = join(dirname(fileURLToPath(import.meta.url)), "../");
+export const rootPath = process.cwd();
+
+export function relativeToExecution(path) {
+  return relative(rootPath, path);
+}
+
+export function relativeToPath(from, to) {
+  return relative(from, fileURLToPath(to));
+}
+
+export function convertToPath(url) {
+  return fileURLToPath(url);
+}
+
+export function convertToUrl(path) {
+  return pathToFileURL(path)?.href;
+}
+
+export function ensureDirectoryExistsSync(directoryPath) {
+  let accessError;
+  const accessCallback = (err) => { if (err) { accessError = err } }
+  const mkdirCallback = (err) => { if (err) { console.error(accessError); throw (err); }}
+
+  if (!fs.access(directoryPath, accessCallback))
+  {
+    fs.mkdir(directoryPath, { recursive: true }, mkdirCallback);
+  }
+}
 
 export async function ensureDirectoryExists(directoryPath) {
   try {

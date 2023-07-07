@@ -36,4 +36,4 @@ ENV FASTIFY_BODY_LIMIT=5242880
 ENV FASTIFY_ADDRESS=0.0.0.0
 ENV FASTIFY_LOG_LEVEL=error
 
-CMD ["node", "server.js"]
+CMD ["node", "app.js"]

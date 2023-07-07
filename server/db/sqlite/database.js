@@ -1,10 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import sqlite from 'better-sqlite3';
+import { convertToPath, convertToUrl, ensureDirectoryExistsSync, relativeToExecution } from "../../helpers/fileSystem.js"
 
 import { getTableCount } from './common.js';
 
-const migrationFilesDirectory = "./db/sqlite/migrations/";
+const migrationFilesFullPath = path.join(path.dirname(convertToPath(import.meta.url)), "./migrations/");
 const updateFileRegex = new RegExp("^update-([0-9]{5})$");
 
 export function setDatabaseVersion(db, version) {
@@ -21,32 +22,32 @@ export function getDatabaseVersion (db) {
 
 function getMigrationFiles(version) {
     return fs
-      .readdirSync(migrationFilesDirectory)
+      .readdirSync(relativeToExecution(migrationFilesFullPath))
       .filter(item => {
-        let filePath = path.join(migrationFilesDirectory, item);
+        let filePath = path.join(migrationFilesFullPath, item);
         let fileData = path.parse(filePath);
         return updateFileRegex.test(fileData.name) 
             && Number(fileData.name.replace(updateFileRegex, "$1")) > version
             && fileData.ext === ".js" 
-            && fs.statSync(filePath).isFile();
+            && fs.statSync(relativeToExecution(filePath)).isFile();
       })
       .sort();
 };
 
 async function applyMigrationFile(db, filename) {
-    let filePath = path.join(migrationFilesDirectory, filename);
+    let filePath = path.join(migrationFilesFullPath, filename);
     let fileData = path.parse(filePath);
 
     if (fileData.name === "initial" || updateFileRegex.test(fileData.name))
     {
-        console.log('Attempt to apply ' + fileData.name + '...');
+        console.log(`Attempt to apply ${filename}...`);
 
-        const migrationPlugin = await import(filePath);
-        migrationPlugin(db);
+        const migrationPlugin = await import(convertToUrl(filePath));
+        migrationPlugin.default(db);
 
         if (fileData.name === "initial")
         {
-            setDatabaseVersion(db, GetDatabaseModules(0).length);
+            setDatabaseVersion(db, getMigrationFiles(0).length);
         }
         else
         {
@@ -66,6 +67,7 @@ export default class SqliteManager {
     constructor(options) {
         let file = options.path || "./data/bookmarks.sqlite";
         let opts = options.betterSqlite3options || {};
+        ensureDirectoryExistsSync(path.dirname(path.resolve(file)));
         this.db = new sqlite(file, opts);
     }
 
@@ -85,7 +87,8 @@ export default class SqliteManager {
         var migrationTablesCount = getTableCount(this.db, 'migrations');
         if (migrationTablesCount == 0) {
             console.log('Applying initial database script...');
-            await applyMigrationFile(this.db, 'initial.sql');
+            if (!await applyMigrationFile(this.db, 'initial.js'))
+                throw new Error("Migration Failed");
         }
         else
         {
@@ -94,7 +97,8 @@ export default class SqliteManager {
             let migrationFiles = getMigrationFiles(version);
             console.log('Found ' + migrationFiles.length + ' applicable migration files.');
             for(const migrationFile of migrationFiles) {
-                await applyMigrationFile(this.db, migrationFile)
+                if (!await applyMigrationFile(this.db, migrationFile))
+                    throw new Error("Migration failed");
             }
         }
         
