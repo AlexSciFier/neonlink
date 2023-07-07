@@ -36,13 +36,13 @@ export default fp(function (fastify, opts, next) {
   });
 
   // This allows us to handle unexpected errors
-  fastify.setErrorHandler(function (error, request, reply) {
+  /*fastify.setErrorHandler(function (error, request, reply) {
     // Log error
     console.error(error);
   
     // handle error
     reply.status(500).send({ ok: false })
-  });
+  });*/
 
   // This allows us to handle Error 404
   fastify.setNotFoundHandler((req,rep)=>{
