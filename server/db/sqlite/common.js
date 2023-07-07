@@ -9,15 +9,3 @@ export function getTableCount(db, tableName) {
         .get('table', tableName)
         .count;
 };
-
-export function setDatabaseVersion(db, version) {
-    console.log('Updating version number to ' + version.toString() + '...');
-    return db
-      .prepare("INSERT INTO migrations(name, version) VALUES('database', ?) ON CONFLICT(name) DO UPDATE SET version=?")
-      .run(version, version);
-};
-
-export function getDatabaseVersion (db) {
-    let res = db.prepare("SELECT version FROM migrations WHERE name='database'").get();
-    return res === undefined ? 0 : res.version;
-};

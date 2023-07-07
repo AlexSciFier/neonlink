@@ -2,10 +2,22 @@ import * as fs from 'fs';
 import * as path from 'path';
 import sqlite from 'better-sqlite3';
 
-import { getTableCount, getDatabaseVersion, setDatabaseVersion } from './common.js';
+import { getTableCount } from './common.js';
 
 const migrationFilesDirectory = "./db/sqlite/migrations/";
 const updateFileRegex = new RegExp("^update-([0-9]{5})$");
+
+export function setDatabaseVersion(db, version) {
+    console.log('Updating version number to ' + version.toString() + '...');
+    return db
+      .prepare("INSERT INTO migrations(name, version) VALUES('database', ?) ON CONFLICT(name) DO UPDATE SET version=?")
+      .run(version, version);
+};
+
+export function getDatabaseVersion (db) {
+    let res = db.prepare("SELECT version FROM migrations WHERE name='database'").get();
+    return res === undefined ? 0 : res.version;
+};
 
 function getMigrationFiles(version) {
     return fs
