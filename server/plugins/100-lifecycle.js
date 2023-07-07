@@ -3,8 +3,8 @@ import fp from "fastify-plugin";
 
 function initializeHooks(fastify, closeListeners) {
   fastify.addHook('onReady', async () => {
-    console.log("initializing application...");
-    // TODO: Change the initialization logic
+    // TODO: Add initialization logic here
+    // For exemple: Create default user if it does not exist.
     console.log("Application initialized.");
   });
 
@@ -30,7 +30,7 @@ export default fp((fastify, options, next) => {
 
   initializeHooks(fastify, closeListeners);
 
-  console.log("Life cycle initialization completed.")
+  console.log("Life cycle plugin initialization completed.")
 
   next()
 }, { 

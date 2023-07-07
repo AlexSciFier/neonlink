@@ -4,6 +4,7 @@ import { stores } from "../db/stores.js"
 export function createUser(username, clearPassword, isAdmin = false) {
   const hashedPassword = encodePassword(clearPassword);
   return stores.users.addItem(username, hashedPassword, isAdmin);
+  //TODO: move the usersettings creation logic here.
 }
 
 export function loadUserWithSettingsByUsername(username) {
