@@ -11,7 +11,7 @@ export default class UserSettingsStore {
     const insertQuery = 
       `INSERT INTO userSettings (
         uuid, maxNumberOfLinks, linkInNewTab, useBgImage, bgImage, columns, cardStyle, enableNeonShadows, cardPosition) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     return this.db.prepare(insertQuery)
       .run(uuid, maxNumberOfLinks, linkInNewTab, useBgImage, bgImage, columns, cardStyle, enableNeonShadows, cardPosition);
   }
