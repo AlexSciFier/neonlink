@@ -12,7 +12,7 @@ export default class UserSettingsStore {
       `INSERT INTO userSettings (
         uuid, maxNumberOfLinks, linkInNewTab, useBgImage, bgImage, columns, cardStyle, enableNeonShadows, cardPosition) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    return db.prepare(insertQuery)
+    return this.db.prepare(insertQuery)
       .run(uuid, maxNumberOfLinks, linkInNewTab, useBgImage, bgImage, columns, cardStyle, enableNeonShadows, cardPosition);
   }
 
