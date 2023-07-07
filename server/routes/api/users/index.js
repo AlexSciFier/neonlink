@@ -67,7 +67,7 @@ export default async function (fastify, opts) {
         throw fastify.httpErrors.notAcceptable("Users limit reach");
       if (stores.users.checkWhetherUserExists(username))
         throw fastify.httpErrors.notAcceptable("This username already exist");
-      if (stores.users.checkWhetherTableEmpty()) isAdmin === true;
+      if (stores.users.checkWhetherTableIsEmpty()) isAdmin === true;
       return createUser(username, password, isAdmin);
     }
   );
