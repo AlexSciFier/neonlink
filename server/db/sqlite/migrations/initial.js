@@ -1,23 +1,23 @@
 export default function (db) {
-    const statments = [
-        `CREATE TABLE IF NOT EXISTS migrations (
+  const statments = [
+    `CREATE TABLE IF NOT EXISTS migrations (
             name TEXT PRIMARY KEY,
             version INTEGER
         )`,
-        
-        `CREATE TABLE IF NOT EXISTS tags (
+
+    `CREATE TABLE IF NOT EXISTS tags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT
         )`,
-        
-        `CREATE TABLE IF NOT EXISTS bookmarksTags (
+
+    `CREATE TABLE IF NOT EXISTS bookmarksTags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             bookmarkId INTEGER,
             tagId INTEGER,
             UNIQUE (bookmarkId,tagId) ON CONFLICT IGNORE
         )`,
-         
-        `CREATE TABLE IF NOT EXISTS bookmarks (
+
+    `CREATE TABLE IF NOT EXISTS bookmarks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             url TEXT,
             title TEXT,
@@ -28,8 +28,8 @@ export default function (db) {
             created TIMESTAMP
             DEFAULT CURRENT_TIMESTAMP
         )`,
-        
-        `CREATE TABLE IF NOT EXISTS users (
+
+    `CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT,
             passwordHash TEXT,
@@ -37,25 +37,25 @@ export default function (db) {
             usergroup INTEGER,
             uuid TEXT
         )`,
-            
-        `CREATE TABLE IF NOT EXISTS category (
+
+    `CREATE TABLE IF NOT EXISTS category (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             color TEXT
         )`,
-        
-        `CREATE TABLE IF NOT EXISTS categoryPosition (
+
+    `CREATE TABLE IF NOT EXISTS categoryPosition (
             categoryId INTEGER,
             position INTEGER
         )`,
-        
-        `CREATE TABLE IF NOT EXISTS bgImages (
+
+    `CREATE TABLE IF NOT EXISTS bgImages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             url TEXT,
             uuid TEXT
         )`,
-        
-        `CREATE TABLE IF NOT EXISTS userSettings (
+
+    `CREATE TABLE IF NOT EXISTS userSettings (
             uuid TEXT PRIMARY KEY,
             maxNumberOfLinks INTEGER,
             linkInNewTab INTEGER,
@@ -66,17 +66,19 @@ export default function (db) {
             enableNeonShadows INTEGER,
             cardPosition TEXT
         )`,
-        
-        `CREATE TABLE IF NOT EXISTS appSettings (
+
+    `CREATE TABLE IF NOT EXISTS appSettings (
             useNologin INTEGER
         )`,
-        
-        `CREATE TABLE IF NOT EXISTS bookmarkPosition (
+
+    `CREATE TABLE IF NOT EXISTS bookmarkPosition (
             bookmarkId INTEGER PRIMARY KEY,
             categoryId INTEGER,
             position INTEGER
-        )`
-    ];
+        )`,
+  ];
 
-    statments.forEach((statment) => { db.prepare(statment).run(); }); 
-};
+  statments.forEach((statment) => {
+    db.prepare(statment).run();
+  });
+}

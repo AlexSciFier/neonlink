@@ -1,19 +1,35 @@
-
 export default class UserSettingsStore {
   constructor(sqliteInstance) {
     this.db = sqliteInstance;
   }
 
-  addItem(uuid, 
-    maxNumberOfLinks = 20, linkInNewTab = 1, useBgImage = 0, bgImage = "", 
-    columns = 3, cardStyle = "default", enableNeonShadows = 1, cardPosition = "top") {
-    
-    const insertQuery = 
-      `INSERT INTO userSettings (
+  addItem(
+    uuid,
+    maxNumberOfLinks = 20,
+    linkInNewTab = 1,
+    useBgImage = 0,
+    bgImage = "",
+    columns = 3,
+    cardStyle = "default",
+    enableNeonShadows = 1,
+    cardPosition = "top"
+  ) {
+    const insertQuery = `INSERT INTO userSettings (
         uuid, maxNumberOfLinks, linkInNewTab, useBgImage, bgImage, columns, cardStyle, enableNeonShadows, cardPosition) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    return this.db.prepare(insertQuery)
-      .run(uuid, maxNumberOfLinks, linkInNewTab, useBgImage, bgImage, columns, cardStyle, enableNeonShadows, cardPosition);
+    return this.db
+      .prepare(insertQuery)
+      .run(
+        uuid,
+        maxNumberOfLinks,
+        linkInNewTab,
+        useBgImage,
+        bgImage,
+        columns,
+        cardStyle,
+        enableNeonShadows,
+        cardPosition
+      );
   }
 
   getItem(uuid) {

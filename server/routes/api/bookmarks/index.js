@@ -45,7 +45,9 @@ export default async function (fastify, opts) {
         let type = icon.split(";")[0].split(":")[1];
         reply
           .type(type)
-          .send(Buffer.from(icon.replace(/^data:\w+\/.+;base64,/, ""), "base64"));
+          .send(
+            Buffer.from(icon.replace(/^data:\w+\/.+;base64,/, ""), "base64")
+          );
         return;
       }
       throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
@@ -178,7 +180,17 @@ export default async function (fastify, opts) {
       let { url, title, desc, icon, categoryId, tags } = request.body;
       if (url === "") throw new Error("Url shoud not be empty string");
       if (icon && icon.startsWith("http")) icon = await imgUrlToBase64(icon);
-      if (stores.bookmarks.updateItem(id, url, title, desc, icon, categoryId, tags))
+      if (
+        stores.bookmarks.updateItem(
+          id,
+          url,
+          title,
+          desc,
+          icon,
+          categoryId,
+          tags
+        )
+      )
         return { url, title, desc };
       throw fastify.httpErrors.notFound();
     }
@@ -220,8 +232,8 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let { items, categoryId } = request.body;
-      if (stores.bookmarks.updatePositions(items,categoryId)) return true;
+      if (stores.bookmarks.updatePositions(items, categoryId)) return true;
       return { items, categoryId };
     }
   );
-};
+}

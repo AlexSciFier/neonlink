@@ -26,8 +26,7 @@ function makehtml(obj, indent, foldername) {
   indent = indent || 0;
 
   let s = [];
-  if (foldername)
-    s.push(format("%s<DT><H3>%s</H3>", pad(indent), foldername));
+  if (foldername) s.push(format("%s<DT><H3>%s</H3>", pad(indent), foldername));
 
   s.push(format("%s<DL><p>", pad(indent)));
   // loop the bookmarks

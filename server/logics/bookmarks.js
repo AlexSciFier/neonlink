@@ -1,6 +1,6 @@
 import axios from "axios";
 import { imgUrlToBase64 } from "../helpers/images.js";
-import { stores } from "../db/stores.js"
+import { stores } from "../db/stores.js";
 
 export async function batchUpdateLinks() {
   let bookmarks = stores.bookmarks.getAll();

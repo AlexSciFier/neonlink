@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "node server.js",
-    "dev": "fastify start -a \"0.0.0.0\" -w --ignore-watch='data/bookmarks.sqlite' --body-limit 5242880 -l info -P app.js"
+    "dev": "fastify start -a \"0.0.0.0\" -w --ignore-watch='data/bookmarks.sqlite' --body-limit 5242880 -l info -P app.js",
+    "pretty": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\""
   },
   "keywords": [],
   "author": "",
@@ -32,6 +33,7 @@
     "webpack": "^5.88.1"
   },
   "devDependencies": {
+    "prettier": "^3.0.0",
     "tap": "^16.3.0"
   }
 }

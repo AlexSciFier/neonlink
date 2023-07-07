@@ -41,7 +41,8 @@ export default async function (fastify, opts) {
   fastify.post("/", postOptions, async function (request, reply) {
     let { name } = request.body;
     if (name === "") throw new Error("name cannot be empty");
-    if (stores.tags.existsItemByName(name)) throw new Error("tag name already in use.");
+    if (stores.tags.existsItemByName(name))
+      throw new Error("tag name already in use.");
 
     let id = stores.tags.addItem(name);
     reply.statusCode = 201;
@@ -69,4 +70,4 @@ export default async function (fastify, opts) {
       throw new Error("cannot delete");
     }
   );
-};
+}

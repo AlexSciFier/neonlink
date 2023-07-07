@@ -1,13 +1,13 @@
 import { requestForbidden } from "../../../logics/handlers.js";
-import { 
-  addBackground, 
-  deleteBackground, 
-  getBackgroundById, 
-  getBackgroundByUrl, 
-  getAllBackgrounds } from "../../../logics/backgrounds.js"
+import {
+  addBackground,
+  deleteBackground,
+  getBackgroundById,
+  getBackgroundByUrl,
+  getAllBackgrounds,
+} from "../../../logics/backgrounds.js";
 
 export default async function (fastify, opts) {
-
   fastify.get(
     "/",
     { preHandler: requestForbidden },
@@ -49,31 +49,30 @@ export default async function (fastify, opts) {
       let uuid = request.cookies.SSID;
 
       let res = getBackgroundByUrl(url, uuid);
-      if (res === false)
-        throw reply.notAcceptable("Already exist");
+      if (res === false) throw reply.notAcceptable("Already exist");
       return res;
     }
   );
 
   fastify.post(
-    "/add", 
+    "/add",
     {
       schema: {
-        consumes: ["multipart/form-data"]
+        consumes: ["multipart/form-data"],
       },
-      preHandler: requestForbidden
-    }, 
+      preHandler: requestForbidden,
+    },
     async function (request, reply) {
-    const file = await request.file();
-    const uuid = request.cookies.SSID;
+      const file = await request.file();
+      const uuid = request.cookies.SSID;
 
-    let res = addBackground(file.filename, file.file, uuid);
+      let res = addBackground(file.filename, file.file, uuid);
 
-    if (res === false)
-        throw reply.notAcceptable("Background already exist.");
-    
-    return res;
-  });
+      if (res === false) throw reply.notAcceptable("Background already exist.");
+
+      return res;
+    }
+  );
 
   fastify.delete(
     "/:id",
@@ -86,4 +85,4 @@ export default async function (fastify, opts) {
         throw reply.notAcceptable("Background doesn't exist.");
     }
   );
-};
+}

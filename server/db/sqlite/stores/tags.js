@@ -5,7 +5,8 @@ export default class TagsStore {
 
   addItem(name) {
     const insertQuery = `INSERT INTO tags (name) VALUES(?)`;
-    return this.db.prepare(insertQuery).run(name.toLocaleLowerCase()).lastInsertRowid;
+    return this.db.prepare(insertQuery).run(name.toLocaleLowerCase())
+      .lastInsertRowid;
   }
 
   deleteItem(id) {
@@ -20,43 +21,41 @@ export default class TagsStore {
   }
 
   getAll(name) {
-    let selectQuery = 
-      `SELECT 
+    let selectQuery = `SELECT 
         id, name 
       FROM tags`;
 
     const selectParams = {};
 
     if (name) {
-      selectQuery += ` WHERE tags.name LIKE :name`
+      selectQuery += ` WHERE tags.name LIKE :name`;
       selectParams.name = `%${name}%`;
     }
 
-    selectQuery +=
-      ` GROUP BY tags.id
+    selectQuery += ` GROUP BY tags.id
       ORDER BY tags.name`;
-      
+
     return this.db.prepare(selectQuery).all(selectParams);
   }
 
   getItemById(id) {
-    const selectQuery =
-      `SELECT 
+    const selectQuery = `SELECT 
         tags.id AS id, tags.name AS name FROM tags
       INNER JOIN bookmarksTags ON tags.id = bookmarksTags.tagId
       WHERE 
         tags.id = :id
-      GROUP BY tags.id`
+      GROUP BY tags.id`;
     return this.db.prepare(selectQuery).all({ id });
   }
 
   updateItem(id, name) {
-    const updateQuery =
-      `UPDATE tags SET 
+    const updateQuery = `UPDATE tags SET 
         name = coalesce(:name,name)
       WHERE id = :id`;
 
-    return this.db.prepare(updateQuery).run({ id, name: name.toLocaleLowerCase() }).changes > 0;
+    return (
+      this.db.prepare(updateQuery).run({ id, name: name.toLocaleLowerCase() })
+        .changes > 0
+    );
   }
 }
-

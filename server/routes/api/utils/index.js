@@ -1,4 +1,4 @@
-import { parseBookmarkFile, parseHtml } from "../../../helpers/parsers.js"
+import { parseBookmarkFile, parseHtml } from "../../../helpers/parsers.js";
 import { batchUpdateLinks } from "../../../logics/bookmarks.js";
 
 import axios from "axios";
@@ -45,4 +45,4 @@ export default async function (fastify, opts) {
   fastify.get("/updatelinks", {}, async function (request, reply) {
     return batchUpdateLinks();
   });
-};
+}

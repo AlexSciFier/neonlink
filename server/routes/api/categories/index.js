@@ -78,7 +78,8 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let { name, color } = request.body;
-      if (stores.categories.updateItem(id, name, color)) return { id, name, color };
+      if (stores.categories.updateItem(id, name, color))
+        return { id, name, color };
       throw fastify.httpErrors.notFound();
     }
   );
@@ -117,4 +118,4 @@ export default async function (fastify, opts) {
       else throw fastify.httpErrors.notFound();
     }
   );
-};
+}

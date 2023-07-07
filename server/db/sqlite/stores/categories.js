@@ -4,21 +4,25 @@ export default class CategoriesStore {
   }
 
   addItem(name, color) {
-    const selectPositionsQuery = `SELECT * FROM categoryPosition ORDER BY position DESC LIMIT 1`
-    let lastPosition = this.db.prepare(selectPositionsQuery).get()?.position || 0;
+    const selectPositionsQuery = `SELECT * FROM categoryPosition ORDER BY position DESC LIMIT 1`;
+    let lastPosition =
+      this.db.prepare(selectPositionsQuery).get()?.position || 0;
 
     const insertQuery = `INSERT INTO category (name, color) VALUES(:name,:color)`;
-    const categoryId = this.db.prepare(insertQuery).run({ name, color }).lastInsertRowid;
+    const categoryId = this.db
+      .prepare(insertQuery)
+      .run({ name, color }).lastInsertRowid;
 
-    const insertPositionQuery = `INSERT INTO categoryPosition (categoryId, position) VALUES(:categoryId,:position)`
-    this.db.prepare(insertPositionQuery).run({ categoryId, position: ++lastPosition });
+    const insertPositionQuery = `INSERT INTO categoryPosition (categoryId, position) VALUES(:categoryId,:position)`;
+    this.db
+      .prepare(insertPositionQuery)
+      .run({ categoryId, position: ++lastPosition });
 
     return categoryId;
   }
 
   getAll() {
-    const selectQuery = 
-      `SELECT 
+    const selectQuery = `SELECT 
         id, name, color, position FROM category 
       INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id
       ORDER BY position ASC`;
@@ -27,19 +31,17 @@ export default class CategoriesStore {
   }
 
   getItemById(id) {
-    const selectQuery = 
-      `SELECT 
+    const selectQuery = `SELECT 
         id, name, color, position FROM category 
       INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id
       WHERE 
         categoryId = :id
-      ORDER BY position ASC`
+      ORDER BY position ASC`;
     return this.db.prepare(selectQuery).get(id);
   }
 
   getItemByName(name) {
-    const selectQuery = 
-      `SELECT 
+    const selectQuery = `SELECT 
         id, name, color, position FROM category 
       INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id
       WHERE 
@@ -67,12 +69,11 @@ export default class CategoriesStore {
   }
 
   updateItem(id, name, color) {
-    const updateQuery = 
-      `UPDATE category SET 
+    const updateQuery = `UPDATE category SET 
         name = coalesce(:name,name), 
         color = coalesce(:color,color)
       WHERE id = :id`;
-    
+
     return this.db.prepare(updateQuery).run({ id, name, color }).changes > 0;
   }
 

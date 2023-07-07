@@ -1,5 +1,5 @@
-import { encodePassword, comparePasswords } from "../helpers/security.js"
-import { stores } from "../db/stores.js"
+import { encodePassword, comparePasswords } from "../helpers/security.js";
+import { stores } from "../db/stores.js";
 
 export function createUser(username, clearPassword, isAdmin = false) {
   const hashedPassword = encodePassword(clearPassword);
@@ -15,7 +15,9 @@ export function loadUserWithSettingsByUsername(username) {
 }
 
 export function loadUserWithSettingsByUUID(uuid) {
-  const user = stores.appSettings.getNologin() ? stores.users.getNologinUser() : stores.users.getItemByUUID(uuid);
+  const user = stores.appSettings.getNologin()
+    ? stores.users.getNologinUser()
+    : stores.users.getItemByUUID(uuid);
   if (user === undefined) return undefined;
   const userSettings = loadUserSettings(user.uuid);
   return { ...user, ...userSettings };
@@ -38,7 +40,7 @@ export function updatePassword(username, clearPassword) {
 
 function loadUserSettings(uuid) {
   let userSettings = stores.userSettings.getItem(uuid);
-  if (userSettings === undefined) { 
+  if (userSettings === undefined) {
     stores.userSettings.addItem(uuid);
     userSettings = stores.userSettings.getItem(uuid);
   }

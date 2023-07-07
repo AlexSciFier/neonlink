@@ -1,21 +1,24 @@
-import fs from 'fs';
-import util from 'util';
-import { dirname, join, parse, relative, resolve } from 'path';
-import { pipeline } from 'stream';
-import { fileURLToPath, pathToFileURL } from 'url';
+import fs from "fs";
+import util from "util";
+import { dirname, join, parse, relative, resolve } from "path";
+import { pipeline } from "stream";
+import { fileURLToPath, pathToFileURL } from "url";
 
-const pump = util.promisify(pipeline)
+const pump = util.promisify(pipeline);
 
-export const rootPath = joinPath(extractDirectory(convertToPath(import.meta.url)), "../");
+export const rootPath = joinPath(
+  extractDirectory(convertToPath(import.meta.url)),
+  "../"
+);
 
 export async function checkWhetherPathIsExistingDirectory(path) {
   const stat = await fs.promises.stat(path);
-  return (stat)?.isDirectory() === true;
+  return stat?.isDirectory() === true;
 }
 
 export async function checkWhetherPathIsExistingFile(path) {
   const stat = await fs.promises.stat(path);
-  return (stat)?.isFile() === true;
+  return stat?.isFile() === true;
 }
 
 export function convertToPath(url) {
@@ -37,7 +40,12 @@ export function joinPath(...paths) {
 
 export function parsePath(path) {
   const data = parse(path);
-  return { dirname: data.dir, basename: data.base, filename: data.name, fileext: data.ext };
+  return {
+    dirname: data.dir,
+    basename: data.base,
+    filename: data.name,
+    fileext: data.ext,
+  };
 }
 
 export function relativeToExecution(path) {
@@ -54,11 +62,19 @@ export function resolvePath(path) {
 
 export function ensureDirectoryExistsSync(directoryPath) {
   let accessError;
-  const accessCallback = (err) => { if (err) { accessError = err } }
-  const mkdirCallback = (err) => { if (err) { console.error(accessError); throw (err); }}
+  const accessCallback = (err) => {
+    if (err) {
+      accessError = err;
+    }
+  };
+  const mkdirCallback = (err) => {
+    if (err) {
+      console.error(accessError);
+      throw err;
+    }
+  };
 
-  if (!fs.access(directoryPath, accessCallback))
-  {
+  if (!fs.access(directoryPath, accessCallback)) {
     fs.mkdir(directoryPath, { recursive: true }, mkdirCallback);
   }
 }
@@ -66,8 +82,7 @@ export function ensureDirectoryExistsSync(directoryPath) {
 export async function ensureDirectoryExists(directoryPath) {
   try {
     await fs.promises.access(directoryPath);
-  }
-  catch (error) {
+  } catch (error) {
     await fs.promises.mkdir(directoryPath, { recursive: true });
   }
 }
@@ -84,8 +99,7 @@ export async function saveFileStream(directory, fileName, sourceStream) {
   let destinationStream = fs.createWriteStream(destinationPath);
   try {
     await pump(sourceStream, destinationStream);
-  }
-  finally {
+  } finally {
     destinationStream.close();
   }
 }
@@ -120,5 +134,5 @@ export default {
   ensureDirectoryExists,
   saveFileStream,
   saveFileContent,
-  deleteFile
+  deleteFile,
 };

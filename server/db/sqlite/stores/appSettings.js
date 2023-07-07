@@ -4,7 +4,8 @@ export default class AppSettingsStore {
   }
 
   getNologin() {
-    return !!this.db.prepare("SELECT useNologin FROM appSettings").get()?.useNologin;
+    return !!this.db.prepare("SELECT useNologin FROM appSettings").get()
+      ?.useNologin;
   }
 
   setNologin(value) {
@@ -19,5 +20,4 @@ export default class AppSettingsStore {
         .prepare("INSERT INTO appSettings (useNologin) VALUES(:value)")
         .run({ value: Number(value) });
   }
-
 }

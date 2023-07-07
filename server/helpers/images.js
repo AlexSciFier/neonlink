@@ -10,4 +10,3 @@ export async function imgUrlToBase64(url) {
     return undefined;
   }
 }
-

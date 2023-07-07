@@ -10,11 +10,11 @@ async function initializeDatabaseManager(dbType, dbOptions) {
 }
 
 function initializeHooks(fastify, databaseManager) {
-  fastify.addHook('onReady', async () => {
+  fastify.addHook("onReady", async () => {
     await databaseManager.migrate();
   });
 
-  fastify.addHook('onClose', (instance, done) => {
+  fastify.addHook("onClose", (instance, done) => {
     console.log("Closing database...");
     databaseManager.close();
     done();
@@ -29,30 +29,59 @@ async function initializeStore(dbType, dbInstance, storeName) {
 }
 
 async function initializeStores(databaseType, databaseManager) {
-  stores.appSettings = await initializeStore(databaseType, databaseManager.db, 'appSettings');
-  stores.backgrounds = await initializeStore(databaseType, databaseManager.db, 'backgrounds');
-  stores.bookmarks = await initializeStore(databaseType, databaseManager.db, 'bookmarks');
-  stores.categories = await initializeStore(databaseType, databaseManager.db, 'categories');
-  stores.tags = await initializeStore(databaseType, databaseManager.db, 'tags');
-  stores.users = await initializeStore(databaseType, databaseManager.db, 'users');
-  stores.userSettings = await initializeStore(databaseType, databaseManager.db, 'userSettings');
+  stores.appSettings = await initializeStore(
+    databaseType,
+    databaseManager.db,
+    "appSettings"
+  );
+  stores.backgrounds = await initializeStore(
+    databaseType,
+    databaseManager.db,
+    "backgrounds"
+  );
+  stores.bookmarks = await initializeStore(
+    databaseType,
+    databaseManager.db,
+    "bookmarks"
+  );
+  stores.categories = await initializeStore(
+    databaseType,
+    databaseManager.db,
+    "categories"
+  );
+  stores.tags = await initializeStore(databaseType, databaseManager.db, "tags");
+  stores.users = await initializeStore(
+    databaseType,
+    databaseManager.db,
+    "users"
+  );
+  stores.userSettings = await initializeStore(
+    databaseType,
+    databaseManager.db,
+    "userSettings"
+  );
 }
 
-export default fp(async function (fastify, opts) {
-  const databaseType = opts.databaseType || "sqlite";
-  const databaseManager = await initializeDatabaseManager(databaseType, opts.databaseOptions);
+export default fp(
+  async function (fastify, opts) {
+    const databaseType = opts.databaseType || "sqlite";
+    const databaseManager = await initializeDatabaseManager(
+      databaseType,
+      opts.databaseOptions
+    );
 
-  try {
-    await initializeStores(databaseType, databaseManager);
-    initializeHooks(fastify, databaseManager);
-  }
-  catch(error) {
-    databaseManager.close();
-    throw(error);
-  }
+    try {
+      await initializeStores(databaseType, databaseManager);
+      initializeHooks(fastify, databaseManager);
+    } catch (error) {
+      databaseManager.close();
+      throw error;
+    }
 
-  console.log("Database plugin initialization completed.");
-}, {
-  fastify: "4.x",
-  name: "database-plugin"
-});
+    console.log("Database plugin initialization completed.");
+  },
+  {
+    fastify: "4.x",
+    name: "database-plugin",
+  }
+);

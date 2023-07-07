@@ -1,7 +1,16 @@
 import { randomUUID } from "crypto";
-import { requestForbidden, requestForbiddenUser } from "../../../logics/handlers.js";
-import { createUser, isPasswordValid, loadUserWithSettingsByUUID, loadUserWithSettingsByUsername, updatePassword } from "../../../logics/users.js";
-import { stores } from "../../../db/stores.js"
+import {
+  requestForbidden,
+  requestForbiddenUser,
+} from "../../../logics/handlers.js";
+import {
+  createUser,
+  isPasswordValid,
+  loadUserWithSettingsByUUID,
+  loadUserWithSettingsByUsername,
+  updatePassword,
+} from "../../../logics/users.js";
+import { stores } from "../../../db/stores.js";
 
 const settingsFields = {
   maxNumberOfLinks: { type: "number" },
@@ -13,8 +22,6 @@ const settingsFields = {
   enableNeonShadows: { type: "boolean" },
   cardPosition: { type: "string" },
 };
-
-
 
 /**
  *
@@ -55,10 +62,10 @@ export default async function (fastify, opts) {
           properties: {
             username: { type: "string" },
             password: { type: "string" },
-            isAdmin: { type: "boolean" }
-          }
-        }
-      }
+            isAdmin: { type: "boolean" },
+          },
+        },
+      },
     },
     function (request) {
       let { username, password } = request.body;
@@ -122,8 +129,8 @@ export default async function (fastify, opts) {
         body: {
           type: "object",
           properties: settingsFields,
-        }
-      }
+        },
+      },
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
@@ -144,8 +151,8 @@ export default async function (fastify, opts) {
         body: {
           type: "object",
           properties: { noLogin: { type: "boolean" } },
-        }
-      }
+        },
+      },
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
@@ -165,10 +172,10 @@ export default async function (fastify, opts) {
         response: {
           200: {
             type: "object",
-            properties: { noLogin: { type: "boolean" } }
-          }
-        }
-      }
+            properties: { noLogin: { type: "boolean" } },
+          },
+        },
+      },
     },
     async function (request, reply) {
       return { noLogin: stores.appSettings.getNologin() };
@@ -184,9 +191,9 @@ export default async function (fastify, opts) {
           200: {
             type: "object",
             properties: settingsFields,
-          }
-        }
-      }
+          },
+        },
+      },
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
@@ -237,4 +244,4 @@ export default async function (fastify, opts) {
     reply.clearCookie("SSID");
     return true;
   });
-};
+}
