@@ -1,5 +1,5 @@
 import {
-  CogIcon,
+  Cog6ToothIcon,
   LinkIcon,
   ArrowRightOnRectangleIcon,
   PlusIcon,
@@ -47,7 +47,7 @@ export default function NavBar({ isBgTransparent = false }) {
           <span className="md:block hidden">Links</span>
         </Link>
         <Link className="leading-loose flex group gap-1" to={"/settings"}>
-          <CogIcon className="w-8 h-8 p-1 rounded-full group-hover:bg-white/20" />
+          <Cog6ToothIcon className="w-8 h-8 p-1 rounded-full group-hover:bg-white/20" />
           <span className="md:block hidden">Settings</span>
         </Link>
         <button

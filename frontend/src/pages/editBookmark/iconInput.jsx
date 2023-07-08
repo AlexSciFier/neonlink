@@ -1,4 +1,4 @@
-import { FolderArrowDownIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -32,7 +32,7 @@ export default function IconInput({ url, icon, setIcon }) {
         style={{ backgroundImage: `url(${defaultIconUrl || icon})` }}
         className="w-6 h-6 bg-cover flex-none m-1"
       ></div>
-      <FolderArrowDownIcon
+      <ArrowDownTrayIcon
         onClick={fetchIcon}
         className="h-8 w-8 p-1 flex-none cursor-pointer rounded hover:bg-black/10 dark:hover:bg-white/10"
       />
