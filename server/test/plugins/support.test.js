@@ -1,16 +1,14 @@
-'use strict'
+import { test } from "tap";
+import Fastify from "fastify";
+import Support from "../../plugins/support.js";
 
-const { test } = require('tap')
-const Fastify = require('fastify')
-const Support = require('../../plugins/support')
+test("support works standalone", async (t) => {
+  const fastify = Fastify();
+  fastify.register(Support);
 
-test('support works standalone', async (t) => {
-  const fastify = Fastify()
-  fastify.register(Support)
-
-  await fastify.ready()
-  t.equal(fastify.someSupport(), 'hugs')
-})
+  await fastify.ready();
+  t.equal(fastify.someSupport(), "hugs");
+});
 
 // You can also use plugin with opts in fastify v2
 //

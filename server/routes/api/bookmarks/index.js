@@ -1,16 +1,14 @@
-"use strict";
-const { default: fastify } = require("fastify");
-const bookmark = require("../../../db/bookmarks")
-const netscape = require("../../../utils/bookmarkFileGenerator");
-const { imgUrlToBase64 } = require("../../../utils/imgUrlToBase64");
-const { requestForbidden } = require("../utils/preHandler");
+import { imgUrlToBase64 } from "../../../helpers/images.js";
+import { netscape } from "../../../helpers/netscape.js";
+import { requestForbidden } from "../../../logics/handlers.js";
+import { stores } from "../../../db/stores.js";
 
 /**
  *
  * @param {import("fastify").FastifyInstance} fastify
  * @param {*} opts
  */
-module.exports = async function (fastify, opts) {
+export default async function (fastify, opts) {
   fastify.get(
     "/",
     { preHandler: requestForbidden },
@@ -21,9 +19,8 @@ module.exports = async function (fastify, opts) {
       let q = query.get("q") ?? undefined;
       let tag = query.get("tag") ?? undefined;
       let category = query.get("category") ?? undefined;
-      if (q || tag || category)
-        return bookmark.findBookmark(q || "", tag, category, limit, offset);
-      return bookmark.getAllBookmarks(offset, limit);
+
+      return stores.bookmarks.getPage(limit, offset, q, tag, category);
     }
   );
 
@@ -32,8 +29,8 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      let foundedBookmark = bookmark.getBookmarkById(id);
-      if (foundedBookmark) return foundedBookmark;
+      let foundBookmark = stores.bookmarks.getItemById(id);
+      if (foundBookmark) return foundBookmark;
       throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
     }
   );
@@ -43,7 +40,7 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      let icon = bookmark.getIconByBookmarkId(id);
+      let icon = stores.bookmarks.getIconByBookmarkId(id);
       if (icon) {
         let type = icon.split(";")[0].split(":")[1];
         reply
@@ -61,16 +58,15 @@ module.exports = async function (fastify, opts) {
     "/export",
     { preHandler: requestForbidden },
     async function (request, reply) {
-      let bookmarks = bookmark.getAllBookmarks(0, 999999)?.bookmarks;
+      let bookmarks = stores.bookmarks.getAll();
       let maped = {};
       for (const key in bookmarks) {
-        if (Object.hasOwnProperty.call(bookmarks, key)) {
+        if (bookmarks.hasOwnProperty(key)) {
           const element = bookmarks[key];
           maped[element.title] = element.url;
         }
       }
-      let html = netscape(maped);
-      return html;
+      return netscape(maped);
     }
   );
 
@@ -79,7 +75,7 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      let bookmarks = bookmark.getBookmarkByCategoryId(id);
+      let bookmarks = stores.bookmarks.getByCategoryId(id);
       if (bookmarks) return bookmarks;
       throw fastify.httpErrors.notFound(
         `bookmarks with category id ${id} not found`
@@ -115,14 +111,14 @@ module.exports = async function (fastify, opts) {
 
       if (icon !== "") icon = await imgUrlToBase64(icon);
 
-      let existingBookmark = bookmark.getBookmarkByUrl(url);
+      let existingBookmark = stores.bookmarks.getItemByUrl(url);
       if (existingBookmark) {
         throw fastify.httpErrors.badRequest(
           "Bookmark with this url is already exist"
         );
       }
       reply.statusCode = 201;
-      return bookmark.addBookmark(url, title, desc, icon, categoryId, tags);
+      return stores.bookmarks.addItem(url, title, desc, icon, categoryId, tags);
     }
   );
 
@@ -151,9 +147,9 @@ module.exports = async function (fastify, opts) {
           throw fastify.httpErrors.notAcceptable(
             `url shoud not be empty ${title}`
           );
-        let existingBookmark = bookmark.getBookmarkByUrl(url);
+        let existingBookmark = stores.bookmarks.getItemByUrl(url);
         if (existingBookmark) return;
-        bookmark.addBookmark(url, title, "", icon, undefined, []);
+        stores.bookmarks.addItem(url, title, "", icon, undefined, []);
         reply.statusCode = 201;
       });
       return true;
@@ -184,7 +180,17 @@ module.exports = async function (fastify, opts) {
       let { url, title, desc, icon, categoryId, tags } = request.body;
       if (url === "") throw new Error("Url shoud not be empty string");
       if (icon && icon.startsWith("http")) icon = await imgUrlToBase64(icon);
-      if (bookmark.updateBookmarkById(id, url, title, desc, icon, categoryId, tags))
+      if (
+        stores.bookmarks.updateItem(
+          id,
+          url,
+          title,
+          desc,
+          icon,
+          categoryId,
+          tags
+        )
+      )
         return { url, title, desc };
       throw fastify.httpErrors.notFound();
     }
@@ -195,7 +201,7 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      if (bookmark.deleteBookmarkById(id)) return true;
+      if (stores.bookmarks.deleteItem(id)) return true;
       else throw fastify.httpErrors.notFound();
     }
   );
@@ -226,8 +232,8 @@ module.exports = async function (fastify, opts) {
     },
     async function (request, reply) {
       let { items, categoryId } = request.body;
-      if (bookmark.updatePostitions(items,categoryId)) return true;
+      if (stores.bookmarks.updatePositions(items, categoryId)) return true;
       return { items, categoryId };
     }
   );
-};
+}

@@ -10,15 +10,15 @@ import RadioButtonGroup from "../../../../components/RadioButtonGroup";
 import InputItem from "../../components/inputItem";
 import {
   BookmarkIcon,
-  ExternalLinkIcon,
+  ArrowTopRightOnSquareIcon,
   LightBulbIcon,
   MoonIcon,
-  PhotographIcon,
-  RefreshIcon,
-  SelectorIcon,
-  ViewBoardsIcon,
-  ViewGridIcon,
-} from "@heroicons/react/outline";
+  PhotoIcon,
+  ArrowPathIcon,
+  ChevronUpDownIcon,
+  ViewColumnsIcon,
+  Squares2X2Icon,
+} from "@heroicons/react/24/outline";
 import BackgroundImageSettings from "./BackgroundImageSettings";
 
 export default function InterfaceTab() {
@@ -59,7 +59,7 @@ export default function InterfaceTab() {
         {
           title: "Sync settings",
           description: "Sync settings across all devices",
-          icon:<RefreshIcon/>,
+          icon:<ArrowPathIcon/>,
           input: (
             <SwitchButton
               id={"sync-settings"}
@@ -113,7 +113,7 @@ export default function InterfaceTab() {
         {
           title: "Link in new tab",
           description: "Open link in new tab",
-          icon: <ExternalLinkIcon />,
+          icon: <ArrowTopRightOnSquareIcon />,
           input: (
             <SwitchButton
               id={"link-in-new-tab"}
@@ -132,7 +132,7 @@ export default function InterfaceTab() {
         {
           title: "Use image as background",
           description: "Use image url as background of dashboad",
-          icon: <PhotographIcon />,
+          icon: <PhotoIcon />,
           input: (
             <SwitchButton
               id={"use-dashboard-bg"}
@@ -146,14 +146,14 @@ export default function InterfaceTab() {
         {
           title: "Background image",
           description: "Upload or choose background image",
-          icon: <PhotographIcon />,
+          icon: <PhotoIcon />,
           horisontal: true,
           input: <BackgroundImageSettings />,
         },
         {
           title: "Columns",
           description: "Number of columns in dashboard",
-          icon: <ViewBoardsIcon />,
+          icon: <ViewColumnsIcon />,
           input: (
             <select
               id="dashboard-columns"
@@ -172,7 +172,7 @@ export default function InterfaceTab() {
         {
           title: "Card style",
           description: "Change style of card header in dashboard",
-          icon: <ViewGridIcon />,
+          icon: <Squares2X2Icon />,
           input: (
             <RadioButtonGroup
               options={CARD_HEADER_STYLE}
@@ -200,7 +200,7 @@ export default function InterfaceTab() {
         {
           title: "Card position",
           description: "Card vertical aligment",
-          icon: <SelectorIcon />,
+          icon: <ChevronUpDownIcon />,
           input: (
             <RadioButtonGroup
               options={CARD_VERTICAL_ALIGMENT}

@@ -2,7 +2,7 @@
 .vscode
 .nyc_output
 node_modules
-db/bookmarks.sqlite
+data
 public
 test
 Dockerfile

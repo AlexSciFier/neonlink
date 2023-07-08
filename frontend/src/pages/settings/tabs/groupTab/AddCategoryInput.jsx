@@ -1,4 +1,4 @@
-import { PlusIcon } from "@heroicons/react/outline";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import React, { useRef, useState } from "react";
 import SelectInputColor from "../../../../components/SelectInputColor";
 import { useCategoriesList } from "../../../../context/categoriesList";

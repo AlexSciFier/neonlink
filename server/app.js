@@ -1,36 +1,22 @@
-"use strict";
+import AutoLoad from "@fastify/autoload";
+import fs from "./helpers/fileSystem.js";
 
-const path = require("path");
-const AutoLoad = require("fastify-autoload");
-const { init } = require("./db/connect");
+// Pass --options via CLI arguments in command to enable these options.
+export const options = {};
 
-/**
- * 
- * @param {import("fastify").FastifyInstance} fastify 
- * @param {*} opts 
- */
-module.exports = async function (fastify, opts) {
+export default async function (fastify, opts) {
   // Place here your custom code!
+
   // Do not touch the following lines
-
-  init();
-
-  fastify.setNotFoundHandler((req,rep)=>{
-    rep.sendFile("index.html","./public")
-  })
 
   // This loads all plugins defined in plugins
   // those should be support plugins that are reused
   // through your application
   fastify.register(AutoLoad, {
-    dir: path.join(__dirname, "plugins"),
+    dir: fs.joinPath(
+      fs.extractDirectory(fs.convertToPath(import.meta.url)),
+      "./plugins"
+    ),
     options: Object.assign({}, opts),
   });
-
-  // This loads all plugins defined in routes
-  // define your routes in one of these
-  fastify.register(AutoLoad, {
-    dir: path.join(__dirname, "routes"),
-    options: Object.assign({}, opts),
-  });
-};
+}

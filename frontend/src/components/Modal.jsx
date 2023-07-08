@@ -1,4 +1,4 @@
-import { XIcon } from "@heroicons/react/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import React, { useContext } from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
@@ -73,7 +73,7 @@ function Header({ children, closeButton = false }) {
           onClick={() => setVisible(false)}
           className="w-6 h-6 cursor-pointer p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
         >
-          <XIcon />
+          <XMarkIcon />
         </div>
       )}
     </div>

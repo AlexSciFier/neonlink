@@ -35,12 +35,12 @@ You can easily install an application using Docker. The images are also optimize
 Then run the command which will install the Docker container.
 
 ```sh
-docker run -p {80}:3333 -v {/path/to/data}:/app/data -v {/path/to/backgroundimages}:/app/public/static/media/background alexscifier/neonlink:latest
+docker run -p {80}:3333 -v {/path/to/data}:/app/data -v {/path/to/backgrounds}:/app/public/static/media/background alexscifier/neonlink:latest
 ```
 
 - Replace {80} with any port you like.
 - Replace {/path/to/data} with the path to the data folder with private data
-- Replace {/path/to/backgroundimages} with the path to the background images folder
+- Replace {/path/to/backgrounds} with the path to the background images folder
 
 Or you can install with `docker-compose.yml` file
 

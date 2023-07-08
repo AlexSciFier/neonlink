@@ -1,47 +1,40 @@
-"use strict";
+import Dotenv from "dotenv";
+import Fastify from "fastify";
+import FastifyAutoLoad from "@fastify/autoload";
+import fs from "./helpers/fileSystem.js";
 
-// Read the .env file.
-require("dotenv").config();
+try {
+  // Read environment variables
+  Dotenv.config();
 
-// Require the framework
-const Fastify = require("fastify");
+  // Initialize Fastify
+  const app = Fastify({
+    logger: { level: process.env.FASTIFY_LOG_LEVEL || "info" },
+    bodyLimit: 5242880,
+  });
 
-// Require library to exit fastify process, gracefully (if possible)
-const closeWithGrace = require("close-with-grace");
+  // Load all plugins
+  app.register(FastifyAutoLoad, {
+    dir: fs.joinPath(
+      fs.extractDirectory(fs.convertToPath(import.meta.url)),
+      "./plugins"
+    ),
+  });
 
-// Instantiate Fastify with some config
-const app = Fastify({
-  logger: { level: process.env.FASTIFY_LOG_LEVEL || "info" },
-  bodyLimit: 5242880,
-});
+  const PORT = process.env.PORT || 3000;
+  const HOST = process.env.FASTIFY_ADDRESS || "0.0.0.0";
 
-// Register your application as a normal plugin.
-const appService = require("./app.js");
-app.register(appService);
-
-// delay is the number of milliseconds for the graceful close to finish
-const closeListeners = closeWithGrace(
-  { delay: 500 },
-  async function ({ signal, err, manual }) {
-    if (err) {
-      app.log.error(err);
-    }
-    await app.close();
-  }
-);
-
-app.addHook("onClose", async (instance, done) => {
-  closeListeners.uninstall();
-  done();
-});
-
-// Start listening.
-app.listen(
-  { port: process.env.PORT || 3000, host: process.env.FASTIFY_ADDRESS || "0.0.0.0" },
-  (err) => {
-    if (err) {
-      app.log.error(err);
+  // Start fastify
+  app
+    .listen({ port: PORT, host: HOST })
+    .then((address) => {
+      console.log(`Server started listening on ${address}`);
+    })
+    .catch((err) => {
+      console.error(err);
       process.exit(1);
-    }
-  }
-);
+    });
+} catch (err) {
+  console.log(err);
+  process.exit(1);
+}

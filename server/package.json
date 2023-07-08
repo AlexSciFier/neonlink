@@ -2,36 +2,38 @@
   "name": "neonlink-backend",
   "version": "1.0.0",
   "description": "NeonLink backend part bootstrapped with Fastify-CLI.",
+  "type": "module",
   "main": "app.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "tap \"test/**/*.test.js\"",
-    "start": "fastify start -a \"0.0.0.0\" -l info --body-limit 5242880 app.js",
-    "dev": "fastify start -a \"0.0.0.0\" -w --ignore-watch='db/bookmarks.sqlite' --body-limit 5242880 -l info -P app.js"
+    "start": "node server.js",
+    "dev": "fastify start -a \"0.0.0.0\" -w --ignore-watch='data/bookmarks.sqlite' --body-limit 5242880 -l info -P app.js",
+    "pretty": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/autoload": "^5.7.1",
+    "@fastify/cookie": "^8.3.0",
     "@fastify/cors": "^8.3.0",
-    "@fastify/static": "^5.0.2",
-    "axios": "^0.26.1",
-    "better-sqlite3": "^7.5.3",
-    "close-with-grace": "^1.1.0",
+    "@fastify/multipart": "^7.7.0",
+    "@fastify/sensible": "^5.2.0",
+    "@fastify/static": "^6.10.2",
+    "axios": "^1.4.0",
+    "better-sqlite3": "^8.4.0",
+    "close-with-grace": "^1.2.0",
     "dotenv": "^16.0.3",
-    "fastify": "^3.29.5",
-    "fastify-autoload": "^3.10.0",
-    "fastify-cookie": "^5.6.0",
-    "fastify-cors": "^6.0.3",
-    "fastify-file-upload": "^4.0.0",
-    "fastify-plugin": "^3.0.0",
-    "fastify-sensible": "^3.1.2",
+    "fastify": "^4.19.1",
+    "fastify-plugin": "^4.5.0",
     "fastify-session": "^5.2.1",
-    "node-html-parser": "^5.3.3"
+    "node-html-parser": "^6.1.5",
+    "webpack": "^5.88.1"
   },
   "devDependencies": {
+    "prettier": "^3.0.0",
     "tap": "^16.3.0"
   }
 }

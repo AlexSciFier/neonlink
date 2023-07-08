@@ -1,15 +1,5 @@
-"use strict";
-
-const { deleteBookmarkById } = require("../../../db/bookmarks");
-const {
-  getAllTags,
-  getTagById,
-  addTag,
-  updateTagById,
-  findTags,
-} = require("../../../db/tags");
-const { getUserByUUID } = require("../../../db/users");
-const { requestForbidden } = require("../utils/preHandler");
+import { requestForbidden } from "../../../logics/handlers.js";
+import { stores } from "../../../db/stores.js";
 
 const postOptions = {
   schema: {
@@ -29,14 +19,13 @@ const postOptions = {
  * @param {import("fastify").FastifyInstance} fastify
  * @param {*} opts
  */
-module.exports = async function (fastify, opts) {
+export default async function (fastify, opts) {
   fastify.get(
     "/",
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { q } = request.query;
-      if (q) return findTags(q);
-      return getAllTags();
+      return stores.tags.getAll(q);
     }
   );
 
@@ -45,14 +34,17 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      return getTagById(id);
+      return stores.tags.getItemById(id);
     }
   );
 
   fastify.post("/", postOptions, async function (request, reply) {
     let { name } = request.body;
     if (name === "") throw new Error("name cannot be empty");
-    let id = addTag(name);
+    if (stores.tags.existsItemByName(name))
+      throw new Error("tag name already in use.");
+
+    let id = stores.tags.addItem(name);
     reply.statusCode = 201;
     return { id, name };
   });
@@ -61,10 +53,10 @@ module.exports = async function (fastify, opts) {
     let { id } = request.params;
     let { name } = request.body;
     if (name === "") throw new Error("name cannot be empty");
-    let tag = getTagById(id);
+    let tag = stores.tags.getItemById(id);
     if (tag === undefined)
       throw fastify.httpErrors.notFound("tag with this id doesnt exist");
-    updateTagById(id, name);
+    stores.tags.updateItem(id, name);
     return { id, name };
   });
 
@@ -73,9 +65,9 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      let status = deleteBookmarkById(id);
+      let status = stores.bookmarks.deleteBookmarkById(id);
       if (status) return true;
       throw new Error("cannot delete");
     }
   );
-};
+}

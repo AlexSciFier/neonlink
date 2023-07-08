@@ -1,4 +1,4 @@
-import { SelectorIcon } from "@heroicons/react/outline";
+import { ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import { useEffect, useState, useRef } from "react";
 
@@ -48,7 +48,7 @@ export default function SelectInputColor({
           style={{ backgroundColor: selected.value }}
         ></span>
         <span>{selected.label}</span>
-        <SelectorIcon className="w-5 h-5" />
+        <ChevronUpDownIcon className="w-5 h-5" />
       </button>
       {isMenuOpen && (
         <ul className="absolute left-0 right-0 mt-1 bg-white text-black py-1 rounded shadow-xl dark:bg-gray-900 dark:text-white dark:border">

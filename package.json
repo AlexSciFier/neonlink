@@ -26,6 +26,6 @@
   },
   "homepage": "https://github.com/AlexSciFier/bookmark-app#readme",
   "devDependencies": {
-    "concurrently": "^7.2.2"
+    "concurrently": "^8.2.0"
   }
 }

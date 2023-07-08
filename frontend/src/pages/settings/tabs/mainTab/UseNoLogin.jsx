@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { getJSON, postJSON } from "../../../../helpers/fetch";
 import InputItem from "../../components/inputItem";
 import SwitchButton from "../../components/SwitchButton";
-import KeyIcon from "@heroicons/react/outline/KeyIcon";
+import KeyIcon from "@heroicons/react/24/outline/KeyIcon";
 
 export default function UseNoLogin() {
   const [useNoLogin, setUseNoLogin] = useState(false);

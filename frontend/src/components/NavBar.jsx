@@ -1,9 +1,9 @@
 import {
-  CogIcon,
+  Cog6ToothIcon,
   LinkIcon,
-  LogoutIcon,
+  ArrowRightOnRectangleIcon,
   PlusIcon,
-} from "@heroicons/react/outline";
+} from "@heroicons/react/24/outline";
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { BUTTON_BASE_CLASS } from "../helpers/baseDesign";
@@ -47,14 +47,14 @@ export default function NavBar({ isBgTransparent = false }) {
           <span className="md:block hidden">Links</span>
         </Link>
         <Link className="leading-loose flex group gap-1" to={"/settings"}>
-          <CogIcon className="w-8 h-8 p-1 rounded-full group-hover:bg-white/20" />
+          <Cog6ToothIcon className="w-8 h-8 p-1 rounded-full group-hover:bg-white/20" />
           <span className="md:block hidden">Settings</span>
         </Link>
         <button
           onClick={logoutHandler}
           className="flex items-center group gap-1"
         >
-          <LogoutIcon className="w-8 h-8 p-1 rounded-full group-hover:bg-white/20" />
+          <ArrowRightOnRectangleIcon className="w-8 h-8 p-1 rounded-full group-hover:bg-white/20" />
           <span className="md:block hidden">Logout</span>
         </button>
       </div>

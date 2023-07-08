@@ -14,7 +14,7 @@ export function BookMarkListProvider({ children }) {
   const [bookmarkList, setBookmarkList] = useState([]);
   const [isBookmarksLoading, setIsBookmarksLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [maxPage, setMaxPage] = useState(10);
+  const [lastPage, setLastPage] = useState(10);
   const [errorBookmarks, setErrorBookmarks] = useState();
   const abortController = useRef(null);
 
@@ -48,7 +48,7 @@ export function BookMarkListProvider({ children }) {
       let json = await res.json();
       setBookmarkList(json.bookmarks);
       setCurrentPage(json.currentPage);
-      setMaxPage(json.maxPage);
+      setLastPage(json.lastPage);
     } else {
       setErrorBookmarks(res.json());
     }
@@ -83,7 +83,7 @@ export function BookMarkListProvider({ children }) {
         bookmarkList,
         errorBookmarks,
         currentPage,
-        maxPage,
+        lastPage,
         isBookmarksLoading,
         fetchBookmarks,
         deleteBookmark,

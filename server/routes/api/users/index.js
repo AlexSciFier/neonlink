@@ -1,13 +1,16 @@
-"use strict";
-const db = require("../../../db/connect");
-const crypto = require("crypto");
-const {
-  setUserSetting,
-  getUserSettings,
-  getUserByUUID,
-} = require("../../../db/connect");
-const { requestForbidden } = require("../utils/preHandler");
-const { setNologin, getNologin } = require("../../../db/appSettings");
+import { randomUUID } from "crypto";
+import {
+  requestForbidden,
+  requestForbiddenUser,
+} from "../../../logics/handlers.js";
+import {
+  createUser,
+  isPasswordValid,
+  loadUserWithSettingsByUUID,
+  loadUserWithSettingsByUsername,
+  updatePassword,
+} from "../../../logics/users.js";
+import { stores } from "../../../db/stores.js";
 
 const settingsFields = {
   maxNumberOfLinks: { type: "number" },
@@ -22,24 +25,10 @@ const settingsFields = {
 
 /**
  *
- * @param {import("fastify").FastifyRequest} request
- * @param {import("fastify").FastifyReply} reply
- */
-async function requestForbiddenUser(request, reply) {
-  if (await db.isUsersTableEmpty())
-    throw reply.notFound("No registrated users");
-  let { SSID } = request.cookies;
-  let user = await db.getUserByUUID(SSID);
-  if (user === undefined)
-    throw reply.unauthorized("You must login to use this method");
-}
-
-/**
- *
  * @param {import("fastify").FastifyInstance} fastify
  * @param {*} opts
  */
-module.exports = async function (fastify, opts) {
+export default async function (fastify, opts) {
   fastify.get(
     "/me",
     {
@@ -59,7 +48,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       let { SSID } = request.cookies;
-      return await db.getUserByUUID(SSID);
+      return await loadUserWithSettingsByUUID(SSID);
     }
   );
 
@@ -78,15 +67,15 @@ module.exports = async function (fastify, opts) {
         },
       },
     },
-    async function (request) {
+    function (request) {
       let { username, password } = request.body;
       let isAdmin = request.body?.isAdmin || false;
-      if (db.isUsersTableEmpty() === false)
+      if (stores.users.checkWhetherTableIsEmpty() === false)
         throw fastify.httpErrors.notAcceptable("Users limit reach");
-      if (db.isUserExist(username))
+      if (stores.users.checkWhetherUserExists(username))
         throw fastify.httpErrors.notAcceptable("This username already exist");
-      if (db.isUsersTableEmpty()) isAdmin === true;
-      return await db.addUser(username, password, isAdmin);
+      if (stores.users.checkWhetherTableIsEmpty()) isAdmin === true;
+      return createUser(username, password, isAdmin);
     }
   );
 
@@ -108,14 +97,14 @@ module.exports = async function (fastify, opts) {
     },
     async function (request) {
       let { username, currentPassword, newPassword } = request.body;
-      if (db.isUserExist(username) === false) {
+      if (stores.users.checkWhetherUserExists(username) === false) {
         throw fastify.httpErrors.notFound("Username not found");
       } else {
-        let isValid = await db.isPasswordValid(username, currentPassword);
+        let isValid = await isPasswordValid(username, currentPassword);
         if (isValid === false) {
           throw fastify.httpErrors.forbidden("Password is incorrect");
         } else {
-          db.changePassword(username, newPassword);
+          updatePassword(username, newPassword);
           return true;
         }
       }
@@ -127,7 +116,7 @@ module.exports = async function (fastify, opts) {
     { preHandler: requestForbidden },
     async function (request, reply) {
       let { id } = request.params;
-      if (db.deleteUser(id)) return { status: "OK" };
+      if (stores.users.deleteUser(id)) return { status: "OK" };
       else throw fastify.httpErrors.notFound("User with this id is not found");
     }
   );
@@ -147,7 +136,7 @@ module.exports = async function (fastify, opts) {
       let uuid = request.cookies.SSID;
       let res = {};
       for (const key in request.body) {
-        setUserSetting(uuid, key, request.body?.[key]);
+        stores.userSettings.updateItem(uuid, key, request.body?.[key]);
         res[key] = request.body?.[key];
       }
       return res;
@@ -167,10 +156,10 @@ module.exports = async function (fastify, opts) {
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
-      let user = await getUserByUUID(uuid);
+      let user = await loadUserWithSettingsByUUID(uuid);
       if (user.usergroup === 0) {
         if (request.body?.noLogin !== undefined)
-          setNologin(request.body.noLogin);
+          stores.appSettings.setNologin(request.body.noLogin);
       }
       return request.body;
     }
@@ -180,14 +169,16 @@ module.exports = async function (fastify, opts) {
     "/settings/global",
     {
       schema: {
-        body: {
-          type: "object",
-          properties: { noLogin: { type: "boolean" } },
+        response: {
+          200: {
+            type: "object",
+            properties: { noLogin: { type: "boolean" } },
+          },
         },
       },
     },
     async function (request, reply) {
-      return { noLogin: getNologin() };
+      return { noLogin: stores.appSettings.getNologin() };
     }
   );
 
@@ -206,7 +197,7 @@ module.exports = async function (fastify, opts) {
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
-      return getUserSettings(uuid);
+      return stores.userSettings.getItem(uuid);
     }
   );
 
@@ -227,12 +218,12 @@ module.exports = async function (fastify, opts) {
     },
     async function (request, reply) {
       let { username, password } = request.body;
-      if (db.getUser(username) === undefined)
+      let user = loadUserWithSettingsByUsername(username);
+      if (user === undefined)
         throw reply.notFound("Username or password is incorrect");
-      let isValid = await db.isPasswordValid(username, password);
+      let isValid = await isPasswordValid(username, password);
       if (isValid) {
-        let user = db.getUser(username);
-        let userId = user.uuid || crypto.randomUUID();
+        let userId = user.uuid || randomUUID();
         reply.setCookie("SSID", userId, {
           path: "/",
           httpOnly: true,
@@ -241,7 +232,7 @@ module.exports = async function (fastify, opts) {
         if (user.uuid) {
           return user;
         }
-        db.addUUID(username, userId);
+        stores.users.addUUID(username, userId);
         return user;
       } else {
         throw reply.forbidden("Username or password is incorrect");
@@ -253,4 +244,4 @@ module.exports = async function (fastify, opts) {
     reply.clearCookie("SSID");
     return true;
   });
-};
+}

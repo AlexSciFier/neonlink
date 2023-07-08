@@ -1,4 +1,4 @@
-import { CheckIcon, PlusIcon, TrashIcon } from "@heroicons/react/outline";
+import { CheckIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import Modal from "../../../../components/Modal";
@@ -11,7 +11,7 @@ import {
   postJSON,
 } from "../../../../helpers/fetch";
 import { fixBgUrl } from "../../../../helpers/url";
-const ENDPOINT = "/api/backgroundimage";
+const ENDPOINT = "/api/backgrounds";
 
 export default function BackgroundImageSettings() {
   const { setBgUrl, bgUrl } = useInterfaceSettings();
@@ -64,7 +64,7 @@ export default function BackgroundImageSettings() {
           setError((await res.json())?.message);
         }
       } else {
-        let res = await postFormData("/api/utils/savefile", { file });
+        let res = await postFormData("/api/backgrounds/add", { file });
         setIsLoading(false);
         if (res.ok) {
           let resBody = await res.json();

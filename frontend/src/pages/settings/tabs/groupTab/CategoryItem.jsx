@@ -1,4 +1,4 @@
-import { PencilIcon, SelectorIcon, XIcon } from "@heroicons/react/outline";
+import { PencilIcon, ChevronUpDownIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import { useCategoriesList } from "../../../../context/categoriesList";
 import { ConfirmationButtons } from "./ConfirmationButtons";
@@ -55,7 +55,7 @@ export function CategoryItem({ id, name, color, position, isActive = false }) {
             isActive ? "cursor-grabbing" : "cursor-grab"
           } flex dark:hover:bg-white/10`}
         >
-          <SelectorIcon className="w-6 h-6" />
+          <ChevronUpDownIcon className="w-6 h-6" />
         </div>
         <Header id={id} name={name} color={color} position={position} />
       </div>
@@ -150,7 +150,7 @@ function Header({ id, name, color, position }) {
                 onClick={(e) => setIsDeliting(true)}
                 className="w-5 h-5 hover:text-red-500"
               >
-                <XIcon />
+                <XMarkIcon />
               </button>
             </>
           )}
