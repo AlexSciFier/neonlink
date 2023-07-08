@@ -8,13 +8,13 @@ import FastifyStatic from "@fastify/static";
 import fp from "fastify-plugin";
 import fs from "../helpers/fileSystem.js";
 
-export default fp(
-  function (fastify, opts, next) {
+export default fp(function (fastify, opts, next) {
     // Handle some plugins
     fastify.register(FastifyMultipart, {});
     fastify.register(FastifyCookie, {
-      secret: "6139a3c94e6b61063c3834942338e2be",
+      secret: "6139a3c94e6b61063c3834942338e2be" 
     });
+  
     fastify.register(FastifyCors, {
       origin: true,
       credentials: true,
@@ -22,29 +22,20 @@ export default fp(
     });
 
     fastify.register(FastifySensible, {
-      errorHandler: false,
+      errorHandler: false
     });
 
     // This loads all plugins defined in routes
     // define your routes in one of these
     fastify.register(FastifyAutoLoad, {
       dir: fs.joinPath(fs.rootPath, "./routes"),
-      options: Object.assign({}, opts),
+      options: Object.assign({}, opts)
     });
 
     // This allows us to handle static files
     fastify.register(FastifyStatic, {
-      root: fs.joinPath(fs.rootPath, "./public"),
+      root: fs.joinPath(fs.rootPath, "./public")
     });
-
-    // This allows us to handle unexpected errors
-    /*fastify.setErrorHandler(function (error, request, reply) {
-    // Log error
-    console.error(error);
-  
-    // handle error
-    reply.status(500).send({ ok: false })
-  });*/
 
     // This allows us to handle Error 404
     fastify.setNotFoundHandler((req, rep) => {
@@ -54,9 +45,7 @@ export default fp(
     console.log("Host plugin initialization completed.");
 
     next();
-  },
-  {
+}, {
     fastify: "4.x",
-    name: "host-plugin",
-  }
-);
+  name: "host-plugin"
+});
