@@ -1,11 +1,12 @@
 import axios from "axios";
 import { imgUrlToBase64 } from "../helpers/images.js";
+import { parseHtml } from "../helpers/parsers.js";
 import { stores } from "../db/stores.js";
 
 export async function batchUpdateLinks() {
   let bookmarks = stores.bookmarks.getAll();
 
-  bookmarks.bookmarks.forEach(async (bookmark) => {
+  bookmarks.forEach(async (bookmark) => {
     let response;
     try {
       response = await axios.get(bookmark.url);
@@ -17,7 +18,7 @@ export async function batchUpdateLinks() {
     let html = await response.data;
     let urlInfo = await parseHtml(html, bookmark.url);
     let icon = await imgUrlToBase64(urlInfo.icon);
-    stores.bookmarks.updateBookmarkById(
+    stores.bookmarks.updateItem(
       bookmark.id,
       bookmark.url,
       urlInfo.title || bookmark.title,

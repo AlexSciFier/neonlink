@@ -36,10 +36,17 @@ export default async function (fastify, opts) {
     }
   );
 
-  fastify.post("/parseBookmarkFile", {}, async function (request, reply) {
-    const bookmarkFile = request.raw.files.file;
-    let parsedJson = parseBookmarkFile(bookmarkFile.data);
-    return parsedJson;
+  fastify.post(
+    "/parseBookmarkFile", 
+    {
+      schema: {
+        consumes: ["multipart/form-data"],
+      }
+    }, 
+    async function (request, reply) {
+      const bookmarkFile = await request.file();
+      let parsedJson = parseBookmarkFile(await bookmarkFile.toBuffer());
+      return parsedJson;
   });
 
   fastify.get("/updatelinks", {}, async function (request, reply) {
