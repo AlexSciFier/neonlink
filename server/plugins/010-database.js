@@ -1,39 +1,25 @@
 import fp from "fastify-plugin";
-import { stores } from "../db/stores.js";
+import fs from "../helpers/fileSystem.js";
+import { appSecretKeys } from "../contexts/appSecrets.js";
+import { appContext } from "../contexts/appContext.js";
 
 async function initializeDatabaseManager(dbType, dbOptions) {
   const databaseModuleName = dbType || "sqlite";
   const databaseModuleFile = `../db/${databaseModuleName}/database.js`;
-  const databaseManager = await import(databaseModuleFile);
+  const { default: databaseManager } = await import(databaseModuleFile);
   const databaseOptions = dbOptions || {};
-  return new databaseManager.default(databaseOptions);
-}
-
-function initializeHooks(fastify, databaseManager) {
-  fastify.addHook("onReady", async () => {
-    await databaseManager.migrate();
-  });
-
-  fastify.addHook("onClose", (instance, done) => {
-    console.log("Closing database...");
-    databaseManager.close();
-    done();
-  });
+  return new databaseManager(databaseOptions);
 }
 
 async function initializeStore(dbType, dbInstance, storeName) {
   const databaseModuleName = dbType || "sqlite";
   const storeModuleFile = `../db/${databaseModuleName}/stores/${storeName}.js`;
-  const storeManager = await import(storeModuleFile);
-  return new storeManager.default(dbInstance);
+  const { default: storeManager } = await import(storeModuleFile);
+  return new storeManager(dbInstance);
 }
 
 async function initializeStores(databaseType, databaseManager) {
-  stores.appSettings = await initializeStore(
-    databaseType,
-    databaseManager.db,
-    "appSettings"
-  );
+  const stores = {};
   stores.backgrounds = await initializeStore(
     databaseType,
     databaseManager.db,
@@ -49,7 +35,11 @@ async function initializeStores(databaseType, databaseManager) {
     databaseManager.db,
     "categories"
   );
-  stores.tags = await initializeStore(databaseType, databaseManager.db, "tags");
+  stores.tags = await initializeStore(
+    databaseType, 
+    databaseManager.db, 
+    "tags"
+  );
   stores.users = await initializeStore(
     databaseType,
     databaseManager.db,
@@ -60,28 +50,45 @@ async function initializeStores(databaseType, databaseManager) {
     databaseManager.db,
     "userSettings"
   );
+  appContext.stores = stores;
 }
 
-export default fp(
-  async function (fastify, opts) {
-    const databaseType = opts.databaseType || "sqlite";
-    const databaseManager = await initializeDatabaseManager(
-      databaseType,
-      opts.databaseOptions
-    );
+function initializeHooks(fastify, databaseManager) {
+  fastify.addHook("onReady", async () => {
+    await databaseManager.migrate();
+  });
 
-    try {
-      await initializeStores(databaseType, databaseManager);
-      initializeHooks(fastify, databaseManager);
-    } catch (error) {
-      databaseManager.close();
-      throw error;
-    }
+  fastify.addHook("onClose", (instance, done) => {
+    console.log("Closing database...");
+    databaseManager.close();
+    done();
+  });
+}
+
+export async function initializeDatabase() {
+  const dataPath = fs.resolvePath("./data");
+  await fs.ensureDirectoryExists(dataPath);
+  const databaseConfig = Object.assign(appContext.secrets.get(appSecretKeys.Database), { dataPath });
+  const databaseManager = await initializeDatabaseManager(databaseConfig.type, databaseConfig);
+
+  try {
+    await initializeStores(databaseConfig.type, databaseManager);
+  } catch (error) {
+    databaseManager.close();
+    throw error;
+  }
+  return databaseManager;
+}
+
+export default fp(async function (fastify, opts) {
+    const databaseManager = await initializeDatabase();
+    initializeHooks(fastify, databaseManager);
 
     console.log("Database plugin initialization completed.");
   },
   {
     fastify: "4.x",
-    name: "database-plugin",
+    name: "neonlink-database",
+    dependencies: ["neonlink-config"]
   }
 );

@@ -37,7 +37,7 @@ export default fp(
   },
   {
     fastify: "4.x",
-    name: "lifecycle-plugin",
-    dependencies: ["database-plugin", "host-plugin"], // we make sure the hooks are the last ones.
+    name: "neonlink-lifecycle",
+    dependencies: ["neonlink-config", "neonlink-database"] // we make sure the hooks are the last ones.
   }
 );

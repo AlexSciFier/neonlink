@@ -1,4 +1,4 @@
-export default function (db) {
+export default async function (db) {
   const statments = [
     `CREATE TABLE IF NOT EXISTS migrations (
             name TEXT PRIMARY KEY,
@@ -65,10 +65,6 @@ export default function (db) {
             cardStyle TEXT,
             enableNeonShadows INTEGER,
             cardPosition TEXT
-        )`,
-
-    `CREATE TABLE IF NOT EXISTS appSettings (
-            useNologin INTEGER
         )`,
 
     `CREATE TABLE IF NOT EXISTS bookmarkPosition (

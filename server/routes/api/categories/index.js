@@ -1,5 +1,5 @@
-import { requestForbidden } from "../../../logics/handlers.js";
-import { stores } from "../../../db/stores.js";
+import { requireSession } from "../../../logics/handlers.js";
+import { appContext } from "../../../contexts/appContext.js";
 
 /**
  *
@@ -9,15 +9,15 @@ import { stores } from "../../../db/stores.js";
 export default async function (fastify, opts) {
   fastify.get(
     "/",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession },
     async function (request, reply) {
-      return stores.categories.getAll();
+      return appContext.stores.categories.getAll();
     }
   );
 
   fastify.get(
     "/:id",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession },
     async function (request, reply) {
       let { id } = request.params;
       let category = store.categories.getCategoryById(id);
@@ -29,7 +29,7 @@ export default async function (fastify, opts) {
   fastify.post(
     "/",
     {
-      preHandler: requestForbidden,
+      preHandler: requireSession,
       schema: {
         body: {
           type: "object",
@@ -45,10 +45,10 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { name, color, position } = request.body;
 
-      let existingCategory = stores.categories.getItemByName(name);
+      let existingCategory = appContext.stores.categories.getItemByName(name);
 
       if (existingCategory) {
-        return stores.categories.updateItem(
+        return appContext.stores.categories.updateItem(
           existingCategory.id,
           name,
           color,
@@ -56,14 +56,14 @@ export default async function (fastify, opts) {
         );
       }
       reply.statusCode = 201;
-      return stores.categories.addItem(name, color, position);
+      return appContext.stores.categories.addItem(name, color, position);
     }
   );
 
   fastify.put(
     "/:id",
     {
-      preHandler: requestForbidden,
+      preHandler: requireSession,
       schema: {
         body: {
           type: "object",
@@ -78,7 +78,7 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let { name, color } = request.body;
-      if (stores.categories.updateItem(id, name, color))
+      if (appContext.stores.categories.updateItem(id, name, color))
         return { id, name, color };
       throw fastify.httpErrors.notFound();
     }
@@ -87,7 +87,7 @@ export default async function (fastify, opts) {
   fastify.put(
     "/changePositions",
     {
-      preHandler: requestForbidden,
+      preHandler: requireSession,
       schema: {
         body: {
           type: "array",
@@ -104,17 +104,17 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let array = request.body;
-      if (stores.categories.updatePositions(array)) return true;
+      if (appContext.stores.categories.updatePositions(array)) return true;
       throw fastify.httpErrors.notFound();
     }
   );
 
   fastify.delete(
     "/:id",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession },
     async function (request, reply) {
       let { id } = request.params;
-      if (stores.categories.deleteItem(id)) return true;
+      if (appContext.stores.categories.deleteItem(id)) return true;
       else throw fastify.httpErrors.notFound();
     }
   );

@@ -1,8 +1,5 @@
 import { randomUUID } from "crypto";
-import {
-  requestForbidden,
-  requestForbiddenUser,
-} from "../../../logics/handlers.js";
+import { requireSession, requireAuthenticatedUser } from "../../../logics/handlers.js";
 import {
   createUser,
   isPasswordValid,
@@ -10,7 +7,8 @@ import {
   loadUserWithSettingsByUsername,
   updatePassword,
 } from "../../../logics/users.js";
-import { stores } from "../../../db/stores.js";
+import { appContext } from "../../../contexts/appContext.js";
+import { appSettingsKeys } from "../../../contexts/appSettings.js";
 
 const settingsFields = {
   maxNumberOfLinks: { type: "number" },
@@ -23,16 +21,11 @@ const settingsFields = {
   cardPosition: { type: "string" },
 };
 
-/**
- *
- * @param {import("fastify").FastifyInstance} fastify
- * @param {*} opts
- */
 export default async function (fastify, opts) {
   fastify.get(
     "/me",
     {
-      preHandler: requestForbiddenUser,
+      preHandler: requireSession,
       schema: {
         response: {
           200: {
@@ -70,11 +63,11 @@ export default async function (fastify, opts) {
     function (request) {
       let { username, password } = request.body;
       let isAdmin = request.body?.isAdmin || false;
-      if (stores.users.checkWhetherTableIsEmpty() === false)
+      if (appContext.stores.users.checkWhetherTableIsEmpty() === false)
         throw fastify.httpErrors.notAcceptable("Users limit reach");
-      if (stores.users.checkWhetherUserExists(username))
+      if (appContext.stores.users.checkWhetherUserExists(username))
         throw fastify.httpErrors.notAcceptable("This username already exist");
-      if (stores.users.checkWhetherTableIsEmpty()) isAdmin === true;
+      if (appContext.stores.users.checkWhetherTableIsEmpty()) isAdmin === true;
       return createUser(username, password, isAdmin);
     }
   );
@@ -82,7 +75,7 @@ export default async function (fastify, opts) {
   fastify.put(
     "/changePassword",
     {
-      preHandler: requestForbidden,
+      preHandler: requireAuthenticatedUser,
       schema: {
         body: {
           type: "object",
@@ -96,27 +89,25 @@ export default async function (fastify, opts) {
       },
     },
     async function (request) {
-      let { username, currentPassword, newPassword } = request.body;
-      if (stores.users.checkWhetherUserExists(username) === false) {
-        throw fastify.httpErrors.notFound("Username not found");
+      let { currentPassword, newPassword } = request.body;
+      const session = appContext.request.get('session');
+
+      let isValid = await isPasswordValid(session.userId, currentPassword);
+      if (isValid === false) {
+        throw fastify.httpErrors.forbidden("Password is incorrect");
       } else {
-        let isValid = await isPasswordValid(username, currentPassword);
-        if (isValid === false) {
-          throw fastify.httpErrors.forbidden("Password is incorrect");
-        } else {
-          updatePassword(username, newPassword);
-          return true;
-        }
+        updatePassword(session.userId, newPassword);
+        return true;
       }
     }
   );
 
   fastify.delete(
     "/:id",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession },
     async function (request, reply) {
       let { id } = request.params;
-      if (stores.users.deleteUser(id)) return { status: "OK" };
+      if (appContext.stores.users.deleteUser(id)) return { status: "OK" };
       else throw fastify.httpErrors.notFound("User with this id is not found");
     }
   );
@@ -124,7 +115,7 @@ export default async function (fastify, opts) {
   fastify.post(
     "/settings",
     {
-      preHandler: requestForbidden,
+      preHandler: requireSession,
       schema: {
         body: {
           type: "object",
@@ -136,7 +127,7 @@ export default async function (fastify, opts) {
       let uuid = request.cookies.SSID;
       let res = {};
       for (const key in request.body) {
-        stores.userSettings.updateItem(uuid, key, request.body?.[key]);
+        appContext.stores.userSettings.updateItem(uuid, key, request.body?.[key]);
         res[key] = request.body?.[key];
       }
       return res;
@@ -146,7 +137,7 @@ export default async function (fastify, opts) {
   fastify.post(
     "/settings/global",
     {
-      preHandler: requestForbidden,
+      preHandler: requireSession,
       schema: {
         body: {
           type: "object",
@@ -159,7 +150,7 @@ export default async function (fastify, opts) {
       let user = await loadUserWithSettingsByUUID(uuid);
       if (user.usergroup === 0) {
         if (request.body?.noLogin !== undefined)
-          stores.appSettings.setNologin(request.body.noLogin);
+          appContext.stores.appSettings.setNologin(request.body.noLogin);
       }
       return request.body;
     }
@@ -178,14 +169,14 @@ export default async function (fastify, opts) {
       },
     },
     async function (request, reply) {
-      return { noLogin: stores.appSettings.getNologin() };
+      return { noLogin: !appContext.settings.get(appSettingsKeys.AuthenticationEnabled) };
     }
   );
 
   fastify.get(
     "/settings",
     {
-      preHandler: requestForbidden,
+      preHandler: requireSession,
       schema: {
         response: {
           200: {
@@ -197,7 +188,7 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
-      return stores.userSettings.getItem(uuid);
+      return appContext.stores.userSettings.getItem(uuid);
     }
   );
 
@@ -232,7 +223,7 @@ export default async function (fastify, opts) {
         if (user.uuid) {
           return user;
         }
-        stores.users.addUUID(username, userId);
+        appContext.stores.users.addUUID(username, userId);
         return user;
       } else {
         throw reply.forbidden("Username or password is incorrect");

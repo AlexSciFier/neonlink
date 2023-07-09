@@ -1,6 +1,6 @@
 import { columnExists } from "../common.js";
 
-export default function (db) {
+export default async function (db) {
   if (columnExists(db, "bgImages", "uuid") === false) {
     db.prepare("ALTER TABLE bgImages ADD COLUMN uuid TEXT").run();
   }

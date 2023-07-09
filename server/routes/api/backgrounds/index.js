@@ -1,4 +1,4 @@
-import { requestForbidden } from "../../../logics/handlers.js";
+import { requireSession } from "../../../logics/handlers.js";
 import {
   addBackground,
   deleteBackground,
@@ -10,7 +10,7 @@ import {
 export default async function (fastify, opts) {
   fastify.get(
     "/",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
 
@@ -20,7 +20,7 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/:id",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession },
     async function (request, reply) {
       let { id } = request.params;
       let uuid = request.cookies.SSID;
@@ -42,7 +42,7 @@ export default async function (fastify, opts) {
           },
         },
       },
-      preHandler: requestForbidden,
+      preHandler: requireSession,
     },
     async function (request, reply) {
       let { url } = request.body;
@@ -60,7 +60,7 @@ export default async function (fastify, opts) {
       schema: {
         consumes: ["multipart/form-data"],
       },
-      preHandler: requestForbidden,
+      preHandler: requireSession,
     },
     async function (request, reply) {
       const file = await request.file();
@@ -76,7 +76,7 @@ export default async function (fastify, opts) {
 
   fastify.delete(
     "/:id",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession },
     async function (request, reply) {
       let { id } = request.params;
       let uuid = request.cookies.SSID;

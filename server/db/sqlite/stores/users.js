@@ -36,10 +36,10 @@ export default class UsersStore {
     return this.db.prepare(selectQuery).get(username);
   }
 
-  updatePassword(username, hashedPassword) {
-    const updateQuery = `UPDATE users SET passwordHash=:passwordHash, salt=:salt WHERE username=:username`;
+  updatePassword(userId, hashedPassword) {
+    const updateQuery = `UPDATE users SET passwordHash=:passwordHash, salt=:salt WHERE id=:id`;
     this.db.prepare(updateQuery).run({
-      username,
+      id: userId,
       passwordHash: hashedPassword.hash,
       salt: hashedPassword.salt,
     });
