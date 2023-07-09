@@ -1,4 +1,5 @@
 import { appContext } from "../contexts/appContext.js";
+import { appRequestsKeys } from "../contexts/appRequests.js";
 import { appSettingsKeys } from "../contexts/appSettings.js";
 import { loadSystemUser } from "./users.js";
 
@@ -11,7 +12,7 @@ export async function requestContextHandler(request, reply) {
       ? appContext.stores.users.getItemByUUID(sessionId) 
       : loadSystemUser();
 
-    appContext.request.set("session", {
+    appContext.request.set(appRequestsKeys.Session, {
       authenticated: user ? true : false,
       sessionId: sessionId, 
       userId: user?.id,
@@ -19,7 +20,7 @@ export async function requestContextHandler(request, reply) {
       isAdmin: user?.isAdmin === true
     });
   } else {
-    appContext.request.set("session", {
+    appContext.request.set(appRequestsKeys.Session, {
       authenticated: false,
       userId: 0,
       isAdmin: false
@@ -35,7 +36,7 @@ export function requireSession(allowAuthenticationDisabled=true, requireAuthenti
     }
     else if (authenticationEnabled) {
       // If authentication is enabled, the request requires authentication so a session is required.
-      const session = appContext.request.get("session");
+      const session = appContext.request.get(appRequestsKeys.Session);
       if (requireAuthenticatedUser && !session.authenticated)
         throw reply.unauthorized("Authenticated user required.");
       if (requireAuthenticatedAdmin && !session.isAdmin)

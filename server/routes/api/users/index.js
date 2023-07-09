@@ -3,12 +3,12 @@ import { requireSession } from "../../../logics/handlers.js";
 import {
   createUser,
   isPasswordValid,
-  loadUserWithSettingsByUUID,
   loginUser,
   logoutUser,
   updatePassword,
 } from "../../../logics/users.js";
 import { appContext } from "../../../contexts/appContext.js";
+import { appRequestsKeys } from "../contexts/appRequests.js";
 import { appSettingsKeys } from "../../../contexts/appSettings.js";
 
 const settingsFields = {
@@ -42,7 +42,7 @@ export default async function (fastify, opts) {
       },
     },
     async (request, reply) => {
-      const session = appContext.request.get("session");
+      const session = appContext.request.get(appRequestsKeys.Session);
       const settings = loadUserSettings(session.userId);
       return { id: session.userId, username: session.username, ...settings };
     }
@@ -106,7 +106,7 @@ export default async function (fastify, opts) {
     "/",
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
-      const session = appContext.request.get("session");
+      const session = appContext.request.get(appRequestsKeys.Session);
       if (appContext.stores.users.deleteUser(session.sessionId)) return { status: "OK" };
       else throw fastify.httpErrors.notFound("User with this id is not found");
     }

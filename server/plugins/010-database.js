@@ -1,6 +1,6 @@
 import fp from "fastify-plugin";
 import fs from "../helpers/fileSystem.js";
-import { appSecretKeys } from "../contexts/appSecrets.js";
+import { appSecretsKeys } from "../contexts/appSecrets.js";
 import { appContext } from "../contexts/appContext.js";
 
 async function initializeDatabaseManager(dbType, dbOptions) {
@@ -73,7 +73,7 @@ function initializeHooks(fastify, databaseManager) {
 export async function initializeDatabase() {
   const dataPath = fs.resolvePath("./data");
   await fs.ensureDirectoryExists(dataPath);
-  const databaseConfig = Object.assign(appContext.secrets.get(appSecretKeys.Database), { dataPath });
+  const databaseConfig = Object.assign(appContext.secrets.get(appSecretsKeys.Database), { dataPath });
   const databaseManager = await initializeDatabaseManager(databaseConfig.type, databaseConfig);
 
   try {

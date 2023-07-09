@@ -1,4 +1,5 @@
 import { appContext } from "../contexts/appContext.js";
+import { appRequestsKeys } from "../contexts/appRequests.js";
 import { appSettingsKeys } from "../contexts/appSettings.js";
 import { encodePassword, comparePasswords } from "../helpers/security.js";
 import { randomUUID } from "crypto";
@@ -47,7 +48,7 @@ export function loginUser(username, clearPassword) {
 }
 
 export function logoutUser() {
-  const session = appContext.request.get("session");
+  const session = appContext.request.get(appRequestsKeys.Session);
   appContext.stores.userSessions.deleteItem(session.sessionId);
 }
 

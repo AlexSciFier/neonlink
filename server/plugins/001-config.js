@@ -9,7 +9,7 @@ import FastifyStatic from "@fastify/static";
 import fp from "fastify-plugin";
 import fs from "../helpers/fileSystem.js";
 import { appContext } from "../contexts/appContext.js";
-import { AppSecrets, appSecretKeys } from "../contexts/appSecrets.js";
+import { AppSecrets, appSecretsKeys } from "../contexts/appSecrets.js";
 import { AppSettings } from "../contexts/appSettings.js";
 import { requestContextHandler } from "../logics/handlers.js";
 
@@ -48,7 +48,7 @@ function initializeFastify(fastify, opts) {
 
   fastify.register(FastifyMultipart, {});
   fastify.register(FastifyCookie, {
-    secret: appContext.secrets.get(appSecretKeys.Cookie)
+    secret: appContext.secrets.get(appSecretsKeys.Cookie)
   });
   fastify.register(fastifyRequestContext);
 

@@ -8,7 +8,7 @@ const defaultSecrets = {
 
 let currentSecrets = structuredClone(defaultSecrets);
 
-export const appSecretKeys = {
+export const appSecretsKeys = {
   Cookie: "cookie",
   Database: "database"
 }
