@@ -91,7 +91,7 @@ export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
     abortController.current = new AbortController();
     if (syncSettings) {
       postJSON(
-        "/api/users/settings",
+        "/api/settings/user",
         {
           bgImage: bgUrl,
           useBgImage: useImageAsBg,

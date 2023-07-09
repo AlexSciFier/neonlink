@@ -45,6 +45,11 @@ async function initializeStores(databaseType, databaseManager) {
     databaseManager.db,
     "users"
   );
+  stores.userSessions = await initializeStore(
+    databaseType,
+    databaseManager.db,
+    "userSessions"
+  );
   stores.userSettings = await initializeStore(
     databaseType,
     databaseManager.db,

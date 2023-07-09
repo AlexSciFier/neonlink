@@ -35,7 +35,7 @@ export default function RegisterPage() {
     if (isFormValid) {
       let res = await postJSON("/api/users", {
         username: formData.login,
-        password: formData.password,
+        password: formData.password
       });
       if (res.ok) {
         setNeedRegistration(false);

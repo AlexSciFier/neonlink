@@ -19,10 +19,11 @@ export function setDatabaseVersion(db, version) {
 }
 
 export function getDatabaseVersion(db) {
+  if (!tableExists(db, "migrations")) return 0;
   let res = db
     .prepare("SELECT version FROM migrations WHERE name='database'")
     .get();
-  return res === undefined ? 0 : res.version;
+  return res.version;
 }
 
 async function getMigrationFiles(version) {
@@ -101,7 +102,7 @@ export default class SqliteManager {
 
     console.log("Starting migrations...");
 
-    if (!tableExists(this.db, "migrations")) {
+    if (!tableExists(this.db, "users")) {
       console.log("Applying initial database script...");
       if (!(await applyMigrationFile(this.db, "initial.js")))
         throw new Error("Migration Failed");

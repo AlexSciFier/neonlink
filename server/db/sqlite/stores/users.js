@@ -1,10 +1,10 @@
 export default class UsersStore {
   constructor(sqliteInstance) {
     this.db = sqliteInstance;
-  }
+  } 
 
   addItem(username, hashedPassword, isAdmin) {
-    const insertQuery = `INSERT INTO users (username, passwordhash, salt, usergroup) VALUES (?,?,?,?)`;
+    const insertQuery = `INSERT INTO users (username, passwordhash, salt, isAdmin) VALUES (?,?,?,?)`;
     let result = this.db
       .prepare(insertQuery)
       .run(username, hashedPassword.hash, hashedPassword.salt, Number(isAdmin));
@@ -43,20 +43,5 @@ export default class UsersStore {
       passwordHash: hashedPassword.hash,
       salt: hashedPassword.salt,
     });
-  }
-
-  addUUID(username, uuid) {
-    const updateQuery = `UPDATE users SET uuid=:uuid WHERE username=:username`;
-    return this.db.prepare(updateQuery).run({ username, uuid }).changes;
-  }
-
-  getNologinUser() {
-    return this.db
-      .prepare("SELECT * FROM users WHERE usergroup=0 LIMIT 1")
-      .get();
-  }
-
-  getItemByUUID(uuid) {
-    return this.db.prepare("SELECT * FROM users WHERE uuid=?").get(uuid);
   }
 }

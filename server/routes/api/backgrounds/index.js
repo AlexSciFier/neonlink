@@ -10,7 +10,7 @@ import {
 export default async function (fastify, opts) {
   fastify.get(
     "/",
-    { preHandler: requireSession },
+    { preHandler: requireSession(true, false, false) },
     async function (request, reply) {
       let uuid = request.cookies.SSID;
 
@@ -20,7 +20,7 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/:id",
-    { preHandler: requireSession },
+    { preHandler: requireSession(true, false, false) },
     async function (request, reply) {
       let { id } = request.params;
       let uuid = request.cookies.SSID;
@@ -31,6 +31,7 @@ export default async function (fastify, opts) {
   fastify.post(
     "/",
     {
+      preHandler: requireSession(true, false, false),
       schema: {
         schema: {
           body: {
@@ -42,7 +43,6 @@ export default async function (fastify, opts) {
           },
         },
       },
-      preHandler: requireSession,
     },
     async function (request, reply) {
       let { url } = request.body;
@@ -60,7 +60,7 @@ export default async function (fastify, opts) {
       schema: {
         consumes: ["multipart/form-data"],
       },
-      preHandler: requireSession,
+      preHandler: requireSession(true, false, false),
     },
     async function (request, reply) {
       const file = await request.file();
@@ -76,7 +76,7 @@ export default async function (fastify, opts) {
 
   fastify.delete(
     "/:id",
-    { preHandler: requireSession },
+    { preHandler: requireSession(true, false, false) },
     async function (request, reply) {
       let { id } = request.params;
       let uuid = request.cookies.SSID;

@@ -13,7 +13,7 @@ export default function UseNoLogin() {
     abortController.current = new AbortController();
     async function fetchSettings() {
       let res = await getJSON(
-        "/api/users/settings/global",
+        "/api/settings/application",
         abortController.current.signal
       );
       let body = await res.json();
@@ -27,7 +27,7 @@ export default function UseNoLogin() {
 
   async function setParameter(value) {
     await postJSON(
-      "/api/users/settings/global",
+      "/api/settings/application",
       { noLogin: value },
       abortController.current.signal
     );

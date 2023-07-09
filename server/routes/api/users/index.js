@@ -1,10 +1,11 @@
-import { randomUUID } from "crypto";
-import { requireSession, requireAuthenticatedUser } from "../../../logics/handlers.js";
+
+import { requireSession } from "../../../logics/handlers.js";
 import {
   createUser,
   isPasswordValid,
   loadUserWithSettingsByUUID,
-  loadUserWithSettingsByUsername,
+  loginUser,
+  logoutUser,
   updatePassword,
 } from "../../../logics/users.js";
 import { appContext } from "../../../contexts/appContext.js";
@@ -25,14 +26,15 @@ export default async function (fastify, opts) {
   fastify.get(
     "/me",
     {
-      preHandler: requireSession,
+      preHandler: requireSession(false, true, false),
       schema: {
         response: {
           200: {
             type: "object",
             properties: {
+              id: { type: "number" },
               username: { type: "string" },
-              usergroup: { type: "number" },
+              isAdmin: { type: "number" },
               ...settingsFields,
             },
           },
@@ -40,8 +42,9 @@ export default async function (fastify, opts) {
       },
     },
     async (request, reply) => {
-      let { SSID } = request.cookies;
-      return await loadUserWithSettingsByUUID(SSID);
+      const session = appContext.request.get("session");
+      const settings = loadUserSettings(session.userId);
+      return { id: session.userId, username: session.username, ...settings };
     }
   );
 
@@ -54,28 +57,25 @@ export default async function (fastify, opts) {
           required: ["username", "password"],
           properties: {
             username: { type: "string" },
-            password: { type: "string" },
-            isAdmin: { type: "boolean" },
+            password: { type: "string" }
           },
         },
       },
     },
     function (request) {
       let { username, password } = request.body;
-      let isAdmin = request.body?.isAdmin || false;
-      if (appContext.stores.users.checkWhetherTableIsEmpty() === false)
-        throw fastify.httpErrors.notAcceptable("Users limit reach");
+      if (!appContext.settings.get(appSettingsKeys.UserRegistrationEnabled))
+        throw fastify.httpErrors.notAcceptable("User registration disabled.");
       if (appContext.stores.users.checkWhetherUserExists(username))
         throw fastify.httpErrors.notAcceptable("This username already exist");
-      if (appContext.stores.users.checkWhetherTableIsEmpty()) isAdmin === true;
-      return createUser(username, password, isAdmin);
+      return createUser(username, password, appContext.stores.users.checkWhetherTableIsEmpty());
     }
   );
 
   fastify.put(
     "/changePassword",
     {
-      preHandler: requireAuthenticatedUser,
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "object",
@@ -103,92 +103,12 @@ export default async function (fastify, opts) {
   );
 
   fastify.delete(
-    "/:id",
-    { preHandler: requireSession },
+    "/",
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
-      let { id } = request.params;
-      if (appContext.stores.users.deleteUser(id)) return { status: "OK" };
+      const session = appContext.request.get("session");
+      if (appContext.stores.users.deleteUser(session.sessionId)) return { status: "OK" };
       else throw fastify.httpErrors.notFound("User with this id is not found");
-    }
-  );
-
-  fastify.post(
-    "/settings",
-    {
-      preHandler: requireSession,
-      schema: {
-        body: {
-          type: "object",
-          properties: settingsFields,
-        },
-      },
-    },
-    async function (request, reply) {
-      let uuid = request.cookies.SSID;
-      let res = {};
-      for (const key in request.body) {
-        appContext.stores.userSettings.updateItem(uuid, key, request.body?.[key]);
-        res[key] = request.body?.[key];
-      }
-      return res;
-    }
-  );
-
-  fastify.post(
-    "/settings/global",
-    {
-      preHandler: requireSession,
-      schema: {
-        body: {
-          type: "object",
-          properties: { noLogin: { type: "boolean" } },
-        },
-      },
-    },
-    async function (request, reply) {
-      let uuid = request.cookies.SSID;
-      let user = await loadUserWithSettingsByUUID(uuid);
-      if (user.usergroup === 0) {
-        if (request.body?.noLogin !== undefined)
-          appContext.stores.appSettings.setNologin(request.body.noLogin);
-      }
-      return request.body;
-    }
-  );
-
-  fastify.get(
-    "/settings/global",
-    {
-      schema: {
-        response: {
-          200: {
-            type: "object",
-            properties: { noLogin: { type: "boolean" } },
-          },
-        },
-      },
-    },
-    async function (request, reply) {
-      return { noLogin: !appContext.settings.get(appSettingsKeys.AuthenticationEnabled) };
-    }
-  );
-
-  fastify.get(
-    "/settings",
-    {
-      preHandler: requireSession,
-      schema: {
-        response: {
-          200: {
-            type: "object",
-            properties: settingsFields,
-          },
-        },
-      },
-    },
-    async function (request, reply) {
-      let uuid = request.cookies.SSID;
-      return appContext.stores.userSettings.getItem(uuid);
     }
   );
 
@@ -201,38 +121,35 @@ export default async function (fastify, opts) {
           required: ["username", "password"],
           properties: {
             username: { type: "string" },
-            password: { type: "string" },
-            ...settingsFields,
+            password: { type: "string" }
           },
         },
       },
     },
     async function (request, reply) {
-      let { username, password } = request.body;
-      let user = loadUserWithSettingsByUsername(username);
-      if (user === undefined)
-        throw reply.notFound("Username or password is incorrect");
-      let isValid = await isPasswordValid(username, password);
-      if (isValid) {
-        let userId = user.uuid || randomUUID();
-        reply.setCookie("SSID", userId, {
+      const { username, password } = request.body;
+      const sessionId = await loginUser(username, password);
+      if (sessionId) {
+        const sessionLength = appContext.settings.get(appSettingsKeys.sessionLengthInSeconds);
+        const timeObject = new Date();
+        reply.setCookie("SSID", sessionId, {
           path: "/",
           httpOnly: true,
-          expires: new Date(new Date().setMonth(new Date().getMonth() + 8)),
-        });
-        if (user.uuid) {
-          return user;
-        }
-        appContext.stores.users.addUUID(username, userId);
-        return user;
+          expires: new Date(timeObject.getTime() + (sessionLength * 1000)),
+      });
       } else {
         throw reply.forbidden("Username or password is incorrect");
       }
     }
   );
 
-  fastify.post("/logout", async function (request, reply) {
-    reply.clearCookie("SSID");
-    return true;
-  });
+  fastify.post(
+    "/logout", 
+    { preHandler: requireSession(true, false, false) }, 
+    async function (request, reply) {
+      logoutUser();
+      reply.clearCookie("SSID");
+      return true;
+    }
+  );
 }

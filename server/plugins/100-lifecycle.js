@@ -3,8 +3,6 @@ import fp from "fastify-plugin";
 
 function initializeHooks(fastify, closeListeners) {
   fastify.addHook("onReady", async () => {
-    // TODO: Add initialization logic here
-    // For exemple: Create default user if it does not exist.
     console.log("Application initialized.");
   });
 

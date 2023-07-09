@@ -4,27 +4,27 @@ export default class BackgroundsStore {
   }
 
   addItem(url, uuid) {
-    const insertQuery = `INSERT INTO bgImages (url, uuid) VALUES(:url, :uuid)`;
+    const insertQuery = `INSERT INTO backgrounds (url, uuid) VALUES(:url, :uuid)`;
     return this.db.prepare(insertQuery).run({ url, uuid }).lastInsertRowid;
   }
 
   deleteItem(id, uuid) {
-    const deleteQuery = `DELETE FROM bgImages WHERE id=:id AND (uuid=:uuid OR uuid IS NULL)`;
+    const deleteQuery = `DELETE FROM backgrounds WHERE id=:id AND (uuid=:uuid OR uuid IS NULL)`;
     return this.db.prepare(deleteQuery).run({ id, uuid }).changes;
   }
 
   getAll(uuid) {
-    const selectQuery = `SELECT * FROM bgImages WHERE uuid=:uuid OR uuid IS NULL`;
+    const selectQuery = `SELECT * FROM backgrounds WHERE uuid=:uuid OR uuid IS NULL`;
     return this.db.prepare(selectQuery).all({ uuid });
   }
 
   getItemById(id, uuid) {
-    const selectQuery = `SELECT * FROM bgImages WHERE id=:id AND (uuid=:uuid OR uuid IS NULL)`;
+    const selectQuery = `SELECT * FROM backgrounds WHERE id=:id AND (uuid=:uuid OR uuid IS NULL)`;
     return this.db.prepare(selectQuery).all({ id, uuid });
   }
 
   getItemByUrl(url, uuid) {
-    const selectQuery = `SELECT * FROM bgImages WHERE url=:url AND (uuid=:uuid OR uuid IS NULL)`;
+    const selectQuery = `SELECT * FROM backgrounds WHERE url=:url AND (uuid=:uuid OR uuid IS NULL)`;
     return this.db.prepare(selectQuery).all({ url, uuid });
   }
 }

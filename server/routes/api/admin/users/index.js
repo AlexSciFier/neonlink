@@ -1,15 +1,12 @@
-import { requireAuthenticatedAdmin } from "../../../logics/handlers.js";
-import {
-  createUser,
-  isPasswordValid,
-  updatePassword,
-} from "../../../logics/users.js";
-import { appContext } from "../../../contexts/appContext.js";
+import { requireSession } from "../../../../logics/handlers.js";
+import { createUser, isPasswordValid, updatePassword } from "../../../../logics/users.js";
+import { appContext } from "../../../../contexts/appContext.js";
 
 export default async function (fastify, opts) {
   fastify.post(
     "/",
     {
+      preHandler: requireSession(true, true, true),
       schema: {
         body: {
           type: "object",
@@ -20,8 +17,7 @@ export default async function (fastify, opts) {
             isAdmin: { type: "boolean" },
           },
         },
-      },
-      preHandler: requireAuthenticatedAdmin
+      }
     },
     function (request) {
       let { username, password } = request.body;
@@ -35,7 +31,7 @@ export default async function (fastify, opts) {
   fastify.put(
     "/changePassword",
     {
-      preHandler: requireAuthenticatedAdmin,
+      preHandler: requireSession(true, true, true),
       schema: {
         body: {
           type: "object",
@@ -68,7 +64,7 @@ export default async function (fastify, opts) {
 
   fastify.delete(
     "/:id",
-    { preHandler: requireAuthenticatedAdmin },
+    { preHandler: requireSession(true, true, true) },
     async function (request, reply) {
       let { id } = request.params;
       if (appContext.stores.users.deleteUser(id)) return { status: "OK" };

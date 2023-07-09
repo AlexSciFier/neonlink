@@ -24,6 +24,7 @@ export class AppSecrets {
 
   set(key, value) {
     currentSecrets[key] = value;
+    console.log(`Changed secret ${key}`);
   }
 
   async load() {
@@ -35,5 +36,6 @@ export class AppSecrets {
     const directory = fs.extractDirectory(this.secretPath);
     const filename = fs.parsePath(this.secretPath).basename; 
     await saveFileContent(directory, filename, JSON.stringify(currentSecrets));
+    console.log("Secrets saved.")
   }
 }
