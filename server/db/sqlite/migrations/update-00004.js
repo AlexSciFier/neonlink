@@ -2,12 +2,10 @@ import { dataColumnExists } from "../common.js";
 
 export default async function (db) {
   if (dataColumnExists(db, "users", "usergroup")) {
-    console.log("Renaming usergroup column from users table to isAdmin");
     db.prepare("ALTER TABLE users RENAME COLUMN usergroup TO isAdmin").run();
   }
 
   if (dataColumnExists(db, "userSettings", "uuid")) {
-    console.log("Switching uuid column from userSettings table to id (userId)");
     const selectQuery = `SELECT 
       users.id, userSettings.maxNumberOfLinks, userSettings.linkInNewTab,
       userSettings.useBgImage, userSettings.bgImage, userSettings.columns, 
@@ -43,7 +41,6 @@ export default async function (db) {
   }
 
   if (dataColumnExists(db, "backgrounds", "uuid")) {
-    console.log("Switching uuid column from backgrounds table to userId");
     const selectQuery = `SELECT 
       users.id as userId, backgrounds.url
     FROM backgrounds 
