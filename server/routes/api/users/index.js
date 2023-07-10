@@ -1,14 +1,15 @@
-
-import { requireSession } from "../../../logics/handlers.js";
+import { requireVisitor, requireSession } from "../../../logics/handlers.js";
 import {
   createUser,
   isPasswordValid,
+  loadUserSettings,
   loginUser,
   logoutUser,
+  setSessionCookie,
   updatePassword,
 } from "../../../logics/users.js";
 import { appContext } from "../../../contexts/appContext.js";
-import { appRequestsKeys } from "../contexts/appRequests.js";
+import { appRequestsKeys } from "../../../contexts/appRequests.js";
 import { appSettingsKeys } from "../../../contexts/appSettings.js";
 
 const settingsFields = {
@@ -36,14 +37,14 @@ export default async function (fastify, opts) {
               username: { type: "string" },
               isAdmin: { type: "number" },
               ...settingsFields,
-            },
-          },
-        },
-      },
+            }
+          }
+        }
+      }
     },
     async (request, reply) => {
       const session = appContext.request.get(appRequestsKeys.Session);
-      const settings = loadUserSettings(session.userId);
+      const settings = session.authenticated ? loadUserSettings(session.userId) : {};
       return { id: session.userId, username: session.username, ...settings };
     }
   );
@@ -57,10 +58,10 @@ export default async function (fastify, opts) {
           required: ["username", "password"],
           properties: {
             username: { type: "string" },
-            password: { type: "string" }
-          },
-        },
-      },
+            password: { type: "string" },
+          }
+        }
+      }
     },
     function (request) {
       let { username, password } = request.body;
@@ -68,14 +69,18 @@ export default async function (fastify, opts) {
         throw fastify.httpErrors.notAcceptable("User registration disabled.");
       if (appContext.stores.users.checkWhetherUserExists(username))
         throw fastify.httpErrors.notAcceptable("This username already exist");
-      return createUser(username, password, appContext.stores.users.checkWhetherTableIsEmpty());
+      return createUser(
+        username,
+        password,
+        appContext.stores.users.checkWhetherTableIsEmpty()
+      );
     }
   );
 
   fastify.put(
     "/changePassword",
     {
-      preHandler: requireSession(true, true, false),
+      preHandler: requireSession(false, true, false),
       schema: {
         body: {
           type: "object",
@@ -84,13 +89,13 @@ export default async function (fastify, opts) {
             username: { type: "string" },
             currentPassword: { type: "string" },
             newPassword: { type: "string" },
-          },
-        },
-      },
+          }
+        }
+      }
     },
     async function (request) {
       let { currentPassword, newPassword } = request.body;
-      const session = appContext.request.get('session');
+      const session = appContext.request.get("session");
 
       let isValid = await isPasswordValid(session.userId, currentPassword);
       if (isValid === false) {
@@ -104,10 +109,11 @@ export default async function (fastify, opts) {
 
   fastify.delete(
     "/",
-    { preHandler: requireSession(true, true, false) },
+    { preHandler: requireSession(false, true, false) },
     async function (request, reply) {
       const session = appContext.request.get(appRequestsKeys.Session);
-      if (appContext.stores.users.deleteUser(session.sessionId)) return { status: "OK" };
+      if (appContext.stores.users.deleteUser(session.sessionId))
+        return { status: "OK" };
       else throw fastify.httpErrors.notFound("User with this id is not found");
     }
   );
@@ -115,28 +121,23 @@ export default async function (fastify, opts) {
   fastify.post(
     "/login",
     {
+      requireSession: requireVisitor(false),
       schema: {
         body: {
           type: "object",
           required: ["username", "password"],
           properties: {
             username: { type: "string" },
-            password: { type: "string" }
-          },
-        },
-      },
+            password: { type: "string" },
+          }
+        }
+      }
     },
-    async function (request, reply) {
+    function (request, reply) {
       const { username, password } = request.body;
-      const sessionId = await loginUser(username, password);
+      const sessionId = loginUser(username, password);
       if (sessionId) {
-        const sessionLength = appContext.settings.get(appSettingsKeys.sessionLengthInSeconds);
-        const timeObject = new Date();
-        reply.setCookie("SSID", sessionId, {
-          path: "/",
-          httpOnly: true,
-          expires: new Date(timeObject.getTime() + (sessionLength * 1000)),
-      });
+        setSessionCookie(reply, sessionId);
       } else {
         throw reply.forbidden("Username or password is incorrect");
       }
@@ -144,8 +145,8 @@ export default async function (fastify, opts) {
   );
 
   fastify.post(
-    "/logout", 
-    { preHandler: requireSession(true, false, false) }, 
+    "/logout",
+    { preHandler: requireVisitor(false, true, false) },
     async function (request, reply) {
       logoutUser();
       reply.clearCookie("SSID");

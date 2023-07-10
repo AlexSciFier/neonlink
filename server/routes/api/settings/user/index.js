@@ -16,7 +16,7 @@ export default async function (fastify, opts) {
   fastify.post(
     "/",
     {
-      preHandler: requireSession(true, false, false),
+      preHandler: requireSession(false, true, false),
       schema: {
         body: {
           type: "object",
@@ -38,7 +38,7 @@ export default async function (fastify, opts) {
   fastify.get(
     "/",
     {
-      preHandler: requireSession(true, false, false),
+      preHandler: requireSession(false, true, false),
       schema: {
         response: {
           200: {

@@ -2,7 +2,7 @@ import { requireSession } from "../../../logics/handlers.js";
 import { appContext } from "../../../contexts/appContext.js";
 
 const postOptions = {
-  preHandler: requireSession(true, false, false),
+  preHandler: requireSession(true, true, false),
   schema: {
     body: {
       type: "object",
@@ -22,7 +22,7 @@ const postOptions = {
 export default async function (fastify, opts) {
   fastify.get(
     "/",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { q } = request.query;
       return appContext.stores.tags.getAll(q);
@@ -31,7 +31,7 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/:id",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
       return appContext.stores.tags.getItemById(id);
@@ -62,7 +62,7 @@ export default async function (fastify, opts) {
 
   fastify.delete(
     "/:id",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
       let status = appContext.stores.bookmarks.deleteBookmarkById(id);

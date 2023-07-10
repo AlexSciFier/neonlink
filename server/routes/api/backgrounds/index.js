@@ -6,32 +6,34 @@ import {
   getBackgroundByUrl,
   getAllBackgrounds,
 } from "../../../logics/backgrounds.js";
+import { appContext } from "../../../contexts/appContext.js";
+import { appRequestsKeys } from "../../../contexts/appRequests.js";
 
 export default async function (fastify, opts) {
   fastify.get(
     "/",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
-      let uuid = request.cookies.SSID;
+      const user = appContext.request.get(appRequestsKeys.Session);
 
-      return getAllBackgrounds(uuid);
+      return getAllBackgrounds(user.id);
     }
   );
 
   fastify.get(
     "/:id",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
-      let { id } = request.params;
-      let uuid = request.cookies.SSID;
-      return getBackgroundById(id, uuid);
+      const { id } = request.params;
+      const user = appContext.request.get(appRequestsKeys.Session);
+      return getBackgroundById(id, user.id);
     }
   );
 
   fastify.post(
     "/",
     {
-      preHandler: requireSession(true, false, false),
+      preHandler: requireSession(true, true, false),
       schema: {
         schema: {
           body: {
@@ -39,16 +41,16 @@ export default async function (fastify, opts) {
             required: ["url"],
             properties: {
               url: { type: "string" },
-            },
-          },
-        },
-      },
+            }
+          }
+        }
+      }
     },
     async function (request, reply) {
-      let { url } = request.body;
-      let uuid = request.cookies.SSID;
+      const { url } = request.body;
+      const user = appContext.request.get(appRequestsKeys.Session);
 
-      let res = getBackgroundByUrl(url, uuid);
+      let res = getBackgroundByUrl(url, userId);
       if (res === false) throw reply.notAcceptable("Already exist");
       return res;
     }
@@ -60,13 +62,13 @@ export default async function (fastify, opts) {
       schema: {
         consumes: ["multipart/form-data"],
       },
-      preHandler: requireSession(true, false, false),
+      preHandler: requireSession(true, true, false),
     },
     async function (request, reply) {
       const file = await request.file();
-      const uuid = request.cookies.SSID;
+      const user = appContext.request.get(appRequestsKeys.Session);
 
-      let res = addBackground(file.filename, file.file, uuid);
+      let res = addBackground(file.filename, file.file, user.id);
 
       if (res === false) throw reply.notAcceptable("Background already exist.");
 
@@ -76,12 +78,12 @@ export default async function (fastify, opts) {
 
   fastify.delete(
     "/:id",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
-      let { id } = request.params;
-      let uuid = request.cookies.SSID;
+      const { id } = request.params;
+      const user = appContext.request.get(appRequestsKeys.Session);
 
-      if (!deleteBackground(id, uuid))
+      if (!deleteBackground(id, user.Id))
         throw reply.notAcceptable("Background doesn't exist.");
     }
   );

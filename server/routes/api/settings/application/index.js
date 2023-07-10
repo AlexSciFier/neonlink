@@ -6,7 +6,7 @@ export default async function (fastify, opts) {
   fastify.post(
     "/",
     {
-      preHandler: requireSession(true, false, false),
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "object",
@@ -17,7 +17,6 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       const authenticationEnabled = appContext.settings.get(appSettingsKeys.AuthenticationEnabled);
       const session = appContext.request.get('session');
-      console.log(`ae: ${authenticationEnabled}, session: ${JSON.stringify(session)}`);
       if (!authenticationEnabled || (session.authenticated)) {
         if (request.body?.noLogin !== undefined) {
           appContext.settings.set(appSettingsKeys.AuthenticationEnabled, !request.body.noLogin);
@@ -31,6 +30,7 @@ export default async function (fastify, opts) {
   fastify.get(
     "/",
     {
+      requireSession: (true, false, false),
       schema: {
         response: {
           200: {

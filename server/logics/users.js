@@ -1,8 +1,10 @@
 import { appContext } from "../contexts/appContext.js";
 import { appRequestsKeys } from "../contexts/appRequests.js";
 import { appSettingsKeys } from "../contexts/appSettings.js";
+import { addDays } from "../helpers/dates.js";
 import { encodePassword, comparePasswords } from "../helpers/security.js";
 import { randomUUID } from "crypto";
+
 
 export function createUser(username, clearPassword, isAdmin = false) {
   const hashedPassword = encodePassword(clearPassword);
@@ -10,12 +12,16 @@ export function createUser(username, clearPassword, isAdmin = false) {
   //TODO: move the usersettings creation logic here ?
 }
 
+export function generateSessionId() {
+  return randomUUID();
+}
+
 export function loadSystemUser() {
   return {
     id: 0,
     username: "system",
-    isAdmin: !appContext.settings.get(appSettingsKeys.AuthenticationEnabled)
-  }
+    isAdmin: !appContext.settings.get(appSettingsKeys.AuthenticationEnabled),
+  };
 }
 
 export function loadUserSettings(userId) {
@@ -38,13 +44,13 @@ export function loadUserWithSettingsByUsername(username) {
 
 export function loginUser(username, clearPassword) {
   const user = appContext.stores.users.getItemByUsername(username);
-  if (user && comparePasswords(clearPassword, user.passwordHash, user.salt))
-  {
-    const sessionId = randomUUID(); //TODO: retrieve existing session ?
-    appContext.stores.userSessions.addItem(userId, sessionId);
+  console.log('got user');hg
+  if (user && comparePasswords(clearPassword, user.passwordHash, user.salt)) {
+    const sessionId = generateSessionId();
+    appContext.stores.userSessions.addItem(sessionId, user.id);
     return sessionId;
   }
-  return undefined;
+  return null;
 }
 
 export function logoutUser() {
@@ -55,6 +61,17 @@ export function logoutUser() {
 export function isPasswordValid(userId, clearPassword) {
   let { passwordHash, salt } = appContext.stores.users.getItem(userId);
   return comparePasswords(clearPassword, passwordHash, salt);
+}
+
+export function setSessionCookie(reply, sessionId) {
+  const sessionLengthInDays = appContext.settings.get(
+    appSettingsKeys.sessionLengthInDays
+  );
+  reply.setCookie("SSID", sessionId, {
+    path: "/",
+    httpOnly: true,
+    expires: addDays(new Date(), sessionLengthInDays),
+  });
 }
 
 export function updatePassword(userId, clearPassword) {

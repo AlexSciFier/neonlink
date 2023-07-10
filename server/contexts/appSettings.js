@@ -4,7 +4,7 @@ import { readFileContent, saveFileContent } from "../helpers/fileSystem.js";
 const defaultSettings = {
   authenticationEnabled: true,
   userRegistrationEnabled: true,
-  sessionLengthInSeconds: 8 * 30 * 24 * 60 * 60 // 8 months
+  sessionLengthInDays: 60
 }
 
 let currentSettings = structuredClone(defaultSettings);
@@ -12,7 +12,7 @@ let currentSettings = structuredClone(defaultSettings);
 export const appSettingsKeys = {
   AuthenticationEnabled: "authenticationEnabled",
   UserRegistrationEnabled: "userRegistration",
-  sessionLengthInSeconds: "sessionLengthInSeconds"
+  sessionLengthInDays: "sessionLengthInDays"
 }
 
 export class AppSettings {

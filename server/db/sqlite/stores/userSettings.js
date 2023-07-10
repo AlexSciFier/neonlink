@@ -4,7 +4,7 @@ export default class UserSettingsStore {
   }
 
   addItem(
-    uuid,
+    userId,
     maxNumberOfLinks = 20,
     linkInNewTab = 1,
     useBgImage = 0,
@@ -15,12 +15,14 @@ export default class UserSettingsStore {
     cardPosition = "top"
   ) {
     const insertQuery = `INSERT INTO userSettings (
-        uuid, maxNumberOfLinks, linkInNewTab, useBgImage, bgImage, columns, cardStyle, enableNeonShadows, cardPosition) 
+        id, maxNumberOfLinks, linkInNewTab, useBgImage, 
+        bgImage, columns, cardStyle, enableNeonShadows, 
+        cardPosition) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     return this.db
       .prepare(insertQuery)
       .run(
-        uuid,
+        userId,
         maxNumberOfLinks,
         linkInNewTab,
         useBgImage,
@@ -32,23 +34,16 @@ export default class UserSettingsStore {
       );
   }
 
-  getItem(uuid) {
-    const settingsSelectQuery = `SELECT * FROM userSettings WHERE uuid=?`;
-    return this.db.prepare(settingsSelectQuery).get(uuid);
+  getItem(userId) {
+    const settingsSelectQuery = `SELECT * FROM userSettings WHERE id=?`;
+    return this.db.prepare(settingsSelectQuery).get(userId);
   }
 
-  updateItem(uuid, parameter, value) {
-    if (uuid === undefined) uuid = "guest";
-
-    const selectQuery = `SELECT uuid FROM userSettings WHERE uuid=:uuid`;
-    let foundUUID = this.db.prepare(selectQuery).get({ uuid });
+  updateItem(userId, parameter, value) {
+    const updateQuery = `UPDATE userSettings SET ${parameter}=:value WHERE id=:userId`;
     if (typeof value === "boolean") {
       value = Number(value);
     }
-
-    if (foundUUID) {
-      const updateQuery = `UPDATE userSettings SET ${parameter}=:value WHERE uuid=:uuid`;
-      return this.db.prepare(updateQuery).run({ uuid, value });
-    }
+    return this.db.prepare(updateQuery).run({ userId, value });
   }
 }

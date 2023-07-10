@@ -9,7 +9,7 @@ import { appContext } from "../../../contexts/appContext.js";
 export default async function (fastify, opts) {
   fastify.get(
     "/",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       return appContext.stores.categories.getAll();
     }
@@ -17,7 +17,7 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/:id",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
       let category = store.categories.getCategoryById(id);
@@ -29,7 +29,7 @@ export default async function (fastify, opts) {
   fastify.post(
     "/",
     {
-      preHandler: requireSession(true, false, false),
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "object",
@@ -63,7 +63,7 @@ export default async function (fastify, opts) {
   fastify.put(
     "/:id",
     {
-      preHandler: requireSession(true, false, false),
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "object",
@@ -87,7 +87,7 @@ export default async function (fastify, opts) {
   fastify.put(
     "/changePositions",
     {
-      preHandler: requireSession(true, false, false),
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "array",
@@ -111,7 +111,7 @@ export default async function (fastify, opts) {
 
   fastify.delete(
     "/:id",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
       if (appContext.stores.categories.deleteItem(id)) return true;

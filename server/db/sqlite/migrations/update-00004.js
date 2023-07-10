@@ -1,41 +1,68 @@
-import { columnExists } from "../common.js";
+import { dataColumnExists } from "../common.js";
 
 export default async function (db) {
-
-  const createTable = `CREATE TABLE IF NOT EXISTS userSessions (
-      id TEXT PRIMARY KEY,
-      userId INTEGER,
-      created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  )`;
-
-  db.prepare(createTable).run();
-
-  if (columnExists(db, "users", "usergroup")) {
+  if (dataColumnExists(db, "users", "usergroup")) {
+    console.log("Renaming usergroup column from users table to isAdmin");
     db.prepare("ALTER TABLE users RENAME COLUMN usergroup TO isAdmin").run();
   }
 
-  if (columnExists(db, "users", "uuid")) {
-    const selectQuery = `SELECT id, uuid FROM users`;
-    const insertQuery = `INSERT INTO userSessions (id, userId) VALUES (:id, :userId)`;
-    const dropQuery = `ALTER TABLE users DROP COLUMN uuid`;
+  if (dataColumnExists(db, "userSettings", "uuid")) {
+    console.log("Switching uuid column from userSettings table to id (userId)");
+    const selectQuery = `SELECT 
+      users.id, userSettings.maxNumberOfLinks, userSettings.linkInNewTab,
+      userSettings.useBgImage, userSettings.bgImage, userSettings.columns, 
+      userSettings.cardStyle, userSettings.enableNeonShadows, userSettings.cardPosition
+    FROM userSettings 
+      LEFT JOIN users ON users.uuid = userSettings.uuid`;
+    const dropQuery = `DROP TABLE userSettings`;
+    const createQuery = `CREATE TABLE userSettings (
+      id TEXT PRIMARY KEY,
+      maxNumberOfLinks INTEGER,
+      linkInNewTab INTEGER,
+      useBgImage INTEGER,
+      bgImage TEXT,
+      columns INTEGER,
+      cardStyle TEXT,
+      enableNeonShadows INTEGER,
+      cardPosition TEXT
+    )`;
+    const insertQuery = `INSERT INTO userSettings 
+      (id, maxNumberOfLinks, linkInNewTab, useBgImage, 
+        bgImage, columns, cardStyle, enableNeonShadows, cardPosition)
+    VALUES (:id, :maxNumberOfLinks, :linkInNewTab, :useBgImage, 
+      :bgImage, :columns, :cardStyle, :enableNeonShadows, :cardPosition)`;
 
-    const sessions = db.prepare(selectQuery).all();
-
-    const insert = db.prepare(insertQuery);
-    const drop = db.prepare(dropQuery);
-    const transfert = this.db.transaction((items) => {
-      for (const item of items)
-        insert.run({
-          id: categoryId,
-          userId: item.id
-        });
-      drop.run();
+    const transfert = db.transaction((items) => {
+      // drop and create queries cause problems is prepared too early....
+      db.prepare(dropQuery).run();
+      db.prepare(createQuery).run();
+      const insert = db.prepare(insertQuery);
+      for (const item of items) insert.run(item);
     });
-    transfert(sessions);
+    transfert(db.prepare(selectQuery).all());
   }
 
-  if (columnExists(db, "userSettings", "uuid")) {
-    const dropQuery = `ALTER TABLE users DROP COLUMN uuid`;
-    //TODO: convert the table
+  if (dataColumnExists(db, "backgrounds", "uuid")) {
+    console.log("Switching uuid column from backgrounds table to userId");
+    const selectQuery = `SELECT 
+      users.id as userId, backgrounds.url
+    FROM backgrounds 
+      LEFT JOIN users ON users.uuid = backgrounds.uuid`;
+    const dropQuery = `DROP TABLE backgrounds`;
+    const createQuery = `CREATE TABLE IF NOT EXISTS backgrounds (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId INTEGER,
+      url TEXT
+    )`;
+    const insertQuery = `INSERT INTO backgrounds (userId, url) VALUES (:userId, :url)`;
+
+    const transfert = db.transaction((items) => {
+      // It seems some query are executed at prepare, this is problematic
+      db.prepare(dropQuery).run();
+      db.prepare(createQuery).run();
+      const insert = db.prepare(insertQuery);
+      for (const item of items) insert.run(item);
+    });
+    transfert(db.prepare(selectQuery).all());
   }
-};
+}

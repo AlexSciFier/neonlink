@@ -11,7 +11,7 @@ import { appContext } from "../../../contexts/appContext.js";
 export default async function (fastify, opts) {
   fastify.get(
     "/",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let query = new URLSearchParams(request.query);
       let offset = query.get("offset") ?? undefined;
@@ -26,7 +26,7 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/:id",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
       let foundBookmark = appContext.stores.bookmarks.getItemById(id);
@@ -37,7 +37,7 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/:id/icon",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
       let icon = appContext.stores.bookmarks.getIconByBookmarkId(id);
@@ -56,7 +56,7 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/export",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let bookmarks = appContext.stores.bookmarks.getAll();
       let maped = {};
@@ -72,7 +72,7 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/category/:id",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
       let bookmarks = appContext.stores.bookmarks.getByCategoryId(id);
@@ -86,7 +86,7 @@ export default async function (fastify, opts) {
   fastify.post(
     "/",
     {
-      preHandler: requireSession(true, false, false),
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "object",
@@ -125,6 +125,7 @@ export default async function (fastify, opts) {
   fastify.post(
     "/addArray",
     {
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "array",
@@ -159,7 +160,7 @@ export default async function (fastify, opts) {
   fastify.put(
     "/:id",
     {
-      preHandler: requireSession(true, false, false),
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "object",
@@ -198,7 +199,7 @@ export default async function (fastify, opts) {
 
   fastify.delete(
     "/:id",
-    { preHandler: requireSession(true, false, false) },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
       if (appContext.stores.bookmarks.deleteItem(id)) return true;
@@ -209,7 +210,7 @@ export default async function (fastify, opts) {
   fastify.put(
     "/changePositions",
     {
-      preHandler: requireSession(true, false, false),
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "object",

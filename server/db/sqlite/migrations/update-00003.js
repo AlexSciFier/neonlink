@@ -1,7 +1,8 @@
-import { tableExists } from "../common.js";
+import { dataTableExists } from "../common.js";
 
 export default async function (db) {
-  if (tableExists(db, "bgImages")) {
-    db.prepare("ALTER TABLE bgImages RENAME backgrounds").run();
+  if (dataTableExists(db, "bgImages")) {
+    console.log("Renaming bgImages table to backgrounds");
+    db.prepare("ALTER TABLE bgImages RENAME TO backgrounds").run();
   }
 }
