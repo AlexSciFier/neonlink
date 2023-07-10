@@ -44,18 +44,21 @@ export function loadUserWithSettingsByUsername(username) {
 
 export function loginUser(username, clearPassword) {
   const user = appContext.stores.users.getItemByUsername(username);
-  console.log('got user');hg
   if (user && comparePasswords(clearPassword, user.passwordHash, user.salt)) {
     const sessionId = generateSessionId();
     appContext.stores.userSessions.addItem(sessionId, user.id);
-    return sessionId;
+    return { sessionId, id: user.id, username: user.username, isAdmin: user.isAdmin };
   }
   return null;
 }
 
 export function logoutUser() {
   const session = appContext.request.get(appRequestsKeys.Session);
-  appContext.stores.userSessions.deleteItem(session.sessionId);
+  if (session) {
+    appContext.stores.userSessions.deleteItem(session.sessionId);
+    return true;
+  }
+  return false;
 }
 
 export function isPasswordValid(userId, clearPassword) {
@@ -64,14 +67,18 @@ export function isPasswordValid(userId, clearPassword) {
 }
 
 export function setSessionCookie(reply, sessionId) {
-  const sessionLengthInDays = appContext.settings.get(
-    appSettingsKeys.sessionLengthInDays
-  );
-  reply.setCookie("SSID", sessionId, {
-    path: "/",
-    httpOnly: true,
-    expires: addDays(new Date(), sessionLengthInDays),
-  });
+  if (sessionId) {
+    const sessionLengthInDays = appContext.settings.get(
+      appSettingsKeys.sessionLengthInDays
+    );
+    reply.setCookie("SSID", sessionId, {
+      path: "/",
+      httpOnly: true,
+      expires: addDays(new Date(), sessionLengthInDays),
+    });
+  } else {
+    reply.clearCookie("SSID");
+  }
 }
 
 export function updatePassword(userId, clearPassword) {

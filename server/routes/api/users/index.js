@@ -135,12 +135,13 @@ export default async function (fastify, opts) {
     },
     function (request, reply) {
       const { username, password } = request.body;
-      const sessionId = loginUser(username, password);
-      if (sessionId) {
-        setSessionCookie(reply, sessionId);
+      const data = loginUser(username, password);
+      if (data) {
+        setSessionCookie(reply, data.sessionId);
       } else {
         throw reply.forbidden("Username or password is incorrect");
       }
+      return data;
     }
   );
 
@@ -148,9 +149,11 @@ export default async function (fastify, opts) {
     "/logout",
     { preHandler: requireVisitor(false, true, false) },
     async function (request, reply) {
-      logoutUser();
-      reply.clearCookie("SSID");
-      return true;
+      const res = logoutUser(reply);
+      if (res) {
+        setSessionCookie(reply);
+      }
+      return res;
     }
   );
 }
