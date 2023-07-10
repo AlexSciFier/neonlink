@@ -69,7 +69,7 @@ export function isPasswordValid(userId, clearPassword) {
 export function setSessionCookie(reply, sessionId) {
   if (sessionId) {
     const sessionLengthInDays = appContext.settings.get(
-      appSettingsKeys.sessionLengthInDays
+      appSettingsKeys.SessionLengthInDays
     );
     reply.setCookie("SSID", sessionId, {
       path: "/",
@@ -79,6 +79,10 @@ export function setSessionCookie(reply, sessionId) {
   } else {
     reply.clearCookie("SSID");
   }
+}
+
+export function updateIsAdmin(userId, isAdmin) {
+  appContext.stores.users.updateIsAdmin(userId, hashedPassword);
 }
 
 export function updatePassword(userId, clearPassword) {

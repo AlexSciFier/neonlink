@@ -41,7 +41,12 @@ export default async function (fastify, opts) {
       },
     },
     async function (request, reply) {
-      return { noLogin: !appContext.settings.get(appSettingsKeys.AuthenticationEnabled) };
+      return {
+        authenticationEnabled: appContext.settings.get(appSettingsKeys.AuthenticationEnabled),
+        sessionLengthInDays: appContext.settings.get(appSettingsKeys.SessionLengthInDays),
+        userRegistrationEnabled: appContext.settings.get(appSettingsKeys.UserRegistrationEnabled),
+
+       };
     }
   );
 }

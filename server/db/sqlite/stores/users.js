@@ -36,6 +36,14 @@ export default class UsersStore {
     return this.db.prepare(selectQuery).get(username);
   }
 
+  updateIsAdmin(userId, isAdmin) {
+    const updateQuery = `UPDATE users SET isAdmin=isAdmin WHERE id=:id`;
+    this.db.prepare(updateQuery).run({
+      id: userId,
+      isAdmin: Boolean(isAdmin)
+    });
+  }
+
   updatePassword(userId, hashedPassword) {
     const updateQuery = `UPDATE users SET passwordHash=:passwordHash, salt=:salt WHERE id=:id`;
     this.db.prepare(updateQuery).run({

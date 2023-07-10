@@ -18,8 +18,8 @@ function resetPassword(username, password) {
     return;
   }
 
-  const userId = appContext.stores.users.getItemByUsername(username)?.id;
-  if (userId === undefined) {
+  const user = appContext.stores.users.getItemByUsername(username)?.id;
+  if (user === undefined) {
     console.error(
       "Username not found. Please check your first argument. ex: npm run reset-password username password"
     );
@@ -32,7 +32,7 @@ function resetPassword(username, password) {
     return;
   }
 
-  updatePassword(userId, password);
+  updatePassword(user.id, password);
   console.log("Password changed!");
 }
 
