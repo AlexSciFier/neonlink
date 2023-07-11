@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useRef, useState } from "react";
 import { deleteJSON, getJSON, putJSON } from "../helpers/fetch";
-import { useInterfaceSettings } from "./interfaceSettingsContext";
+import { useUserSettings } from "./settings/userSettings";
 
 const BookMarkList = createContext();
 
@@ -9,7 +9,7 @@ export function useBookMarkList() {
 }
 
 export function BookMarkListProvider({ children }) {
-  const { maxItemsInList } = useInterfaceSettings();
+  const { maxItemsInList } = useUserSettings();
 
   const [bookmarkList, setBookmarkList] = useState([]);
   const [isBookmarksLoading, setIsBookmarksLoading] = useState(true);

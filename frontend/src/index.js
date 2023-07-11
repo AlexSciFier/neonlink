@@ -5,8 +5,9 @@ import "./fonts/Raleway-Light.ttf";
 import "./fonts/Raleway-Medium.ttf";
 import "./fonts/Raleway-Regular.ttf";
 import App from "./App";
+import { AppSettingsProvider } from "./context/settings/appSettings";
 import { IsLoggedInProvider } from "./context/isLoggedIn";
-import { InterfaceSettingsProvider } from "./context/interfaceSettingsContext";
+import { UserSettingsProvider } from "./context/settings/userSettings";
 import { CategoriesListProvider } from "./context/categoriesList";
 
 const container = document.getElementById("root");
@@ -14,12 +15,14 @@ const root = createRoot(container);
 
 root.render(
   <React.StrictMode>
-    <IsLoggedInProvider>
-      <InterfaceSettingsProvider>
-        <CategoriesListProvider>
-          <App />
-        </CategoriesListProvider>
-      </InterfaceSettingsProvider>
-    </IsLoggedInProvider>
+    <AppSettingsProvider>
+      <IsLoggedInProvider>
+        <UserSettingsProvider>
+          <CategoriesListProvider>
+            <App />
+          </CategoriesListProvider>
+        </UserSettingsProvider>
+      </IsLoggedInProvider>
+    </AppSettingsProvider>
   </React.StrictMode>
 );

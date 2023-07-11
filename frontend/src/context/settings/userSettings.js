@@ -6,10 +6,10 @@ import {
   DEF_MAX_ITEMS,
   DEF_OPEN_LINK_IN_NEW_TAB,
   DEF_USE_NEON_SHADOW,
-} from "../helpers/constants";
-import { postJSON } from "../helpers/fetch";
-import { useLocalStorage } from "../hooks/useLocalStorage";
-import { useIsloggedIn } from "./isLoggedIn";
+} from "../../helpers/constants";
+import { postJSON } from "../../helpers/fetch";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { useIsloggedIn } from "../isLoggedIn";
 
 function getPreferedScheme() {
   if (
@@ -21,13 +21,13 @@ function getPreferedScheme() {
   return "light";
 }
 
-const InterfaceSettingsContext = React.createContext();
+const UserSettingsContext = React.createContext();
 
-export function useInterfaceSettings() {
-  return useContext(InterfaceSettingsContext);
+export function useUserSettings() {
+  return useContext(UserSettingsContext);
 }
 
-export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
+export const UserSettingsProvider = ({ initialTheme, children }) => {
   const { profile } = useIsloggedIn();
 
   const [lSTheme, setLSTheme] = useLocalStorage(
@@ -139,7 +139,7 @@ export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
   }, [theme]);
 
   return (
-    <InterfaceSettingsContext.Provider
+    <UserSettingsContext.Provider
       value={{
         theme,
         bgUrl,
@@ -164,6 +164,6 @@ export const InterfaceSettingsProvider = ({ initialTheme, children }) => {
       }}
     >
       {children}
-    </InterfaceSettingsContext.Provider>
+    </UserSettingsContext.Provider>
   );
 };

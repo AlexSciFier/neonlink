@@ -1,14 +1,14 @@
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
-import { useInterfaceSettings } from "../../../context/interfaceSettingsContext";
+import { useUserSettings } from "../../../context/settings/userSettings";
 import { pickColorBasedOnBgColor } from "../../../helpers/color";
 import { getJSON } from "../../../helpers/fetch";
 import LazyIcon from "../../../components/LazyIcon";
 
 export default function Group({ category }) {
   const { useImageAsBg, cardHeaderStyle, useNeonShadow } =
-    useInterfaceSettings();
+    useUserSettings();
   const [bookmarks, setBookmarks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 

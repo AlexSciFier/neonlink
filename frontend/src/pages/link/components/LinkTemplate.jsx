@@ -9,7 +9,7 @@ import { useBookMarkList } from "../../../context/bookmarkList";
 import { getDomain } from "../../../helpers/url";
 import { prettyfyDate } from "../../../helpers/date";
 import { Link } from "react-router-dom";
-import { useInterfaceSettings } from "../../../context/interfaceSettingsContext";
+import { useUserSettings } from "../../../context/settings/userSettings";
 import LazyIcon from "../../../components/LazyIcon";
 
 function Options({ className, bookmarkId, showOptions, setShowOptions }) {
@@ -76,7 +76,7 @@ function Options({ className, bookmarkId, showOptions, setShowOptions }) {
 }
 
 export default function LinkTemplate({ bookmark }) {
-  const { openLinkInNewTab } = useInterfaceSettings();
+  const { openLinkInNewTab } = useUserSettings();
   const [showOptions, setShowOptions] = useState(false);
   const optionBlock = useRef(null);
 

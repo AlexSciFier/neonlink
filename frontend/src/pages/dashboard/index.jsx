@@ -1,11 +1,11 @@
 import React from "react";
 import NavBar from "../../components/NavBar";
 import GroupList from "./components/groupList";
-import { useInterfaceSettings } from "../../context/interfaceSettingsContext";
+import { useUserSettings } from "../../context/settings/userSettings";
 import { fixBgUrl } from "../../helpers/url";
 
 export default function Dashboard() {
-  const { bgUrl, cardVerticalAligment, useImageAsBg } = useInterfaceSettings();
+  const { bgUrl, cardVerticalAligment, useImageAsBg } = useUserSettings();
   let aligmentClass = "";
   switch (cardVerticalAligment) {
     case "top":

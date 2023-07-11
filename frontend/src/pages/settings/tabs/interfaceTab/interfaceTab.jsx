@@ -1,7 +1,7 @@
 import React from "react";
 import InputGroup from "../../components/inputGroup";
 import SwitchButton from "../../components/SwitchButton";
-import { useInterfaceSettings } from "../../../../context/interfaceSettingsContext";
+import { useUserSettings } from "../../../../context/settings/userSettings";
 import {
   CARD_HEADER_STYLE,
   CARD_VERTICAL_ALIGMENT,
@@ -41,7 +41,7 @@ export default function InterfaceTab() {
     setColumns,
     setMaxItemsInList,
     setSyncSettings,
-  } = useInterfaceSettings();
+  } = useUserSettings();
 
   function changeTheme(e) {
     let isChecked = e.target.checked;

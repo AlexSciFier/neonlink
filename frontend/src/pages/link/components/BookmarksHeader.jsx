@@ -5,7 +5,7 @@ import { DEF_MAX_ITEMS } from "../../../helpers/constants";
 import { useLocalStorage } from "../../../hooks/useLocalStorage";
 import { useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useInterfaceSettings } from "../../../context/interfaceSettingsContext";
+import { useUserSettings } from "../../../context/settings/userSettings";
 
 export default function BookmarksHeader() {
   const [query, setQuery] = useState("");
@@ -14,7 +14,7 @@ export default function BookmarksHeader() {
   const delayedQuery = useCallback(debounce(updateBookmarkList, 800), [query]);
 
   const { fetchBookmarks } = useBookMarkList();
-  const { maxItemsInList } = useInterfaceSettings();
+  const { maxItemsInList } = useUserSettings();
   const [searchParams] = useSearchParams();
 
   const firstUpdate = useRef(true);

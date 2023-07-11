@@ -18,12 +18,16 @@ export default async function (fastify, opts) {
       const authenticationEnabled = appContext.settings.get(appSettingsKeys.AuthenticationEnabled);
       const session = appContext.request.get('session');
       if (!authenticationEnabled || (session.authenticated)) {
-        if (request.body?.noLogin !== undefined) {
-          appContext.settings.set(appSettingsKeys.AuthenticationEnabled, !request.body.noLogin);
+        if (request.body?.authenticationEnabled !== undefined) {
+          appContext.settings.set(appSettingsKeys.AuthenticationEnabled, !Boolean(request.body.authenticationEnabled));
           await appContext.settings.save();
         }
       }
-      return { noLogin: !appContext.settings.get(appSettingsKeys.AuthenticationEnabled) };
+      return {
+        authenticationEnabled: appContext.settings.get(appSettingsKeys.AuthenticationEnabled),
+        sessionLengthInDays: appContext.settings.get(appSettingsKeys.SessionLengthInDays),
+        userRegistrationEnabled: appContext.settings.get(appSettingsKeys.UserRegistrationEnabled)
+       };
     }
   );
 
@@ -35,17 +39,20 @@ export default async function (fastify, opts) {
         response: {
           200: {
             type: "object",
-            properties: { noLogin: { type: "boolean" } },
-          },
-        },
-      },
+            properties: { 
+              authenticationEnabled: { type: "boolean" },
+              sessionLengthInDays: { type: "number" },
+              userRegistrationEnabled: { type: "boolean" } 
+            }
+          }
+        }
+      }
     },
-    async function (request, reply) {
+    function (request, reply) {
       return {
         authenticationEnabled: appContext.settings.get(appSettingsKeys.AuthenticationEnabled),
         sessionLengthInDays: appContext.settings.get(appSettingsKeys.SessionLengthInDays),
-        userRegistrationEnabled: appContext.settings.get(appSettingsKeys.UserRegistrationEnabled),
-
+        userRegistrationEnabled: appContext.settings.get(appSettingsKeys.UserRegistrationEnabled)
        };
     }
   );

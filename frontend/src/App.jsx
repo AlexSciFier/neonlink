@@ -1,5 +1,6 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useAppSettings } from "./context/settings/appSettings";
 import { useIsloggedIn } from "./context/isLoggedIn";
 import React, { useEffect } from "react";
 import { getJSON } from "./helpers/fetch";
@@ -10,6 +11,8 @@ const RegisterPage = React.lazy(() => import("./pages/register"));
 const LoginPage = React.lazy(() => import("./pages/login"));
 
 function App() {
+  let { authenticationEnabled } = useAppSettings();
+
   let {
     profile,
     setIsProfileLoading,
@@ -41,7 +44,9 @@ function App() {
         setIsProfileLoading(false);
       }
     }
-    fetchProfile();
+    if (authenticationEnabled) {
+      fetchProfile();
+    }
     document.title = APP_NAME;
   }, []);
 

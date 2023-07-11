@@ -12,7 +12,7 @@ let currentSettings = structuredClone(defaultSettings);
 export const appSettingsKeys = {
   AuthenticationEnabled: "authenticationEnabled",
   SessionLengthInDays: "sessionLengthInDays",
-  UserRegistrationEnabled: "userRegistration"
+  UserRegistrationEnabled: "userRegistrationEnabled"
 }
 
 export class AppSettings {

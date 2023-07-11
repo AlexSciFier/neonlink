@@ -4,8 +4,8 @@ import InputItem from "../../components/inputItem";
 import SwitchButton from "../../components/SwitchButton";
 import KeyIcon from "@heroicons/react/24/outline/KeyIcon";
 
-export default function UseNoLogin() {
-  const [useNoLogin, setUseNoLogin] = useState(false);
+export default function UseAuthentication() {
+  const [useAuthentication, setUseAuthentication] = useState(false);
 
   const abortController = useRef(null);
 
@@ -17,7 +17,7 @@ export default function UseNoLogin() {
         abortController.current.signal
       );
       let body = await res.json();
-      setUseNoLogin(body?.noLogin || false);
+      setUseAuthentication(body?.authenticationEnabled || false);
     }
     fetchSettings();
     return () => {
@@ -28,24 +28,24 @@ export default function UseNoLogin() {
   async function setParameter(value) {
     await postJSON(
       "/api/settings/application",
-      { noLogin: value },
+      { authenticationEnabled: value },
       abortController.current.signal
     );
     console.log(value);
-    setUseNoLogin(value);
+    setUseAuthentication(value);
   }
 
   return (
     <div>
       <InputItem
-        title={"No login"}
-        description={"Disable login screen"}
+        title={"Authentication"}
+        description={"Enable authentication screen"}
         icon={<KeyIcon />}
         input={
           <SwitchButton
-            id={"useNoLogin"}
-            name={"useNoLogin"}
-            checked={useNoLogin}
+            id={"useAuthentication"}
+            name={"useAuthentication"}
+            checked={useAuthentication}
             onChange={(e) => setParameter(e.target.checked)}
           />
         }
