@@ -73,8 +73,8 @@ export default async function (fastify, opts) {
       }
       else {
         const res = createUser(username, password, true);
-        appContext.hasAnyUser = appContext.stores.users.checkWhetherAnyUserExists();
-        appContext.hasAdminUser = appContext.hasAnyUser && appContext.stores.users.checkWhetherAnyAdminUserExists();
+        appContext.hasAnyUser = appContext.stores.users.countItems() > 0;
+        appContext.hasAdminUser = appContext.hasAnyUser && appContext.stores.users.countAdmins() > 0;
         return res;
       };
       
@@ -117,8 +117,8 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       const session = appContext.request.get(appRequestsKeys.Session);
       if (appContext.stores.users.deleteUser(session.sessionId)) {
-        appContext.hasAnyUser = appContext.stores.users.checkWhetherAnyUserExists();
-        appContext.hasAdminUser = appContext.hasAnyUser && appContext.stores.users.checkWhetherAnyAdminUserExists();
+        appContext.hasAnyUser = appContext.stores.users.countItems() > 0;
+        appContext.hasAdminUser = appContext.hasAnyUser && appContext.stores.users.countAdmins() > 0;
         return { status: "OK" };
       }
       else throw fastify.httpErrors.notFound("User with this id is not found");

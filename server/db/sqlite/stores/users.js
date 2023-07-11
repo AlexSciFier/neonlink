@@ -11,24 +11,26 @@ export default class UsersStore {
     return { username, id: result.lastInsertRowid };
   }
 
-  deleteItem(id) {
-    const deleteQuery = `DELETE FROM users WHERE id = ?`;
-    return this.db.prepare(deleteQuery).run(id).changes > 0;
+  countAdmins() {
+    const selectQuery = `SELECT COUNT(*) AS count FROM users WHERE isAdmin != 0`;
+    const res = this.db.prepare(selectQuery).get();
+    return res.count;
   }
 
-  checkWhetherAnyUserExists() {
+  countItems() {
     const selectQuery = `SELECT COUNT(*) AS count FROM users`;
-    return this.db.prepare(selectQuery).get().count > 0;
-  }
-
-  checkWhetherAnyAdminExists() {
-    const selectQuery = `SELECT * FROM users WHERE isAdmin != 0`;
-    return this.db.prepare(selectQuery).get().count > 0;
+    const res = this.db.prepare(selectQuery).get();
+    return res.count;
   }
 
   checkWhetherUserExists(username) {
-    const selectQuery = `SELECT * FROM users WHERE username = ?`;
+    const selectQuery = `SELECT COUNT(*) AS count FROM users WHERE username = ?`;
     return this.db.prepare(selectQuery).get(username);
+  }
+
+  deleteItem(id) {
+    const deleteQuery = `DELETE FROM users WHERE id = ?`;
+    return this.db.prepare(deleteQuery).run(id).changes > 0;
   }
 
   getItem(id) {
