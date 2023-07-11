@@ -16,14 +16,19 @@ export default class UsersStore {
     return this.db.prepare(deleteQuery).run(id).changes > 0;
   }
 
+  checkWhetherAnyUserExists() {
+    const selectQuery = `SELECT COUNT(*) AS count FROM users`;
+    return this.db.prepare(selectQuery).get().count > 0;
+  }
+
+  checkWhetherAnyAdminExists() {
+    const selectQuery = `SELECT * FROM users WHERE isAdmin != 0`;
+    return this.db.prepare(selectQuery).get().count > 0;
+  }
+
   checkWhetherUserExists(username) {
     const selectQuery = `SELECT * FROM users WHERE username = ?`;
     return this.db.prepare(selectQuery).get(username);
-  }
-
-  checkWhetherTableIsEmpty() {
-    const selectQuery = `SELECT COUNT(*) AS count FROM users`;
-    return this.db.prepare(selectQuery).get().count === 0;
   }
 
   getItem(id) {

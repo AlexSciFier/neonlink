@@ -47,10 +47,9 @@ export function requireSession(
     if (!allowAuthenticationDisabled && !authenticationEnabled)
       throw reply.unauthorized("Authentication must be enabled.");
     else if (authenticationEnabled) {
+      if (!appContext.hasAdminUser) 
+        throw reply.notFound("No users is registred.");
       const session = appContext.request.get(appRequestsKeys.Session);
-      const userTableIsEmpty =
-        appContext.stores.users.checkWhetherTableIsEmpty();
-      if (userTableIsEmpty) throw reply.notFound("No users is registred.");
       if (requireAuthenticatedUser && !session.authenticated)
         throw reply.unauthorized("Authenticated user required.");
       if (requireAuthenticatedAdmin && !session.isAdmin)

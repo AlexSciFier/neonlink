@@ -18,6 +18,14 @@ class AppContext {
     return contexts.stores;
   }
 
+  get hasAdminUser() {
+    return contexts.hasAdminUser;
+  }
+
+  set hasAdminUser(value) {
+    contexts.hasAdminUser = value;
+  }
+
   set request(value) {
     if (contexts.request) {
       throw new Error("Request already initialized.");

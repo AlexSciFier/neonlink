@@ -27,7 +27,7 @@ export default async function (fastify, opts) {
   fastify.get(
     "/me",
     {
-      preHandler: requireSession(false, true, false),
+      preHandler: requireSession(false, false, false),
       schema: {
         response: {
           200: {
@@ -69,11 +69,15 @@ export default async function (fastify, opts) {
         throw fastify.httpErrors.notAcceptable("User registration disabled.");
       if (appContext.stores.users.checkWhetherUserExists(username))
         throw fastify.httpErrors.notAcceptable("This username already exist");
-      return createUser(
-        username,
-        password,
-        appContext.stores.users.checkWhetherTableIsEmpty()
-      );
+      if (appContext.hasAdminUser) {
+        return createUser(username, password, true);
+      }
+      else {
+        const res = createUser(username, password, false);
+        appContext.hasAdminUser = appContext.stores.users.checkWhetherAnyAdminUserExists();
+        return res;
+      };
+      
     }
   );
 
@@ -112,8 +116,10 @@ export default async function (fastify, opts) {
     { preHandler: requireSession(false, true, false) },
     async function (request, reply) {
       const session = appContext.request.get(appRequestsKeys.Session);
-      if (appContext.stores.users.deleteUser(session.sessionId))
+      if (appContext.stores.users.deleteUser(session.sessionId)) {
+        appContext.hasAdminUser = appContext.stores.users.checkWhetherAnyAdminUserExists();
         return { status: "OK" };
+      }
       else throw fastify.httpErrors.notFound("User with this id is not found");
     }
   );
