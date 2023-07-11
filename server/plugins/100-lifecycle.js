@@ -5,7 +5,8 @@ import { appContext } from "../contexts/appContext.js";
 function initializeHooks(fastify, closeListeners) {
   fastify.addHook("onReady", async () => {
     // Check if initialized with users
-    appContext.hasAdminUser = appContext.stores.users.checkWhetherAnyAdminUserExists();
+    appContext.hasAnyUser = appContext.stores.users.checkWhetherAnyUserExists()
+    appContext.hasAdminUser = appContext.hasAnyUser && appContext.stores.users.checkWhetherAnyAdminUserExists();
     console.log("Application initialized.");
   });
 

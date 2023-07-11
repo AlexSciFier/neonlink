@@ -2,6 +2,14 @@ const contexts = {};
 
 class AppContext {
 
+  get hasAdminUser() {
+    return contexts.hasAdminUser;
+  }
+
+  get hasAnyUser() {
+    return contexts.hasAnyUser;
+  }
+
   get request() {
     return contexts.request;
   }
@@ -18,12 +26,12 @@ class AppContext {
     return contexts.stores;
   }
 
-  get hasAdminUser() {
-    return contexts.hasAdminUser;
-  }
-
   set hasAdminUser(value) {
     contexts.hasAdminUser = value;
+  }
+
+  set hasAnyUser(value) {
+    contexts.hasAnyUser = value;
   }
 
   set request(value) {

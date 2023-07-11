@@ -27,7 +27,6 @@ export default async function (fastify, opts) {
   fastify.get(
     "/me",
     {
-      preHandler: requireSession(false, false, false),
       schema: {
         response: {
           200: {
@@ -70,11 +69,12 @@ export default async function (fastify, opts) {
       if (appContext.stores.users.checkWhetherUserExists(username))
         throw fastify.httpErrors.notAcceptable("This username already exist");
       if (appContext.hasAdminUser) {
-        return createUser(username, password, true);
+        return createUser(username, password, false);
       }
       else {
-        const res = createUser(username, password, false);
-        appContext.hasAdminUser = appContext.stores.users.checkWhetherAnyAdminUserExists();
+        const res = createUser(username, password, true);
+        appContext.hasAnyUser = appContext.stores.users.checkWhetherAnyUserExists();
+        appContext.hasAdminUser = appContext.hasAnyUser && appContext.stores.users.checkWhetherAnyAdminUserExists();
         return res;
       };
       
@@ -117,7 +117,8 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       const session = appContext.request.get(appRequestsKeys.Session);
       if (appContext.stores.users.deleteUser(session.sessionId)) {
-        appContext.hasAdminUser = appContext.stores.users.checkWhetherAnyAdminUserExists();
+        appContext.hasAnyUser = appContext.stores.users.checkWhetherAnyUserExists();
+        appContext.hasAdminUser = appContext.hasAnyUser && appContext.stores.users.checkWhetherAnyAdminUserExists();
         return { status: "OK" };
       }
       else throw fastify.httpErrors.notFound("User with this id is not found");
