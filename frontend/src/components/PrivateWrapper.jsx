@@ -1,6 +1,7 @@
-import React from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router";
+import React, { useEffect } from "react";
+import { Route, Routes, useLocation, useNavigate } from "react-router";
 import NavBar from "./NavBar";
+import { useIsloggedIn } from "../context/isLoggedIn";
 
 const Dashboard = React.lazy(() => import("../pages/dashboard"));
 const NotFound = React.lazy(() => import("../pages/notFound"));
@@ -17,11 +18,17 @@ const routes = [
   { path: "/links", element: <LinksPage /> },
 ];
 
-export default function PrivateWrapper({ profile }) {
+export default function PrivateWrapper() {
+  const { profile, needRegistration } = useIsloggedIn();
   const { pathname } = useLocation();
-  if (profile === undefined) {
-    return <Navigate to="/login" />;
-  }
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log({ profile, needRegistration });
+    if (profile) navigate("/");
+    else if (needRegistration) navigate("/register");
+    else navigate("/login");
+  }, [needRegistration, profile]);
 
   return (
     <>

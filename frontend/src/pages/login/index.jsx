@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import Logo from "../../components/Logo";
 import { useIsloggedIn } from "../../context/isLoggedIn";
@@ -10,14 +10,9 @@ export default function LoginPage() {
   const passwordRef = useRef(null);
 
   const [error, setError] = useState();
-  const { profile, setProfile, needRegistration } = useIsloggedIn();
+  const { setProfile } = useIsloggedIn();
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (needRegistration) navigate("/register");
-    if (profile) navigate("/");
-  }, [needRegistration]);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();

@@ -11,7 +11,10 @@ import { addDays } from "../helpers/dates.js";
 export async function requestContextHandler(request, reply) {
   let user = loadSystemUser();
   let sessionId = request.cookies.SSID;
-  if (appContext.settings.get(appSettingsKeys.AuthenticationEnabled) && sessionId) {
+  if (
+    appContext.settings.get(appSettingsKeys.AuthenticationEnabled) &&
+    sessionId
+  ) {
     const session = appContext.stores.userSessions.getItem(sessionId);
     user = appContext.stores.users.getItem(session.userId);
     // Session token renewal after a day
@@ -21,7 +24,6 @@ export async function requestContextHandler(request, reply) {
       appContext.stores.userSessions.addItem(sessionId, user.id);
       setSessionCookie(reply, sessionId);
     }
-    
   }
 
   appContext.request.set(appRequestsKeys.Session, {
@@ -46,7 +48,10 @@ export function requireSession(
       throw reply.unauthorized("Authentication must be enabled.");
     else if (authenticationEnabled) {
       const session = appContext.request.get(appRequestsKeys.Session);
-      if (requireAuthenticatedUser && !session.authenticated) 
+      const userTableIsEmpty =
+        appContext.stores.users.checkWhetherTableIsEmpty();
+      if (userTableIsEmpty) throw reply.notFound("No users is registred.");
+      if (requireAuthenticatedUser && !session.authenticated)
         throw reply.unauthorized("Authenticated user required.");
       if (requireAuthenticatedAdmin && !session.isAdmin)
         throw reply.unauthorized("Authenticated admin required.");
@@ -54,9 +59,7 @@ export function requireSession(
   };
 }
 
-export function requireVisitor(
-  allowAuthenticationDisabled
-) {
+export function requireVisitor(allowAuthenticationDisabled) {
   return async (request, reply) => {
     const authenticationEnabled = appContext.settings.get(
       appSettingsKeys.AuthenticationEnabled

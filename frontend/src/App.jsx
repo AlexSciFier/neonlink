@@ -14,7 +14,6 @@ function App() {
   let { authenticationEnabled } = useAppSettings();
 
   let {
-    profile,
     setIsProfileLoading,
     isProfileLoading,
     setProfile,
@@ -73,7 +72,7 @@ function App() {
               </React.Suspense>
             }
           />
-          <Route path="/*" element={<PrivateWrapper profile={profile} />} />
+          <Route path="/*" element={<PrivateWrapper />} />
         </Routes>
       </Router>
     </div>
