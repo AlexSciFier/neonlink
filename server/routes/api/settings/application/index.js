@@ -10,18 +10,26 @@ export default async function (fastify, opts) {
       schema: {
         body: {
           type: "object",
-          properties: { noLogin: { type: "boolean" } },
+          properties: { 
+            authenticationEnabled: { type: "boolean" },
+            sessionLengthInDays: { type: "number" },
+            userRegistrationEnabled: { type: "boolean" } 
+          },
         },
       },
     },
     async function (request, reply) {
       const authenticationEnabled = appContext.settings.get(appSettingsKeys.AuthenticationEnabled);
       const session = appContext.request.get('session');
+      let settingsChanged = false;
       if (!authenticationEnabled || (session.authenticated)) {
         if (request.body?.authenticationEnabled !== undefined) {
-          appContext.settings.set(appSettingsKeys.AuthenticationEnabled, !Boolean(request.body.authenticationEnabled));
-          await appContext.settings.save();
+          appContext.settings.set(appSettingsKeys.AuthenticationEnabled, Boolean(request.body.authenticationEnabled));
+          settingsChanged = true;
         }
+      }
+      if (settingsChanged) {
+        await appContext.settings.save();
       }
       return {
         authenticationEnabled: appContext.settings.get(appSettingsKeys.AuthenticationEnabled),

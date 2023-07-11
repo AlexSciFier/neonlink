@@ -1,25 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
-import { getJSON, postJSON } from "../../../../helpers/fetch";
+import { postJSON } from "../../../../helpers/fetch";
+import { useAppSettings } from "../../../../context/settings/appSettings";
 import InputItem from "../../components/inputItem";
 import SwitchButton from "../../components/SwitchButton";
 import KeyIcon from "@heroicons/react/24/outline/KeyIcon";
 
 export default function UseAuthentication() {
-  const [useAuthentication, setUseAuthentication] = useState(false);
+  let { authenticationEnabled, setAuthenticationEnabled, fetchSettings } = useAppSettings();
 
   const abortController = useRef(null);
 
   useEffect(() => {
     abortController.current = new AbortController();
-    async function fetchSettings() {
-      let res = await getJSON(
-        "/api/settings/application",
-        abortController.current.signal
-      );
-      let body = await res.json();
-      setUseAuthentication(body?.authenticationEnabled || false);
-    }
-    fetchSettings();
+    fetchSettings(abortController.current);
     return () => {
       abortController.current.abort();
     };
@@ -32,7 +25,7 @@ export default function UseAuthentication() {
       abortController.current.signal
     );
     console.log(value);
-    setUseAuthentication(value);
+    setAuthenticationEnabled(value);
   }
 
   return (
@@ -43,9 +36,9 @@ export default function UseAuthentication() {
         icon={<KeyIcon />}
         input={
           <SwitchButton
-            id={"useAuthentication"}
-            name={"useAuthentication"}
-            checked={useAuthentication}
+            id={"authenticationEnabled"}
+            name={"authenticationEnabled"}
+            checked={authenticationEnabled}
             onChange={(e) => setParameter(e.target.checked)}
           />
         }

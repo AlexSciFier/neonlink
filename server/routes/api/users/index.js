@@ -121,7 +121,7 @@ export default async function (fastify, opts) {
   fastify.post(
     "/login",
     {
-      requireSession: requireVisitor(false),
+      preHandler: requireVisitor(false),
       schema: {
         body: {
           type: "object",
@@ -147,7 +147,7 @@ export default async function (fastify, opts) {
 
   fastify.post(
     "/logout",
-    { preHandler: requireVisitor(false, true, false) },
+    { preHandler: requireSession(false, true, false) },
     async function (request, reply) {
       const res = logoutUser(reply);
       if (res) {

@@ -13,28 +13,23 @@ export const AppSettingsProvider = ({ children }) => {
   const [sessionLengthInDays, setSessionLengthInDays] = useState(60);
   const abortController = useRef(null);
 
-  function abort() {
-    abortController.current.abort();
+  async function fetchSettings(abortController) {
+    let res = await getJSON(
+      "/api/settings/application",
+      abortController.signal
+    );
+    if (res.ok) {
+      let json = await res.json();
+      setAuthenticationEnabled(json.authenticationEnabled);
+      setRegistrationEnabled(json.registrationEnabled);
+      setSessionLengthInDays(json.sessionLengthInDays);
+    }
   }
 
   useEffect(() => {
     abortController.current = new AbortController();
-
-    async function fetchData() {
-      let res = await getJSON(
-        "/api/settings/application",
-        abortController.current.signal
-      );
-      if (res.ok) {
-        let json = await res.json();
-        setAuthenticationEnabled(json.authenticationEnabled);
-        setRegistrationEnabled(json.registrationEnabled);
-        setSessionLengthInDays(json.sessionLengthInDays);
-      }
-    }
-
-    fetchData().catch(console.error);
-    
+    fetchSettings(abortController.current);
+    return () => abortController.current.abort();
   }, []);
 
   return (
@@ -42,7 +37,11 @@ export const AppSettingsProvider = ({ children }) => {
       value={{
         authenticationEnabled,
         registrationEnabled,
-        sessionLengthInDays
+        sessionLengthInDays,
+        fetchSettings,
+        setAuthenticationEnabled,
+        setRegistrationEnabled,
+        setSessionLengthInDays
       }}
     >
       {children}
