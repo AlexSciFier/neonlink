@@ -24,30 +24,6 @@ const settingsFields = {
 };
 
 export default async function (fastify, opts) {
-  fastify.get(
-    "/me",
-    {
-      schema: {
-        response: {
-          200: {
-            type: "object",
-            properties: {
-              id: { type: "number" },
-              username: { type: "string" },
-              isAdmin: { type: "number" },
-              ...settingsFields,
-            }
-          }
-        }
-      }
-    },
-    async (request, reply) => {
-      const session = appContext.request.get(appRequestsKeys.Session);
-      const settings = session.authenticated ? loadUserSettings(session.userId) : {};
-      return { id: session.userId, username: session.username, ...settings };
-    }
-  );
-
   fastify.post(
     "/",
     {
