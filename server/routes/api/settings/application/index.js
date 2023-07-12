@@ -10,29 +10,41 @@ export default async function (fastify, opts) {
       schema: {
         body: {
           type: "object",
-          properties: { 
+          properties: {
             authenticationEnabled: { type: "boolean" },
+            forceRegistration: { type: "boolean" },
             sessionLengthInDays: { type: "number" },
-            userRegistrationEnabled: { type: "boolean" } 
+            userRegistrationEnabled: { type: "boolean" },
           },
         },
       },
     },
     async function (request, reply) {
-      const authenticationEnabled = appContext.settings.get(appSettingsKeys.AuthenticationEnabled);
-      const session = appContext.request.get('session');
+      const authenticationEnabled = appContext.settings.get(
+        appSettingsKeys.AuthenticationEnabled
+      );
+      const session = appContext.request.get("session");
       let settingsChanged = false;
-      if (!authenticationEnabled || (session.authenticated)) {
+      if (!authenticationEnabled || session.authenticated) {
         if (request.body?.authenticationEnabled !== undefined) {
-          appContext.settings.set(appSettingsKeys.AuthenticationEnabled, Boolean(request.body.authenticationEnabled));
+          appContext.settings.set(
+            appSettingsKeys.AuthenticationEnabled,
+            Boolean(request.body.authenticationEnabled)
+          );
           settingsChanged = true;
         }
-        if(request.body?.sessionLengthInDays !== undefined){
-          appContext.settings.set(appSettingsKeys.SessionLengthInDays, request.body.sessionLengthInDays || 60)
+        if (request.body?.sessionLengthInDays !== undefined) {
+          appContext.settings.set(
+            appSettingsKeys.SessionLengthInDays,
+            request.body.sessionLengthInDays
+          );
           settingsChanged = true;
         }
-        if(request.body?.userRegistrationEnabled !== undefined){
-          appContext.settings.set(appSettingsKeys.UserRegistrationEnabled, Boolean(request.body.userRegistrationEnabled) || false)
+        if (request.body?.userRegistrationEnabled !== undefined) {
+          appContext.settings.set(
+            appSettingsKeys.UserRegistrationEnabled,
+            Boolean(request.body.userRegistrationEnabled)
+          );
           settingsChanged = true;
         }
       }
@@ -40,10 +52,17 @@ export default async function (fastify, opts) {
         await appContext.settings.save();
       }
       return {
-        authenticationEnabled: appContext.settings.get(appSettingsKeys.AuthenticationEnabled),
-        sessionLengthInDays: appContext.settings.get(appSettingsKeys.SessionLengthInDays),
-        userRegistrationEnabled: appContext.settings.get(appSettingsKeys.UserRegistrationEnabled)
-       };
+        authenticationEnabled: appContext.settings.get(
+          appSettingsKeys.AuthenticationEnabled
+        ),
+        forceRegistration: authEnabled && !appContext.hasAdminUser,
+        sessionLengthInDays: appContext.settings.get(
+          appSettingsKeys.SessionLengthInDays
+        ),
+        userRegistrationEnabled: appContext.settings.get(
+          appSettingsKeys.UserRegistrationEnabled
+        ),
+      };
     }
   );
 
@@ -55,21 +74,27 @@ export default async function (fastify, opts) {
         response: {
           200: {
             type: "object",
-            properties: { 
+            properties: {
               authenticationEnabled: { type: "boolean" },
               sessionLengthInDays: { type: "number" },
-              userRegistrationEnabled: { type: "boolean" } 
-            }
-          }
-        }
-      }
+              userRegistrationEnabled: { type: "boolean" },
+            },
+          },
+        },
+      },
     },
     function (request, reply) {
       return {
-        authenticationEnabled: appContext.settings.get(appSettingsKeys.AuthenticationEnabled),
-        sessionLengthInDays: appContext.settings.get(appSettingsKeys.SessionLengthInDays),
-        userRegistrationEnabled: appContext.settings.get(appSettingsKeys.UserRegistrationEnabled)
-       };
+        authenticationEnabled: appContext.settings.get(
+          appSettingsKeys.AuthenticationEnabled
+        ),
+        sessionLengthInDays: appContext.settings.get(
+          appSettingsKeys.SessionLengthInDays
+        ),
+        userRegistrationEnabled: appContext.settings.get(
+          appSettingsKeys.UserRegistrationEnabled
+        ),
+      };
     }
   );
 }

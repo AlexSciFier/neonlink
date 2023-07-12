@@ -7,20 +7,22 @@ const appSettingsKeys = {
   SessionLengthInDays: "sessionLengthInDays",
 };
 
-const [, setAppSettingsStore, useAppSettingsStore] = createGlobalStore({
+const appSettingsInitialState = {
   authenticationEnabled: true,
   registrationEnabled: true,
   sessionLengthInDays: 60,
-});
+};
 
-async function fetchAppSettings(abortController) {
-  const res = await getJSON(
-    "/api/settings/application",
-    abortController?.signal
-  );
+const [, setAppSettingsStore, useAppSettingsStore] = createGlobalStore(
+  appSettingsInitialState
+);
+
+async function fetchUserSettings(abortController) {
+  const res = await getJSON("/api/settings/user", abortController?.signal);
 
   if (!abortController.signal.aborted && res.ok) {
     const json = await res.json();
+
     setAppSettingsStore(
       appSettingsKeys.AuthenticationEnabled,
       json.authenticationEnabled
@@ -36,4 +38,9 @@ async function fetchAppSettings(abortController) {
   }
 }
 
-export { appSettingsKeys, useAppSettingsStore, fetchAppSettings };
+export {
+  appSettingsKeys,
+  appSettingsInitialState,
+  useAppSettingsStore,
+  fetchUserSettings,
+};

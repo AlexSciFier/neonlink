@@ -1,25 +1,29 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import Logo from "../../components/Logo";
-import { useIsloggedIn } from "../../context/isLoggedIn";
 import { BUTTON_BASE_CLASS } from "../../helpers/baseDesign";
 import { postJSON } from "../../helpers/fetch";
 import { useEffect } from "react";
-import { useAppSettings } from "../../context/settings/appSettings";
+import { appSettingsKeys, useAppSettingsStore } from "../../stores/appSettingsStore";
+import { fetchCurrentUser, userCurrentKeys, useUserCurrentStore } from "../../stores/userCurrentStore";
 
 export default function LoginPage() {
+
+  const [ authenticationEnabled, ] = useAppSettingsStore(appSettingsKeys.AuthenticationEnabled);
+  const [ forceRegistration, ] = useAppSettingsStore(appSettingsKeys.forceRegistration);
+  const [ authenticated, ] = useUserCurrentStore(userCurrentKeys.Authenticated); 
+
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
 
   const [error, setError] = useState();
-  const { setProfile, needRegistration } = useIsloggedIn();
-  const { authenticationEnabled } = useAppSettings();
 
   const navigate = useNavigate();
   useEffect(() => {
-    if (authenticationEnabled === false) navigate("/");
-    if (needRegistration) navigate("/registration");
-  }, [needRegistration, authenticationEnabled]);
+    if (forceRegistration) navigate("/registration");
+    if (authenticated === true || authenticationEnabled === false) navigate("/");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticated, forceRegistration, authenticationEnabled]);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -31,12 +35,11 @@ export default function LoginPage() {
 
     try {
       let res = await postJSON("/api/users/login", { username, password });
-      let resData = await res.json();
       if (res.ok) {
-        setProfile(resData);
+        await fetchCurrentUser();
         navigate("/");
       } else {
-        setError(resData);
+        setError(res.json());
       }
     } catch (err) {
       setError({ message: err.message });

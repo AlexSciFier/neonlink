@@ -30,7 +30,7 @@ export async function requestContextHandler(request, reply) {
     authenticated: user.id != 0,
     sessionId: sessionId,
     userId: user.id,
-    username: user.username,
+    userName: user.username,
     isAdmin: user.isAdmin === true,
   });
 }
@@ -47,9 +47,9 @@ export function requireSession(
     if (!allowAuthenticationDisabled && !authenticationEnabled)
       throw reply.unauthorized("Authentication must be enabled.");
     else if (authenticationEnabled) {
-      if (!appContext.hasAnyUser) 
+      if (!appContext.hasAnyUser)
         throw reply.notFound("No users is registred.");
-      if (!appContext.hasAdminUser) 
+      if (!appContext.hasAdminUser)
         throw reply.notFound("No admin users is registred.");
       const session = appContext.request.get(appRequestsKeys.Session);
       if (requireAuthenticatedUser && !session.authenticated)

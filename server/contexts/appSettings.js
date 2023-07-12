@@ -4,16 +4,16 @@ import { readFileContent, saveFileContent } from "../helpers/fileSystem.js";
 const defaultSettings = {
   authenticationEnabled: true,
   sessionLengthInDays: 60,
-  userRegistrationEnabled: true
-}
+  userRegistrationEnabled: true,
+};
 
 let currentSettings = structuredClone(defaultSettings);
 
 export const appSettingsKeys = {
   AuthenticationEnabled: "authenticationEnabled",
   SessionLengthInDays: "sessionLengthInDays",
-  UserRegistrationEnabled: "userRegistrationEnabled"
-}
+  UserRegistrationEnabled: "userRegistrationEnabled",
+};
 
 export class AppSettings {
   constructor(settingsPath) {
@@ -31,12 +31,15 @@ export class AppSettings {
 
   async load() {
     const fileContent = await readFileContent(this.settingsPath);
-    currentSettings = JSON.parse(fileContent);
+    currentSettings = Object.assign(
+      structuredClone(defaultSettings),
+      JSON.parse(fileContent)
+    );
   }
 
   async save() {
     const directory = fs.extractDirectory(this.settingsPath);
-    const filename = fs.parsePath(this.settingsPath).basename; 
+    const filename = fs.parsePath(this.settingsPath).basename;
     await saveFileContent(directory, filename, JSON.stringify(currentSettings));
     console.log("Settings saved.");
   }

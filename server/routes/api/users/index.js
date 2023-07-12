@@ -2,7 +2,6 @@ import { requireVisitor, requireSession } from "../../../logics/handlers.js";
 import {
   createUser,
   isPasswordValid,
-  loadUserSettings,
   loginUser,
   logoutUser,
   setSessionCookie,
@@ -24,6 +23,38 @@ const settingsFields = {
 };
 
 export default async function (fastify, opts) {
+  fastify.get(
+    "/me",
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              id: { type: "number" },
+              username: { type: "string" },
+              isAdmin: { type: "number" },
+              hasAnyUser: { type: "boolean" },
+              hasAnyAdmin: { type: "boolean" },
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const authEnabled = appContext.settings.get(
+        appSettingsKeys.AuthenticationEnabled
+      );
+      const session = appContext.request.get(appRequestsKeys.Session);
+      return {
+        authenticated: session.authenticated,
+        id: session.userId,
+        username: session.userName,
+        isAdmin: session.isAdmin,
+      };
+    }
+  );
+
   fastify.post(
     "/",
     {
@@ -34,9 +65,9 @@ export default async function (fastify, opts) {
           properties: {
             username: { type: "string" },
             password: { type: "string" },
-          }
-        }
-      }
+          },
+        },
+      },
     },
     function (request) {
       let { username, password } = request.body;
@@ -46,14 +77,13 @@ export default async function (fastify, opts) {
         throw fastify.httpErrors.notAcceptable("This username already exist");
       if (appContext.hasAdminUser) {
         return createUser(username, password, false);
-      }
-      else {
+      } else {
         const res = createUser(username, password, true);
         appContext.hasAnyUser = appContext.stores.users.countItems() > 0;
-        appContext.hasAdminUser = appContext.hasAnyUser && appContext.stores.users.countAdmins() > 0;
+        appContext.hasAdminUser =
+          appContext.hasAnyUser && appContext.stores.users.countAdmins() > 0;
         return res;
-      };
-      
+      }
     }
   );
 
@@ -69,9 +99,9 @@ export default async function (fastify, opts) {
             username: { type: "string" },
             currentPassword: { type: "string" },
             newPassword: { type: "string" },
-          }
-        }
-      }
+          },
+        },
+      },
     },
     async function (request) {
       let { currentPassword, newPassword } = request.body;
@@ -94,10 +124,11 @@ export default async function (fastify, opts) {
       const session = appContext.request.get(appRequestsKeys.Session);
       if (appContext.stores.users.deleteUser(session.sessionId)) {
         appContext.hasAnyUser = appContext.stores.users.countItems() > 0;
-        appContext.hasAdminUser = appContext.hasAnyUser && appContext.stores.users.countAdmins() > 0;
+        appContext.hasAdminUser =
+          appContext.hasAnyUser && appContext.stores.users.countAdmins() > 0;
         return { status: "OK" };
-      }
-      else throw fastify.httpErrors.notFound("User with this id is not found");
+      } else
+        throw fastify.httpErrors.notFound("User with this id is not found");
     }
   );
 
@@ -112,9 +143,9 @@ export default async function (fastify, opts) {
           properties: {
             username: { type: "string" },
             password: { type: "string" },
-          }
-        }
-      }
+          },
+        },
+      },
     },
     function (request, reply) {
       const { username, password } = request.body;

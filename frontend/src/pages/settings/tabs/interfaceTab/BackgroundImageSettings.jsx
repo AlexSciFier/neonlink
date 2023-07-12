@@ -2,7 +2,7 @@ import { CheckIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import Modal from "../../../../components/Modal";
-import { useUserSettings } from "../../../../context/settings/userSettings";
+import { userSettingsKeys, useUserSettingsStore } from "../../../../stores/userSettingsStore";
 import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
 import {
   deleteJSON,
@@ -14,7 +14,7 @@ import { fixBgUrl } from "../../../../helpers/url";
 const ENDPOINT = "/api/backgrounds";
 
 export default function BackgroundImageSettings() {
-  const { setBgUrl, bgUrl } = useUserSettings();
+  const [ bgUrl, setBgUrl ] = useUserSettingsStore(userSettingsKeys.BackgroundImage);
 
   const [images, setImages] = useState([]);
   const [selectedId, setSelectedId] = useState();

@@ -1,7 +1,7 @@
 import React from "react";
 import InputGroup from "../../components/inputGroup";
 import SwitchButton from "../../components/SwitchButton";
-import { useUserSettings } from "../../../../context/settings/userSettings";
+import { userSettingsKeys, useUserSettingsStore } from "../../../../stores/userSettingsStore";
 import {
   CARD_HEADER_STYLE,
   CARD_VERTICAL_ALIGMENT,
@@ -21,23 +21,16 @@ import {
 import BackgroundImageSettings from "./BackgroundImageSettings";
 
 export default function InterfaceTab() {
+  const [ useImageAsBg, setUseImageAsBg ] = useUserSettingsStore(userSettingsKeys.UseBackgroundgImage);
+  const [ cardHeaderStyle, setCardHeaderStyle ] = useUserSettingsStore(userSettingsKeys.CardHeaderStyle);
+  const [ openLinkInNewTab, setOpenLinkInNewTab ] = useUserSettingsStore(userSettingsKeys.OpenLinkInNewTab);
+  const [ useNeonShadow, setUseNeonShadow ] = useUserSettingsStore(userSettingsKeys.UseNeonShadows);
+  const [ cardVerticalAligment, setCardVerticalAligment ] = useUserSettingsStore(userSettingsKeys.CardVerticalAligment);
+  const [ columns, setColumns ] = useUserSettingsStore(userSettingsKeys.Columns);
+  const [ maxItemsInList, setMaxItemsInList ] = useUserSettingsStore(userSettingsKeys.MaxItemsInLinks);
   const {
     theme,
     setTheme,
-    useImageAsBg,
-    cardHeaderStyle,
-    openLinkInNewTab,
-    useNeonShadow,
-    cardVerticalAligment,
-    columns,
-    maxItemsInList,
-    setUseImageAsBg,
-    setCardHeaderStyle,
-    setOpenLinkInNewTab,
-    setUseNeonShadow,
-    setCardVerticalAligment,
-    setColumns,
-    setMaxItemsInList,
   } = useUserSettings();
 
   function changeTheme(e) {

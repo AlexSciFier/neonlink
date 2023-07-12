@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router";
 import NavBar from "./NavBar";
-import { useIsloggedIn } from "../context/isLoggedIn";
-import { useAppSettings } from "../context/settings/appSettings";
+import { useUserCurrentStore, userCurrentKeys } from "../stores/userCurrentStore";
+import { appSettingsKeys, useAppSettingsStore } from "../stores/appSettingsStore";
 
 const Dashboard = React.lazy(() => import("../pages/dashboard"));
 const NotFound = React.lazy(() => import("../pages/notFound"));
@@ -20,17 +20,19 @@ const routes = [
 ];
 
 export default function PrivateWrapper() {
-  const { profile, needRegistration } = useIsloggedIn();
-  const { authenticationEnabled } = useAppSettings();
+  const [ authenticationEnabled, ] = useAppSettingsStore(appSettingsKeys.AuthenticationEnabled);
+  const [ forceRegistration, ] = useAppSettingsStore(appSettingsKeys.forceRegistration);
+  const [ authenticated, ] = useUserCurrentStore(userCurrentKeys.Authenticated); 
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (needRegistration) navigate("/register");
-    else if (authenticationEnabled && profile.id === 0) navigate("/login");
-    else if (profile) navigate("/");
+    if (forceRegistration) navigate("/register");
+    else if (authenticationEnabled && !authenticated) navigate("/login");
+    else if (authenticated) navigate("/");
     else navigate("/login");
-  }, [needRegistration, profile]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticated, authenticationEnabled, forceRegistration]);
 
   return (
     <>

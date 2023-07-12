@@ -1,11 +1,13 @@
 import React from "react";
 import NavBar from "../../components/NavBar";
 import GroupList from "./components/groupList";
-import { useUserSettings } from "../../context/settings/userSettings";
+import { userSettingsKeys, useUserSettingsStore } from "../../stores/userSettingsStore";
 import { fixBgUrl } from "../../helpers/url";
 
 export default function Dashboard() {
-  const { bgUrl, cardVerticalAligment, useImageAsBg } = useUserSettings();
+  const [ useImageAsBg ] = useUserSettingsStore(userSettingsKeys.UseBackgroundgImage);
+  const [ cardVerticalAligment ] = useUserSettingsStore(userSettingsKeys.CardVerticalAligment);
+  const [ bgUrl ] = useUserSettingsStore(userSettingsKeys.BackgroundImage);
   let aligmentClass = "";
   switch (cardVerticalAligment) {
     case "top":

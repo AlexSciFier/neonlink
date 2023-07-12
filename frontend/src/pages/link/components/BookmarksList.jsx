@@ -6,11 +6,11 @@ import SceletalBokmarkList from "./SceletalBokmarkList";
 import { useSearchParams } from "react-router-dom";
 import { useBookMarkList } from "../../../context/bookmarkList";
 import NoBookmarks from "./NoBookmarks";
-import { useUserSettings } from "../../../context/settings/userSettings";
+import { userSettingsKeys, useUserSettingsStore } from "../../../stores/userSettingsStore";
 
 export default function BookmarksList() {
   const [searchParams] = useSearchParams();
-  const { maxItemsInList } = useUserSettings();
+  const [ maxItemsInList ] = useUserSettingsStore(userSettingsKeys.MaxItemsInLinks);
   const {
     bookmarkList,
     currentPage,

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { postJSON } from "../../helpers/fetch";
 import { useNavigate } from "react-router-dom";
-import { useIsloggedIn } from "../../context/isLoggedIn";
 import Logo from "../../components/Logo";
 import { BUTTON_BASE_CLASS } from "../../helpers/baseDesign";
+import { appSettingsKeys, useAppSettingsStore, fetchAppSettings } from "../../stores/appSettingsStore";
+import { userCurrentKeys, useUserCurrentStore } from "../../stores/userCurrentStore";
 
 export default function RegisterPage() {
-  let { needRegistration, setNeedRegistration } = useIsloggedIn();
+  const [ registrationEnabled, ] = useAppSettingsStore(appSettingsKeys.RegistrationEnabled);
+  const [ authenticated, ] = useUserCurrentStore(userCurrentKeys.Authenticated); 
+
   const [formData, setFormData] = useState({
     login: "",
     password: "",
@@ -18,8 +21,9 @@ export default function RegisterPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (needRegistration === false) navigate("/");
-  }, [needRegistration]);
+    if (authenticated === true || registrationEnabled === false) navigate("/");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticated, registrationEnabled]);
 
   useEffect(() => {
     setIsFormValid(
@@ -38,7 +42,7 @@ export default function RegisterPage() {
         password: formData.password,
       });
       if (res.ok) {
-        setNeedRegistration(false);
+        await fetchAppSettings();
         navigate("/login");
       } else {
         let json = await res.json();
