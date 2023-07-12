@@ -27,6 +27,14 @@ export default async function (fastify, opts) {
           appContext.settings.set(appSettingsKeys.AuthenticationEnabled, Boolean(request.body.authenticationEnabled));
           settingsChanged = true;
         }
+        if(request.body?.sessionLengthInDays !== undefined){
+          appContext.settings.set(appSettingsKeys.SessionLengthInDays, request.body.sessionLengthInDays || 60)
+          settingsChanged = true;
+        }
+        if(request.body?.userRegistrationEnabled !== undefined){
+          appContext.settings.set(appSettingsKeys.UserRegistrationEnabled, Boolean(request.body.userRegistrationEnabled) || false)
+          settingsChanged = true;
+        }
       }
       if (settingsChanged) {
         await appContext.settings.save();
@@ -42,7 +50,7 @@ export default async function (fastify, opts) {
   fastify.get(
     "/",
     {
-      requireSession: (true, false, false),
+      preHandler: requireSession(true, false, false),
       schema: {
         response: {
           200: {
