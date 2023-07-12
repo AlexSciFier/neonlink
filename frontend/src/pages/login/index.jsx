@@ -4,15 +4,22 @@ import Logo from "../../components/Logo";
 import { useIsloggedIn } from "../../context/isLoggedIn";
 import { BUTTON_BASE_CLASS } from "../../helpers/baseDesign";
 import { postJSON } from "../../helpers/fetch";
+import { useEffect } from "react";
+import { useAppSettings } from "../../context/settings/appSettings";
 
 export default function LoginPage() {
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
 
   const [error, setError] = useState();
-  const { setProfile } = useIsloggedIn();
+  const { setProfile, needRegistration } = useIsloggedIn();
+  const { authenticationEnabled } = useAppSettings();
 
   const navigate = useNavigate();
+  useEffect(() => {
+    if (authenticationEnabled === false) navigate("/");
+    if (needRegistration) navigate("/registration");
+  }, [needRegistration, authenticationEnabled]);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();

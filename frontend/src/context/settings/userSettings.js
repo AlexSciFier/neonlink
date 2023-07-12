@@ -42,13 +42,11 @@ export const UserSettingsProvider = ({ initialTheme, children }) => {
 
   const [theme, setTheme] = useState(lSTheme);
 
-  const abortController = useRef(null);
-
   const [useImageAsBg, setUseImageAsBg] = useLocalStorage(
     "use-image-as-bg",
     profile?.useBgImage || false
   );
-  const [bgUrl, setBgUrl] = useLocalStorage("bg-url",profile?.bgImage || "");
+  const [bgUrl, setBgUrl] = useLocalStorage("bg-url", profile?.bgImage || "");
   const [cardHeaderStyle, setCardHeaderStyle] = useLocalStorage(
     "card-header-style",
     profile?.cardStyle || CARD_HEADER_STYLE[0]
@@ -73,51 +71,6 @@ export const UserSettingsProvider = ({ initialTheme, children }) => {
     "max-items-in-list",
     profile?.maxNumberOfLinks || DEF_MAX_ITEMS
   );
-
-  useEffect(() => {
-    if (syncSettings) {
-      setBgUrl(profile?.bgImage);
-      setUseImageAsBg(profile?.useBgImage);
-      setCardHeaderStyle(profile?.cardStyle);
-      setOpenLinkInNewTab(profile?.linkInNewTab);
-      setUseNeonShadow(profile?.enableNeonShadows);
-      setCardVerticalAligment(profile?.cardPosition);
-      setColumns(profile?.columns);
-      setMaxItemsInList(profile?.maxNumberOfLinks);
-    }
-  }, [profile, syncSettings]);
-
-  useEffect(() => {
-    abortController.current = new AbortController();
-    if (syncSettings) {
-      postJSON(
-        "/api/settings/user",
-        {
-          bgImage: bgUrl,
-          useBgImage: useImageAsBg,
-          cardStyle: cardHeaderStyle,
-          linkInNewTab: openLinkInNewTab,
-          enableNeonShadows: useNeonShadow,
-          cardPosition: cardVerticalAligment,
-          columns: columns,
-          maxNumberOfLinks: maxItemsInList,
-        },
-        abortController.current.signal
-      );
-    }
-    return () => {
-      abortController.current.abort();
-    };
-  }, [
-    bgUrl,
-    cardHeaderStyle,
-    cardVerticalAligment,
-    columns,
-    maxItemsInList,
-    openLinkInNewTab,
-    useImageAsBg,
-    useNeonShadow,
-  ]);
 
   const rawSetTheme = (rawTheme) => {
     const root = window.document.documentElement;

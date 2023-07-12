@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "dev": "fastify start -a \"0.0.0.0\" -w --ignore-watch='data/bookmarks.sqlite' --body-limit 5242880 -l info -P app.js",
+    "dev": "fastify start -a \"0.0.0.0\" -w --ignore-watch='data' --body-limit 5242880 -l info -P app.js",
     "pretty": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\""
   },
   "keywords": [],

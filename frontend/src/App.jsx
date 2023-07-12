@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useAppSettings } from "./context/settings/appSettings";
 import { useIsloggedIn } from "./context/isLoggedIn";
 import React, { useEffect } from "react";
-import { getJSON } from "./helpers/fetch";
 import { APP_NAME } from "./helpers/constants";
 import PrivateWrapper from "./components/PrivateWrapper";
 
@@ -11,43 +10,22 @@ const RegisterPage = React.lazy(() => import("./pages/register"));
 const LoginPage = React.lazy(() => import("./pages/login"));
 
 function App() {
-  let { authenticationEnabled } = useAppSettings();
+  let { settingsError, fetchSettings } = useAppSettings();
 
-  let {
-    setIsProfileLoading,
-    isProfileLoading,
-    setProfile,
-    setNeedRegistration,
-  } = useIsloggedIn();
+  let { isProfileLoading, fetchProfile, setNeedRegistration } = useIsloggedIn();
 
   useEffect(() => {
-    async function fetchProfile() {
-      setIsProfileLoading(true);
-      var res;
-      setNeedRegistration(false);
-      try {
-        res = await getJSON("/api/users/me");
-      } catch (error) {
-        setProfile(undefined);
-        setIsProfileLoading(false);
-      }
-
-      if (res.ok) {
-        setProfile(await res.json());
-        setIsProfileLoading(false);
-      } else {
-        if (res.status === 404) {
-          setNeedRegistration(true);
-        }
-        setProfile(undefined);
-        setIsProfileLoading(false);
-      }
-    }
-    if (authenticationEnabled) {
-      fetchProfile();
-    }
+    fetchSettings();
     document.title = APP_NAME;
   }, []);
+
+  useEffect(() => {
+    if (settingsError) {
+      setNeedRegistration(true);
+    } else {
+      fetchProfile();
+    }
+  }, [settingsError]);
 
   if (isProfileLoading) return <LoadScreen />;
 

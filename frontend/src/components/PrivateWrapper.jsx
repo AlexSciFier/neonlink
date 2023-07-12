@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router";
 import NavBar from "./NavBar";
 import { useIsloggedIn } from "../context/isLoggedIn";
+import { useAppSettings } from "../context/settings/appSettings";
 
 const Dashboard = React.lazy(() => import("../pages/dashboard"));
 const NotFound = React.lazy(() => import("../pages/notFound"));
@@ -20,13 +21,14 @@ const routes = [
 
 export default function PrivateWrapper() {
   const { profile, needRegistration } = useIsloggedIn();
+  const { authenticationEnabled } = useAppSettings();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log({ profile, needRegistration });
-    if (profile) navigate("/");
-    else if (needRegistration) navigate("/register");
+    if (needRegistration) navigate("/register");
+    else if (authenticationEnabled && profile.id === 0) navigate("/login");
+    else if (profile) navigate("/");
     else navigate("/login");
   }, [needRegistration, profile]);
 

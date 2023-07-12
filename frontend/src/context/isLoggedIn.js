@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { putJSON } from "../helpers/fetch";
+import { getJSON, putJSON } from "../helpers/fetch";
 
 const IsloggedIn = createContext();
 
@@ -22,6 +22,29 @@ export function IsLoggedInProvider({ children }) {
     return res.ok;
   }
 
+  async function fetchProfile() {
+    setIsProfileLoading(true);
+    var res;
+    setNeedRegistration(false);
+    try {
+      res = await getJSON("/api/users/me");
+    } catch (error) {
+      setProfile(undefined);
+      setIsProfileLoading(false);
+    }
+
+    if (res.ok) {
+      setProfile(await res.json());
+      setIsProfileLoading(false);
+    } else {
+      if (res.status === 404) {
+        setNeedRegistration(true);
+      }
+      setProfile(undefined);
+      setIsProfileLoading(false);
+    }
+  }
+
   return (
     <IsloggedIn.Provider
       value={{
@@ -34,6 +57,7 @@ export function IsLoggedInProvider({ children }) {
         setIsProfileLoading,
         changePassword,
         setNeedRegistration,
+        fetchProfile,
       }}
     >
       {children}
