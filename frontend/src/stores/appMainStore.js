@@ -2,7 +2,7 @@ import { createGlobalStore } from "../hooks/useGlobalStore";
 
 const appMainStoreKeys = {
   AppName: "appName",
-  IsErrored: false,
+  IsErrored: "isErrored",
   IsLoading: "isLoading",
 };
 

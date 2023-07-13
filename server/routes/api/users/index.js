@@ -31,11 +31,10 @@ export default async function (fastify, opts) {
           200: {
             type: "object",
             properties: {
+              authenticated: { type: "boolean" },
               id: { type: "number" },
               username: { type: "string" },
               isAdmin: { type: "number" },
-              hasAnyUser: { type: "boolean" },
-              hasAnyAdmin: { type: "boolean" },
             },
           },
         },

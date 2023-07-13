@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const createEmitter = (key) => {
+const createEmitter = () => {
   const subscriptions = new Map();
   return {
     emit: (v) => subscriptions.forEach((fn) => fn(v)),
@@ -38,16 +38,30 @@ export const createGlobalStore = (initialState, browserStorageMapOrFunc) => {
   };
 
   let globalState = Object.fromEntries(
-    Object.keys(initialState).foreach((key) => [key, initState(key)])
+    Object.keys(initialState).map((key) => [key, initState(key)])
   );
 
   const emitters = Object.fromEntries(
-    Object.keys(initialState).map((key) => [key, createEmitter(key)])
+    Object.keys(initialState).map((key) => [key, createEmitter()])
   );
 
-  const getGlobalState = (key) => globalState[key];
+  const getGlobalState = (key) => {
+    if (!globalState.hasOwnProperty(key)) {
+      throw new Error(
+        `Failed getGlobalState: This store doesn't have a key named ${key}`
+      );
+    }
+
+    return globalState[key];
+  };
 
   const setGlobalState = (key, nextValue) => {
+    if (!globalState.hasOwnProperty(key)) {
+      throw new Error(
+        `Failed setGlobalState: This store doesn't have a key named ${key}`
+      );
+    }
+
     const currentValue = getGlobalState(key);
     if (typeof nextValue === "function") {
       nextValue = nextValue(currentValue);
@@ -70,6 +84,12 @@ export const createGlobalStore = (initialState, browserStorageMapOrFunc) => {
   };
 
   const useGlobalState = (key) => {
+    if (!globalState.hasOwnProperty(key)) {
+      throw new Error(
+        `Failed useGlobalState: This store doesn't have a key named ${key}`
+      );
+    }
+
     const [state, setState] = useState(getGlobalState(key));
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => emitters[key].subscribe(setState));

@@ -21,7 +21,7 @@ const routes = [
 
 export default function PrivateWrapper() {
   const [ authenticationEnabled, ] = useAppSettingsStore(appSettingsKeys.AuthenticationEnabled);
-  const [ forceRegistration, ] = useAppSettingsStore(appSettingsKeys.forceRegistration);
+  const [ forceRegistration, ] = useAppSettingsStore(appSettingsKeys.ForceRegistration);
   const [ authenticated, ] = useUserCurrentStore(userCurrentKeys.Authenticated); 
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -29,8 +29,7 @@ export default function PrivateWrapper() {
   useEffect(() => {
     if (forceRegistration) navigate("/register");
     else if (authenticationEnabled && !authenticated) navigate("/login");
-    else if (authenticated) navigate("/");
-    else navigate("/login");
+    else navigate("/");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated, authenticationEnabled, forceRegistration]);
 

@@ -10,7 +10,7 @@ import { fetchCurrentUser, userCurrentKeys, useUserCurrentStore } from "../../st
 export default function LoginPage() {
 
   const [ authenticationEnabled, ] = useAppSettingsStore(appSettingsKeys.AuthenticationEnabled);
-  const [ forceRegistration, ] = useAppSettingsStore(appSettingsKeys.forceRegistration);
+  const [ forceRegistration, ] = useAppSettingsStore(appSettingsKeys.ForceRegistration);
   const [ authenticated, ] = useUserCurrentStore(userCurrentKeys.Authenticated); 
 
   const usernameRef = useRef(null);

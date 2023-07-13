@@ -1,26 +1,30 @@
 import { createGlobalStore } from "../hooks/useGlobalStore";
-import { getJSON } from "../helpers/fetch";
+import { getJSON, postJSON } from "../helpers/fetch";
 
 const appSettingsKeys = {
   AuthenticationEnabled: "authenticationEnabled",
   RegistrationEnabled: "registrationEnabled",
   SessionLengthInDays: "sessionLengthInDays",
+  ForceRegistration: "forceRegistration",
 };
 
 const appSettingsInitialState = {
   authenticationEnabled: true,
   registrationEnabled: true,
   sessionLengthInDays: 60,
+  forceRegistration: false,
 };
 
-const [, setAppSettingsStore, useAppSettingsStore] = createGlobalStore(
-  appSettingsInitialState
-);
+const [getAppSettingsStore, setAppSettingsStore, useAppSettingsStore] =
+  createGlobalStore(appSettingsInitialState);
 
-async function fetchUserSettings(abortController) {
-  const res = await getJSON("/api/settings/user", abortController?.signal);
+async function fetchAppSettings(abortController) {
+  const res = await getJSON(
+    "/api/settings/application",
+    abortController?.signal
+  );
 
-  if (!abortController.signal.aborted && res.ok) {
+  if (abortController?.signal?.aborted !== true && res.ok) {
     const json = await res.json();
 
     setAppSettingsStore(
@@ -35,12 +39,33 @@ async function fetchUserSettings(abortController) {
       appSettingsKeys.SessionLengthInDays,
       json.sessionLengthInDays
     );
+    setAppSettingsStore(
+      appSettingsKeys.ForceRegistration,
+      json.forceRegistration
+    );
   }
+}
+
+async function persistAppSettings() {
+  await postJSON("/api/settings/application", {
+    authenticationEnabled: getAppSettingsStore(
+      appSettingsKeys.AuthenticationEnabled
+    ),
+    registrationEnabled: getAppSettingsStore(
+      appSettingsKeys.RegistrationEnabled
+    ),
+    sessionLengthInDays: getAppSettingsStore(
+      appSettingsKeys.SessionLengthInDays
+    ),
+  });
 }
 
 export {
   appSettingsKeys,
   appSettingsInitialState,
+  getAppSettingsStore,
+  setAppSettingsStore,
   useAppSettingsStore,
-  fetchUserSettings,
+  fetchAppSettings,
+  persistAppSettings,
 };

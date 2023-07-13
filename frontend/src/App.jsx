@@ -3,15 +3,16 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import React, { useEffect } from "react";
 import PrivateWrapper from "./components/PrivateWrapper";
 import { appMainStoreKeys, appMainStoreInitialState, useAppMainStore } from "./stores/appMainStore";
-import { fetchAppSettings, fetchUserSettings } from "./stores/appSettingsStore";
+import { appSettingsKeys, fetchAppSettings, getAppSettingsStore } from "./stores/appSettingsStore";
 import { fetchCurrentUser } from "./stores/userCurrentStore";
+import { fetchUserSettings } from "./stores/userSettingsStore";
 
 const RegisterPage = React.lazy(() => import("./pages/register"));
 const LoginPage = React.lazy(() => import("./pages/login"));
 
 function App() {
-  let [ isErrored, setIsErrored ] = useAppMainStore(appMainStoreKeys.IsErrored);
-  let [ isLoading, setIsLoading ] = useAppMainStore(appMainStoreKeys.IsLoading);
+  const [ isErrored, setIsErrored ] = useAppMainStore(appMainStoreKeys.IsErrored);
+  const [ isLoading, setIsLoading ] = useAppMainStore(appMainStoreKeys.IsLoading);
 
   async function initialize() {
     setIsErrored(false);

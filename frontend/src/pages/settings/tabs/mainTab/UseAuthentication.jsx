@@ -1,37 +1,28 @@
 import React, { useState } from "react";
-import { useAppSettings } from "../../../../context/settings/appSettings";
 import InputItem from "../../components/inputItem";
 import SwitchButton from "../../components/SwitchButton";
 import KeyIcon from "@heroicons/react/24/outline/KeyIcon";
 import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
 import { CalendarDaysIcon } from "@heroicons/react/24/outline";
+import { appSettingsKeys, useAppSettingsStore, fetchAppSettings, persistAppSettings } from "../../../../stores/appSettingsStore";
 
 export default function UseAuthentication() {
-  let {
-    authenticationEnabled,
-    setAuthenticationEnabled,
-    sessionLengthInDays,
-    setSessionLengthInDays,
-    saveSettings,
-    fetchSettings,
-    settingsChanged,
-    setSettingsChanged,
-  } = useAppSettings();
+  const [ authenticationEnabled, setAuthenticationEnabled ] = useAppSettingsStore(appSettingsKeys.AuthenticationEnabled);
+  const [ sessionLengthInDays, setSessionLengthInDays ] = useAppSettingsStore(appSettingsKeys.SessionLengthInDays);
 
   async function saveChanges(e) {
     e.preventDefault();
-    await saveSettings();
-    setSettingsChanged(false);
+    await persistAppSettings();
   }
 
   async function undoChanges(e) {
     e.preventDefault();
-    await fetchSettings();
-    setSettingsChanged(false);
+    await fetchAppSettings();
   }
 
   return (
-    <form onChange={(e) => setSettingsChanged(true)}>
+    //TODO: something doesn't work here when switching authentication mode
+    <form>
       <InputItem
         title={"Authentication"}
         description={"Enable authentication screen"}

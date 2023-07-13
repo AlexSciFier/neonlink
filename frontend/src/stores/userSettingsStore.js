@@ -1,10 +1,10 @@
 import { createGlobalStore } from "../hooks/useGlobalStore";
 import { getUserCurrentStore, userCurrentKeys } from "./userCurrentStore";
 import { getJSON } from "../helpers/fetch";
+import { appSettingsKeys, getAppSettingsStore } from "./appSettingsStore";
 
 const userSettingsKeys = {
-  SyncSettings: "syncSettings",
-  LSTheme: "lSTheme",
+  Theme: "theme",
   MaxItemsInLinks: "maxItemsInLinks",
   OpenLinkInNewTab: "openLinkInNewTab",
   UseBackgroundgImage: "useBgImage",
@@ -16,8 +16,7 @@ const userSettingsKeys = {
 };
 
 const userSettingsInitialState = {
-  syncSettings: false,
-  lSTheme: getPreferedScheme(),
+  theme: getPreferedScheme(),
   maxItemsInLinks: 50,
   openLinkInNewTab: true,
   useBgImage: false,
@@ -29,8 +28,7 @@ const userSettingsInitialState = {
 };
 
 const userSettingsBrowserStorageMap = {
-  syncSettings: "sync-settings",
-  lSTheme: "theme-mode",
+  theme: "theme-mode",
   maxItemsInLinks: "max-items-in-list",
   openLinkInNewTab: "open-links-in-new-tab",
   useBgImage: "use-image-as-bg",
@@ -57,11 +55,15 @@ function getPreferedScheme() {
 }
 
 async function fetchUserSettings(abortController) {
-  if (!getUserCurrentStore(userCurrentKeys.Authenticated)) return;
+  const registrationEnabled = getAppSettingsStore(
+    appSettingsKeys.RegistrationEnabled
+  );
+  const authenticated = getUserCurrentStore(userCurrentKeys.Authenticated);
+  if (!registrationEnabled || !authenticated) return;
 
   const res = await getJSON("/api/settings/user", abortController?.signal);
 
-  if (!abortController.signal.aborted && res.ok) {
+  if (abortController?.signal?.aborted !== true && res.ok) {
     const json = await res.json();
     setUserSettingsStore(
       userSettingsKeys.maxNumberOfLinks,
@@ -83,27 +85,3 @@ async function fetchUserSettings(abortController) {
 }
 
 export { userSettingsKeys, useUserSettingsStore, fetchUserSettings };
-
-/*
-const [theme, setTheme] = useState(lSTheme);
-
-const rawSetTheme = (rawTheme) => {
-  const root = window.document.documentElement;
-  if (rawTheme === "dark") {
-    root.classList.add("dark");
-  } else {
-    root.classList.remove("dark");
-  }
-  setLSTheme(rawTheme);
-};
-
-if (initialTheme) {
-  rawSetTheme(initialTheme);
-}
-
-useEffect(() => {
-  rawSetTheme(theme);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [theme]);
-
-*/

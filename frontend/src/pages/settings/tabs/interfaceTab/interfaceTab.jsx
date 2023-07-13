@@ -19,6 +19,7 @@ import {
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
 import BackgroundImageSettings from "./BackgroundImageSettings";
+import { useThemeContext } from "../../../../components/ThemeContext";
 
 export default function InterfaceTab() {
   const [ useImageAsBg, setUseImageAsBg ] = useUserSettingsStore(userSettingsKeys.UseBackgroundgImage);
@@ -28,10 +29,7 @@ export default function InterfaceTab() {
   const [ cardVerticalAligment, setCardVerticalAligment ] = useUserSettingsStore(userSettingsKeys.CardVerticalAligment);
   const [ columns, setColumns ] = useUserSettingsStore(userSettingsKeys.Columns);
   const [ maxItemsInList, setMaxItemsInList ] = useUserSettingsStore(userSettingsKeys.MaxItemsInLinks);
-  const {
-    theme,
-    setTheme,
-  } = useUserSettings();
+  const { theme, setTheme } = useThemeContext();
 
   function changeTheme(e) {
     let isChecked = e.target.checked;

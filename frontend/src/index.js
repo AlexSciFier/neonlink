@@ -6,14 +6,17 @@ import "./fonts/Raleway-Medium.ttf";
 import "./fonts/Raleway-Regular.ttf";
 import App from "./App";
 import { CategoriesListProvider } from "./context/categoriesList";
+import { ThemeContextProvider } from "./components/ThemeContext";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
 
 root.render(
   <React.StrictMode>
-    <CategoriesListProvider>
-      <App />
-    </CategoriesListProvider>
+    <ThemeContextProvider>
+      <CategoriesListProvider>
+        <App />
+      </CategoriesListProvider>
+    </ThemeContextProvider>
   </React.StrictMode>
 );
