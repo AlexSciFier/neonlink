@@ -2,7 +2,6 @@ import { createGlobalStore } from "../hooks/useGlobalStore";
 import { getUserCurrentStore, userCurrentKeys } from "./userCurrentStore";
 import { getJSON } from "../helpers/fetch";
 import { appSettingsKeys, getAppSettingsStore } from "./appSettingsStore";
-import UserSettingsStore from "../../../server/db/sqlite/stores/userSettings";
 
 const userSettingsKeys = {
   Theme: "theme",
