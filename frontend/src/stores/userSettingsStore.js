@@ -2,6 +2,7 @@ import { createGlobalStore } from "../hooks/useGlobalStore";
 import { getUserCurrentStore, userCurrentKeys } from "./userCurrentStore";
 import { getJSON } from "../helpers/fetch";
 import { appSettingsKeys, getAppSettingsStore } from "./appSettingsStore";
+import UserSettingsStore from "../../../server/db/sqlite/stores/userSettings";
 
 const userSettingsKeys = {
   Theme: "theme",
@@ -39,10 +40,8 @@ const userSettingsBrowserStorageMap = {
   cardVerticalAligment: "card-vertical-aligment",
 };
 
-const [, setUserSettingsStore, useUserSettingsStore] = createGlobalStore(
-  userSettingsInitialState,
-  userSettingsBrowserStorageMap
-);
+const [getUserSettingsStore, setUserSettingsStore, useUserSettingsStore] =
+  createGlobalStore(userSettingsInitialState, userSettingsBrowserStorageMap);
 
 function getPreferedScheme() {
   if (
@@ -55,22 +54,23 @@ function getPreferedScheme() {
 }
 
 async function fetchUserSettings(abortController) {
-  const registrationEnabled = getAppSettingsStore(
-    appSettingsKeys.RegistrationEnabled
+  const authenticationEnabled = getAppSettingsStore(
+    appSettingsKeys.AuthenticationEnabled
   );
   const authenticated = getUserCurrentStore(userCurrentKeys.Authenticated);
-  if (!registrationEnabled || !authenticated) return;
+  if (!authenticationEnabled || !authenticated) return;
 
   const res = await getJSON("/api/settings/user", abortController?.signal);
 
   if (abortController?.signal?.aborted !== true && res.ok) {
     const json = await res.json();
     setUserSettingsStore(
-      userSettingsKeys.maxNumberOfLinks,
+      userSettingsKeys.MaxItemsInLinks,
       json.maxNumberOfLinks
     );
     setUserSettingsStore(userSettingsKeys.OpenLinkInNewTab, json.linkInNewTab);
     setUserSettingsStore(userSettingsKeys.UseBackgroundgImage, json.useBgImage);
+    setUserSettingsStore(userSettingsKeys.BackgroundImage, json.bgImage);
     setUserSettingsStore(userSettingsKeys.Columns, json.columns);
     setUserSettingsStore(userSettingsKeys.CardHeaderStyle, json.cardStyle);
     setUserSettingsStore(
@@ -84,4 +84,11 @@ async function fetchUserSettings(abortController) {
   }
 }
 
-export { userSettingsKeys, useUserSettingsStore, fetchUserSettings };
+export {
+  userSettingsKeys,
+  userSettingsInitialState,
+  getUserSettingsStore,
+  setUserSettingsStore,
+  useUserSettingsStore,
+  fetchUserSettings,
+};

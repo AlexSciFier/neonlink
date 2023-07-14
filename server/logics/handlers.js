@@ -16,13 +16,15 @@ export async function requestContextHandler(request, reply) {
     sessionId
   ) {
     const session = appContext.stores.userSessions.getItem(sessionId);
-    user = appContext.stores.users.getItem(session.userId);
-    // Session token renewal after a day
-    if (addDays(new Date(session.created), 1) < new Date()) {
-      sessionId = generateSessionId();
-      appContext.stores.userSessions.deleteItem(session.Id);
-      appContext.stores.userSessions.addItem(sessionId, user.id);
-      setSessionCookie(reply, sessionId);
+    if (session) {
+      user = appContext.stores.users.getItem(session.userId);
+      // Session token renewal after a day
+      if (addDays(new Date(session.created), 1) < new Date()) {
+        sessionId = generateSessionId();
+        appContext.stores.userSessions.deleteItem(session.Id);
+        appContext.stores.userSessions.addItem(sessionId, user.id);
+        setSessionCookie(reply, sessionId);
+      }
     }
   }
 
@@ -31,7 +33,7 @@ export async function requestContextHandler(request, reply) {
     sessionId: sessionId,
     userId: user.id,
     userName: user.username,
-    isAdmin: user.isAdmin === true,
+    isAdmin: user.isAdmin ? true : false,
   });
 }
 
@@ -47,10 +49,9 @@ export function requireSession(
     if (!allowAuthenticationDisabled && !authenticationEnabled)
       throw reply.unauthorized("Authentication must be enabled.");
     else if (authenticationEnabled) {
-      if (!appContext.hasAnyUser)
-        throw reply.notFound("No users is registred.");
+      if (!appContext.hasAnyUser) throw reply.notFound("No user is registred.");
       if (!appContext.hasAdminUser)
-        throw reply.notFound("No admin users is registred.");
+        throw reply.notFound("No admin user is registred.");
       const session = appContext.request.get(appRequestsKeys.Session);
       if (requireAuthenticatedUser && !session.authenticated)
         throw reply.unauthorized("Authenticated user required.");

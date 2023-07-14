@@ -12,6 +12,14 @@ const appMainStoreInitialState = {
   isLoading: true,
 };
 
-const [, , useAppMainStore] = createGlobalStore(appMainStoreInitialState);
+const [getAppMainStore, setAppMainStore, useAppMainStore] = createGlobalStore(
+  appMainStoreInitialState
+);
 
-export { appMainStoreKeys, appMainStoreInitialState, useAppMainStore };
+export {
+  appMainStoreKeys,
+  appMainStoreInitialState,
+  getAppMainStore,
+  setAppMainStore,
+  useAppMainStore,
+};

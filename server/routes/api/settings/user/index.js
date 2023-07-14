@@ -1,5 +1,6 @@
 import { requireSession } from "../../../../logics/handlers.js";
 import { appContext } from "../../../../contexts/appContext.js";
+import { appRequestsKeys } from "../../../../contexts/appRequests.js";
 
 const settingsFields = {
   maxNumberOfLinks: { type: "number" },
@@ -24,14 +25,16 @@ export default async function (fastify, opts) {
         },
       },
     },
-    async function (request, reply) {
-      let uuid = request.cookies.SSID;
-      let res = {};
+    function (request, reply) {
+      const session = appContext.request.get(appRequestsKeys.Session);
       for (const key in request.body) {
-        appContext.stores.userSettings.updateItem(uuid, key, request.body?.[key]);
-        res[key] = request.body?.[key];
+        appContext.stores.userSettings.updateItem(
+          session.userId,
+          key,
+          request.body?.[key]
+        );
       }
-      return res;
+      return true;
     }
   );
 
@@ -48,9 +51,9 @@ export default async function (fastify, opts) {
         },
       },
     },
-    async function (request, reply) {
-      let uuid = request.cookies.SSID;
-      return appContext.stores.userSettings.getItem(uuid);
+    function (request, reply) {
+      const session = appContext.request.get(appRequestsKeys.Session);
+      return appContext.stores.userSettings.getItem(session.userId);
     }
   );
 }

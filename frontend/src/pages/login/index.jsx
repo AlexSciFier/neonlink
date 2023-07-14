@@ -10,6 +10,7 @@ import { fetchCurrentUser, userCurrentKeys, useUserCurrentStore } from "../../st
 export default function LoginPage() {
 
   const [ authenticationEnabled, ] = useAppSettingsStore(appSettingsKeys.AuthenticationEnabled);
+  const [ registrationEnabled, ] = useAppSettingsStore(appSettingsKeys.RegistrationEnabled);
   const [ forceRegistration, ] = useAppSettingsStore(appSettingsKeys.ForceRegistration);
   const [ authenticated, ] = useUserCurrentStore(userCurrentKeys.Authenticated); 
 
@@ -46,6 +47,11 @@ export default function LoginPage() {
     }
   };
 
+  function RegisterLink() {
+    return (
+      <a href="void" onClick={ (e) => navigate('/register') }>Clich here to register.</a>);
+  }
+
   return (
     <div className="flex flex-col justify-center w-full h-full">
       <div className="flex justify-center">
@@ -71,6 +77,7 @@ export default function LoginPage() {
           >
             Login
           </button>
+          {registrationEnabled ? RegisterLink() : null }
         </form>
       </div>
     </div>

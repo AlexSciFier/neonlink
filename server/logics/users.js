@@ -5,7 +5,6 @@ import { addDays } from "../helpers/dates.js";
 import { encodePassword, comparePasswords } from "../helpers/security.js";
 import { randomUUID } from "crypto";
 
-
 export function createUser(username, clearPassword, isAdmin = false) {
   const hashedPassword = encodePassword(clearPassword);
   return appContext.stores.users.addItem(username, hashedPassword, isAdmin);
@@ -47,7 +46,12 @@ export function loginUser(username, clearPassword) {
   if (user && comparePasswords(clearPassword, user.passwordHash, user.salt)) {
     const sessionId = generateSessionId();
     appContext.stores.userSessions.addItem(sessionId, user.id);
-    return { sessionId, id: user.id, username: user.username, isAdmin: user.isAdmin };
+    return {
+      sessionId,
+      id: user.id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+    };
   }
   return null;
 }
@@ -82,7 +86,7 @@ export function setSessionCookie(reply, sessionId) {
 }
 
 export function updateIsAdmin(userId, isAdmin) {
-  appContext.stores.users.updateIsAdmin(userId, hashedPassword);
+  appContext.stores.users.updateIsAdmin(userId, isAdmin);
 }
 
 export function updatePassword(userId, clearPassword) {

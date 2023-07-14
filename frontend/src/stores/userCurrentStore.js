@@ -58,10 +58,10 @@ async function fetchCurrentUser(abortController) {
 }
 
 export {
-  getUserCurrentStore,
-  setUserCurrentStore,
   userCurrentKeys,
   userCurrentInitialState,
+  getUserCurrentStore,
+  setUserCurrentStore,
   useUserCurrentStore,
   fetchCurrentUser,
   changePassword,

@@ -12,7 +12,6 @@ export default async function (fastify, opts) {
           type: "object",
           properties: {
             authenticationEnabled: { type: "boolean" },
-            forceRegistration: { type: "boolean" },
             sessionLengthInDays: { type: "number" },
             userRegistrationEnabled: { type: "boolean" },
           },
@@ -51,18 +50,7 @@ export default async function (fastify, opts) {
       if (settingsChanged) {
         await appContext.settings.save();
       }
-      return {
-        authenticationEnabled: appContext.settings.get(
-          appSettingsKeys.AuthenticationEnabled
-        ),
-        forceRegistration: authEnabled && !appContext.hasAdminUser,
-        sessionLengthInDays: appContext.settings.get(
-          appSettingsKeys.SessionLengthInDays
-        ),
-        userRegistrationEnabled: appContext.settings.get(
-          appSettingsKeys.UserRegistrationEnabled
-        ),
-      };
+      return true;
     }
   );
 
@@ -78,6 +66,7 @@ export default async function (fastify, opts) {
               authenticationEnabled: { type: "boolean" },
               sessionLengthInDays: { type: "number" },
               userRegistrationEnabled: { type: "boolean" },
+              forceRegistration: { type: "boolean" },
             },
           },
         },
@@ -94,6 +83,9 @@ export default async function (fastify, opts) {
         userRegistrationEnabled: appContext.settings.get(
           appSettingsKeys.UserRegistrationEnabled
         ),
+        forceRegistration:
+          appContext.settings.get(appSettingsKeys.AuthenticationEnabled) &&
+          !appContext.hasAdminUser,
       };
     }
   );

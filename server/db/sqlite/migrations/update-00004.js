@@ -14,7 +14,7 @@ export default async function (db) {
       LEFT JOIN users ON users.uuid = userSettings.uuid`;
     const dropQuery = `DROP TABLE userSettings`;
     const createQuery = `CREATE TABLE userSettings (
-      id TEXT PRIMARY KEY,
+      id INTEGER PRIMARY KEY,
       maxNumberOfLinks INTEGER,
       linkInNewTab INTEGER,
       useBgImage INTEGER,

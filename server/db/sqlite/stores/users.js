@@ -1,7 +1,7 @@
 export default class UsersStore {
   constructor(sqliteInstance) {
     this.db = sqliteInstance;
-  } 
+  }
 
   addItem(username, hashedPassword, isAdmin) {
     const insertQuery = `INSERT INTO users (username, passwordhash, salt, isAdmin) VALUES (?,?,?,?)`;
@@ -43,11 +43,11 @@ export default class UsersStore {
     return this.db.prepare(selectQuery).get(username);
   }
 
-  updateIsAdmin(userId, isAdmin) {
-    const updateQuery = `UPDATE users SET isAdmin=isAdmin WHERE id=:id`;
+  updateIsAdmin(id, isAdmin) {
+    const updateQuery = `UPDATE users SET isAdmin=:isAdmin WHERE id=:id`;
     this.db.prepare(updateQuery).run({
-      id: userId,
-      isAdmin: Boolean(isAdmin)
+      id,
+      isAdmin: Number(isAdmin),
     });
   }
 

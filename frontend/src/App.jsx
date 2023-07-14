@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import React, { useEffect } from "react";
 import PrivateWrapper from "./components/PrivateWrapper";
 import { appMainStoreKeys, appMainStoreInitialState, useAppMainStore } from "./stores/appMainStore";
-import { appSettingsKeys, fetchAppSettings, getAppSettingsStore } from "./stores/appSettingsStore";
+import { fetchAppSettings } from "./stores/appSettingsStore";
 import { fetchCurrentUser } from "./stores/userCurrentStore";
 import { fetchUserSettings } from "./stores/userSettingsStore";
 

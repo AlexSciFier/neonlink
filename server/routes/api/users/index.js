@@ -34,7 +34,7 @@ export default async function (fastify, opts) {
               authenticated: { type: "boolean" },
               id: { type: "number" },
               username: { type: "string" },
-              isAdmin: { type: "number" },
+              isAdmin: { type: "boolean" },
             },
           },
         },

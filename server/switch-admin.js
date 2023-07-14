@@ -9,7 +9,7 @@ const databaseManager = await initializeDatabase();
 
 const username = argv[2];
 
-function switchAdmin(username, password) {
+function switchAdmin(username) {
   if (username === undefined) {
     console.error(
       "Username not set. Specify the username as the first argument. ex: npm run switch-admin username password"
@@ -28,6 +28,6 @@ function switchAdmin(username, password) {
   console.log(`Admin flag changed to ${!user.isAdmin}!`);
 }
 
-switchAdmin(username, password);
+switchAdmin(username);
 
 databaseManager.close();
