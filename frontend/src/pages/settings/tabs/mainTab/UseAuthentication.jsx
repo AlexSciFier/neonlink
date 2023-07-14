@@ -8,8 +8,8 @@ import { appSettingsKeys, useAppSettingsStore, persistAppSettings } from "../../
 
 export default function UseAuthentication() {
   const [ authenticationEnabled, setAuthenticationEnabled ] = useAppSettingsStore(appSettingsKeys.AuthenticationEnabled);
-  const [ sessionLengthInDays, setSessionLengthInDays ] = useAppSettingsStore(appSettingsKeys.SessionLengthInDays);
   const [ registrationEnabled, setRegistrationEnabled ] = useAppSettingsStore(appSettingsKeys.RegistrationEnabled);
+  const [ sessionLengthInDays, setSessionLengthInDays ] = useAppSettingsStore(appSettingsKeys.SessionLengthInDays);
   const [ settingsChanged, setSettingsChanged ] = useState(false);
 
   const [ localAuthenticationEnabled, setLocalAuthenticationEnabled ] = useState(authenticationEnabled);
@@ -48,6 +48,19 @@ export default function UseAuthentication() {
           />
         }
       />
+      <InputItem onChange={(e) => setSettingsChanged(true)}
+        title={"Registration"}
+        description={"Enable registration screen (authentication required)"}
+        icon={<KeyIcon />}
+        input={
+          <SwitchButton
+            id={"registrationEnabled"}
+            name={"registrationEnabled"}
+            checked={localRegistrationEnabled}
+            onChange={(e) => setLocalRegistrationEnabled(e.target.checked)}
+          />
+        }
+      />
       <InputItem onChange={(e) => setSettingsChanged(true)} 
         title={"Session duration"}
         description={"Days before session expires"}
@@ -61,19 +74,6 @@ export default function UseAuthentication() {
             name="sessionLengthInDays"
             className="rounded border w-full focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
           ></input>
-        }
-      />
-      <InputItem onChange={(e) => setSettingsChanged(true)}
-        title={"Registration"}
-        description={"Enable registration screen (only works with authentication enabled)"}
-        icon={<KeyIcon />}
-        input={
-          <SwitchButton
-            id={"registrationEnabled"}
-            name={"registrationEnabled"}
-            checked={localRegistrationEnabled}
-            onChange={(e) => setLocalRegistrationEnabled(e.target.checked)}
-          />
         }
       />
       {settingsChanged && (
