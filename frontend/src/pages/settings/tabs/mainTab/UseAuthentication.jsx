@@ -34,8 +34,8 @@ export default function UseAuthentication() {
   }
 
   return (
-    <form>
-      <InputItem onChange={(e) => setSettingsChanged(true)}
+    <form onChange={(e) => setSettingsChanged(true)}> 
+      <InputItem
         title={"Authentication"}
         description={"Enable authentication screen"}
         icon={<KeyIcon />}
@@ -48,7 +48,7 @@ export default function UseAuthentication() {
           />
         }
       />
-      <InputItem onChange={(e) => setSettingsChanged(true)}
+      <InputItem
         title={"Registration"}
         description={"Enable registration screen (authentication required)"}
         icon={<KeyIcon />}
@@ -61,7 +61,7 @@ export default function UseAuthentication() {
           />
         }
       />
-      <InputItem onChange={(e) => setSettingsChanged(true)} 
+      <InputItem
         title={"Session duration"}
         description={"Days before session expires"}
         icon={<CalendarDaysIcon />}
