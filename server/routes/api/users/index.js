@@ -70,7 +70,7 @@ export default async function (fastify, opts) {
     },
     function (request) {
       let { username, password } = request.body;
-      if (!appContext.settings.get(appSettingsKeys.UserRegistrationEnabled))
+      if (!appContext.settings.get(appSettingsKeys.RegistrationEnabled))
         throw fastify.httpErrors.notAcceptable("User registration disabled.");
       if (appContext.stores.users.checkWhetherUserExists(username))
         throw fastify.httpErrors.notAcceptable("This username already exist");

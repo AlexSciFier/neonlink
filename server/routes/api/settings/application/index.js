@@ -13,7 +13,7 @@ export default async function (fastify, opts) {
           properties: {
             authenticationEnabled: { type: "boolean" },
             sessionLengthInDays: { type: "number" },
-            userRegistrationEnabled: { type: "boolean" },
+            registrationEnabled: { type: "boolean" },
           },
         },
       },
@@ -39,10 +39,10 @@ export default async function (fastify, opts) {
           );
           settingsChanged = true;
         }
-        if (request.body?.userRegistrationEnabled !== undefined) {
+        if (request.body?.registrationEnabled !== undefined) {
           appContext.settings.set(
-            appSettingsKeys.UserRegistrationEnabled,
-            Boolean(request.body.userRegistrationEnabled)
+            appSettingsKeys.RegistrationEnabled,
+            Boolean(request.body.registrationEnabled)
           );
           settingsChanged = true;
         }
@@ -65,7 +65,7 @@ export default async function (fastify, opts) {
             properties: {
               authenticationEnabled: { type: "boolean" },
               sessionLengthInDays: { type: "number" },
-              userRegistrationEnabled: { type: "boolean" },
+              registrationEnabled: { type: "boolean" },
               forceRegistration: { type: "boolean" },
             },
           },
@@ -80,8 +80,8 @@ export default async function (fastify, opts) {
         sessionLengthInDays: appContext.settings.get(
           appSettingsKeys.SessionLengthInDays
         ),
-        userRegistrationEnabled: appContext.settings.get(
-          appSettingsKeys.UserRegistrationEnabled
+        registrationEnabled: appContext.settings.get(
+          appSettingsKeys.RegistrationEnabled
         ),
         forceRegistration:
           appContext.settings.get(appSettingsKeys.AuthenticationEnabled) &&
