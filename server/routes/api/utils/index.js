@@ -25,29 +25,36 @@ export default async function (fastify, opts) {
       let { url } = request.body;
       let res;
       try {
-        res = await axios.get(url);
+        res = await axios.get(url, {
+          responseType: "arraybuffer",
+          responseEncoding: "binary",
+        });
       } catch (error) {
         console.error(url, error.message);
         return { title: "", desc: "", icon: "" };
       }
-
-      let html = await res.data;
+      let contentType = res.headers["content-type"];
+      let matches = contentType.match(/charset=(.+)/);
+      let encoding = matches?.[1] || "utf-8";
+      let resData = await res.data;
+      let html = new TextDecoder(encoding).decode(resData);
       return await parseHtml(html, url);
     }
   );
 
   fastify.post(
-    "/parseBookmarkFile", 
+    "/parseBookmarkFile",
     {
       schema: {
         consumes: ["multipart/form-data"],
-      }
-    }, 
+      },
+    },
     async function (request, reply) {
       const bookmarkFile = await request.file();
       let parsedJson = parseBookmarkFile(await bookmarkFile.toBuffer());
       return parsedJson;
-  });
+    }
+  );
 
   fastify.get("/updatelinks", {}, async function (request, reply) {
     return batchUpdateLinks();
