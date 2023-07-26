@@ -2,17 +2,22 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import React, { useEffect } from "react";
 import PrivateWrapper from "./components/PrivateWrapper";
-import { appMainStoreKeys, appMainStoreInitialState, useAppMainStore } from "./stores/appMainStore";
+import {
+  appMainStoreKeys,
+  appMainStoreInitialState,
+  useAppMainStore,
+} from "./stores/appMainStore";
 import { fetchAppSettings } from "./stores/appSettingsStore";
 import { fetchCurrentUser } from "./stores/userCurrentStore";
 import { fetchUserSettings } from "./stores/userSettingsStore";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 const RegisterPage = React.lazy(() => import("./pages/register"));
 const LoginPage = React.lazy(() => import("./pages/login"));
 
 function App() {
-  const [ isErrored, setIsErrored ] = useAppMainStore(appMainStoreKeys.IsErrored);
-  const [ isLoading, setIsLoading ] = useAppMainStore(appMainStoreKeys.IsLoading);
+  const [isErrored, setIsErrored] = useAppMainStore(appMainStoreKeys.IsErrored);
+  const [isLoading, setIsLoading] = useAppMainStore(appMainStoreKeys.IsLoading);
 
   async function initialize() {
     setIsErrored(false);
@@ -21,12 +26,10 @@ function App() {
       await fetchAppSettings();
       await fetchCurrentUser();
       await fetchUserSettings();
-    }
-    catch(error) {
-      console.log(error);
+    } catch (error) {
+      console.error(error);
       setIsErrored(true);
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   }
@@ -69,7 +72,12 @@ function App() {
 
 function ErrorScreen() {
   return (
-    <div className="w-screen h-screen overflow-auto">There was an error while loading application.</div>
+    <div className="w-screen h-screen flex justify-center items-center overflow-auto dark:bg-gray-900">
+      <div className="text-3xl text-white bg-red-700 py-4 px-8 rounded w-fit flex gap-3">
+        <ExclamationTriangleIcon className="w-9 h-9" />
+        There was an error while loading application.
+      </div>
+    </div>
   );
 }
 
