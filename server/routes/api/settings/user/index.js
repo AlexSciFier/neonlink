@@ -53,6 +53,11 @@ export default async function (fastify, opts) {
     },
     function (request, reply) {
       const session = appContext.request.get(appRequestsKeys.Session);
+      let userSettings = appContext.stores.userSettings.getItem(session.userId);
+      if (userSettings) {
+        return userSettings;
+      }
+      appContext.stores.userSettings.addItem(session.userId);
       return appContext.stores.userSettings.getItem(session.userId);
     }
   );
