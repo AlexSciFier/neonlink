@@ -1,6 +1,6 @@
 import { createGlobalStore } from "../hooks/useGlobalStore";
 import { getUserCurrentStore, userCurrentKeys } from "./userCurrentStore";
-import { getJSON } from "../helpers/fetch";
+import { getJSON, postJSON } from "../helpers/fetch";
 import { appSettingsKeys, getAppSettingsStore } from "./appSettingsStore";
 
 const userSettingsKeys = {
@@ -83,6 +83,28 @@ async function fetchUserSettings(abortController) {
   }
 }
 
+async function saveUserSettings(abortController) {
+  const authenticationEnabled = getAppSettingsStore(
+    appSettingsKeys.AuthenticationEnabled
+  );
+  const authenticated = getUserCurrentStore(userCurrentKeys.Authenticated);
+  if (!authenticationEnabled || !authenticated) return;
+  await postJSON(
+    "/api/settings/user",
+    {
+      maxNumberOfLinks: getUserSettingsStore(userSettingsKeys.MaxItemsInLinks),
+      linkInNewTab: getUserSettingsStore(userSettingsKeys.OpenLinkInNewTab),
+      useBgImage: getUserSettingsStore(userSettingsKeys.UseBackgroundgImage),
+      bgImage: getUserSettingsStore(userSettingsKeys.BackgroundImage),
+      columns: getUserSettingsStore(userSettingsKeys.Columns),
+      cardStyle: getUserSettingsStore(userSettingsKeys.CardHeaderStyle),
+      enableNeonShadows: getUserSettingsStore(userSettingsKeys.UseNeonShadows),
+      cardPosition: getUserSettingsStore(userSettingsKeys.CardVerticalAligment),
+    },
+    abortController?.signal
+  );
+}
+
 export {
   userSettingsKeys,
   userSettingsInitialState,
@@ -90,4 +112,5 @@ export {
   setUserSettingsStore,
   useUserSettingsStore,
   fetchUserSettings,
+  saveUserSettings,
 };

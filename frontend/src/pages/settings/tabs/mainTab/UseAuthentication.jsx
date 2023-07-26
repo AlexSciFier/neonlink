@@ -2,19 +2,33 @@ import React, { useState } from "react";
 import InputItem from "../../components/inputItem";
 import SwitchButton from "../../components/SwitchButton";
 import KeyIcon from "@heroicons/react/24/outline/KeyIcon";
-import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
 import { CalendarDaysIcon, UserPlusIcon } from "@heroicons/react/24/outline";
-import { appSettingsKeys, useAppSettingsStore, persistAppSettings } from "../../../../stores/appSettingsStore";
+import {
+  appSettingsKeys,
+  useAppSettingsStore,
+  persistAppSettings,
+} from "../../../../stores/appSettingsStore";
+import SaveChangesDialog from "../../../../components/SaveChangesDialog";
 
 export default function UseAuthentication() {
-  const [ authenticationEnabled, setAuthenticationEnabled ] = useAppSettingsStore(appSettingsKeys.AuthenticationEnabled);
-  const [ registrationEnabled, setRegistrationEnabled ] = useAppSettingsStore(appSettingsKeys.RegistrationEnabled);
-  const [ sessionLengthInDays, setSessionLengthInDays ] = useAppSettingsStore(appSettingsKeys.SessionLengthInDays);
-  const [ settingsChanged, setSettingsChanged ] = useState(false);
+  const [authenticationEnabled, setAuthenticationEnabled] = useAppSettingsStore(
+    appSettingsKeys.AuthenticationEnabled
+  );
+  const [registrationEnabled, setRegistrationEnabled] = useAppSettingsStore(
+    appSettingsKeys.RegistrationEnabled
+  );
+  const [sessionLengthInDays, setSessionLengthInDays] = useAppSettingsStore(
+    appSettingsKeys.SessionLengthInDays
+  );
+  const [settingsChanged, setSettingsChanged] = useState(false);
 
-  const [ localAuthenticationEnabled, setLocalAuthenticationEnabled ] = useState(authenticationEnabled);
-  const [ localSessionLengthInDays, setLocalSessionLengthInDays ] = useState(sessionLengthInDays);
-  const [ localRegistrationEnabled, setLocalRegistrationEnabled ] = useState(registrationEnabled);
+  const [localAuthenticationEnabled, setLocalAuthenticationEnabled] = useState(
+    authenticationEnabled
+  );
+  const [localSessionLengthInDays, setLocalSessionLengthInDays] =
+    useState(sessionLengthInDays);
+  const [localRegistrationEnabled, setLocalRegistrationEnabled] =
+    useState(registrationEnabled);
 
   async function saveChanges(e) {
     e.preventDefault();
@@ -34,7 +48,7 @@ export default function UseAuthentication() {
   }
 
   return (
-    <form onChange={(e) => setSettingsChanged(true)}> 
+    <form onChange={(e) => setSettingsChanged(true)}>
       <InputItem
         title={"Authentication"}
         description={"Enable authentication screen"}
@@ -77,20 +91,10 @@ export default function UseAuthentication() {
         }
       />
       {settingsChanged && (
-        <div className="fixed bottom-4 flex gap-3 left-1 right-1 max-w-md mx-auto items-center dark:bg-gray-800 bg-white dark:text-white border rounded p-3">
-          <span className="flex-1">Unsaved changes</span>
-          <button onClick={(e) => saveChanges(e)} className={BUTTON_BASE_CLASS}>
-            Save
-          </button>
-          <button
-            onClick={(e) => undoChanges(e)}
-            className={
-              BUTTON_BASE_CLASS + "bg-transparent border border-cyan-500"
-            }
-          >
-            Undo
-          </button>
-        </div>
+        <SaveChangesDialog
+          saveChanges={saveChanges}
+          undoChanges={undoChanges}
+        />
       )}
     </form>
   );

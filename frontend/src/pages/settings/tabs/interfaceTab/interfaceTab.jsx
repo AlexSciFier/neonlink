@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import InputGroup from "../../components/inputGroup";
 import SwitchButton from "../../components/SwitchButton";
-import { userSettingsKeys, useUserSettingsStore } from "../../../../stores/userSettingsStore";
+import {
+  fetchUserSettings,
+  saveUserSettings,
+  userSettingsKeys,
+  useUserSettingsStore,
+} from "../../../../stores/userSettingsStore";
 import {
   CARD_HEADER_STYLE,
   CARD_VERTICAL_ALIGMENT,
@@ -20,16 +25,31 @@ import {
 } from "@heroicons/react/24/outline";
 import BackgroundImageSettings from "./BackgroundImageSettings";
 import { useThemeContext } from "../../../../components/ThemeContext";
+import SaveChangesDialog from "../../../../components/SaveChangesDialog";
 
 export default function InterfaceTab() {
-  const [ useImageAsBg, setUseImageAsBg ] = useUserSettingsStore(userSettingsKeys.UseBackgroundgImage);
-  const [ cardHeaderStyle, setCardHeaderStyle ] = useUserSettingsStore(userSettingsKeys.CardHeaderStyle);
-  const [ openLinkInNewTab, setOpenLinkInNewTab ] = useUserSettingsStore(userSettingsKeys.OpenLinkInNewTab);
-  const [ useNeonShadow, setUseNeonShadow ] = useUserSettingsStore(userSettingsKeys.UseNeonShadows);
-  const [ cardVerticalAligment, setCardVerticalAligment ] = useUserSettingsStore(userSettingsKeys.CardVerticalAligment);
-  const [ columns, setColumns ] = useUserSettingsStore(userSettingsKeys.Columns);
-  const [ maxItemsInList, setMaxItemsInList ] = useUserSettingsStore(userSettingsKeys.MaxItemsInLinks);
+  const [useImageAsBg, setUseImageAsBg] = useUserSettingsStore(
+    userSettingsKeys.UseBackgroundgImage
+  );
+  const [cardHeaderStyle, setCardHeaderStyle] = useUserSettingsStore(
+    userSettingsKeys.CardHeaderStyle
+  );
+  const [openLinkInNewTab, setOpenLinkInNewTab] = useUserSettingsStore(
+    userSettingsKeys.OpenLinkInNewTab
+  );
+  const [useNeonShadow, setUseNeonShadow] = useUserSettingsStore(
+    userSettingsKeys.UseNeonShadows
+  );
+  const [cardVerticalAligment, setCardVerticalAligment] = useUserSettingsStore(
+    userSettingsKeys.CardVerticalAligment
+  );
+  const [columns, setColumns] = useUserSettingsStore(userSettingsKeys.Columns);
+  const [maxItemsInList, setMaxItemsInList] = useUserSettingsStore(
+    userSettingsKeys.MaxItemsInLinks
+  );
   const { theme, setTheme } = useThemeContext();
+
+  const [isChanged, setIsChanged] = useState(false);
 
   function changeTheme(e) {
     let isChecked = e.target.checked;
@@ -184,8 +204,20 @@ export default function InterfaceTab() {
     },
   ];
 
+  async function saveChanges(e) {
+    e.preventDefault();
+    await saveUserSettings();
+    setIsChanged(false);
+  }
+
+  async function undoChanges(e) {
+    e.preventDefault();
+    await fetchUserSettings();
+    setIsChanged(false);
+  }
+
   return (
-    <div className="space-y-6">
+    <form onChange={() => setIsChanged(true)} className="space-y-6">
       {settings.map((setting) => (
         <InputGroup title={setting.title} key={setting.title}>
           {setting.items.map((item) => (
@@ -200,6 +232,12 @@ export default function InterfaceTab() {
           ))}
         </InputGroup>
       ))}
-    </div>
+      {isChanged && (
+        <SaveChangesDialog
+          saveChanges={saveChanges}
+          undoChanges={undoChanges}
+        />
+      )}
+    </form>
   );
 }
