@@ -1,13 +1,15 @@
-import { requireSession } from "../../../logics/handlers.js";
+import axios from "axios";
+import path from "path";
+import { appContext } from "../../../contexts/appContext.js";
+import { appRequestsKeys } from "../../../contexts/appRequests.js";
 import {
   addBackground,
   deleteBackground,
+  getAllBackgrounds,
   getBackgroundById,
   getBackgroundByUrl,
-  getAllBackgrounds,
 } from "../../../logics/backgrounds.js";
-import { appContext } from "../../../contexts/appContext.js";
-import { appRequestsKeys } from "../../../contexts/appRequests.js";
+import { requireSession } from "../../../logics/handlers.js";
 
 export default async function (fastify, opts) {
   fastify.get(
@@ -50,8 +52,15 @@ export default async function (fastify, opts) {
       const { url } = request.body;
       const user = appContext.request.get(appRequestsKeys.Session);
 
-      let res = getBackgroundByUrl(url, userId);
+      let res = getBackgroundByUrl(url, user.userId);
       if (res === false) throw reply.notAcceptable("Already exist");
+
+      let imgRes = await axios.get(url, { method: "GET", responseType: "stream" });
+      if (imgRes.status !== 200) throw reply.notFound("Cannot download image from this url. " + imgRes.statusText);
+
+      res = await addBackground(path.basename(url), imgRes.data, user.id);
+      if (res === false) throw reply.notAcceptable("Background already exist.");
+
       return res;
     }
   );
@@ -68,7 +77,7 @@ export default async function (fastify, opts) {
       const file = await request.file();
       const user = appContext.request.get(appRequestsKeys.Session);
 
-      let res = addBackground(file.filename, file.file, user.id);
+      let res = await addBackground(file.filename, file.file, user.id);
 
       if (res === false) throw reply.notAcceptable("Background already exist.");
 
