@@ -25,7 +25,7 @@ export default class UsersStore {
 
   checkWhetherUserExists(username) {
     const selectQuery = `SELECT COUNT(*) AS count FROM users WHERE username = ?`;
-    return this.db.prepare(selectQuery).get(username);
+    return this.db.prepare(selectQuery).get(username).count > 0;
   }
 
   deleteItem(id) {

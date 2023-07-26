@@ -43,6 +43,8 @@ async function fetchAppSettings(abortController) {
       appSettingsKeys.ForceRegistration,
       json.forceRegistration
     );
+  } else if (res.status === 404) {
+    setAppSettingsStore(appSettingsKeys.ForceRegistration, true);
   }
 }
 
