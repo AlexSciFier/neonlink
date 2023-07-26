@@ -3,7 +3,7 @@ import InputItem from "../../components/inputItem";
 import SwitchButton from "../../components/SwitchButton";
 import KeyIcon from "@heroicons/react/24/outline/KeyIcon";
 import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
-import { CalendarDaysIcon } from "@heroicons/react/24/outline";
+import { CalendarDaysIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { appSettingsKeys, useAppSettingsStore, persistAppSettings } from "../../../../stores/appSettingsStore";
 
 export default function UseAuthentication() {
@@ -51,7 +51,7 @@ export default function UseAuthentication() {
       <InputItem
         title={"Registration"}
         description={"Enable registration screen (authentication required)"}
-        icon={<KeyIcon />}
+        icon={<UserPlusIcon />}
         input={
           <SwitchButton
             id={"registrationEnabled"}
