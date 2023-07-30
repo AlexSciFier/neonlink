@@ -3,7 +3,7 @@ import InputGroup from "../../components/inputGroup";
 import SwitchButton from "../../components/SwitchButton";
 import {
   fetchUserSettings,
-  saveUserSettings,
+  persistUserSettings,
   userSettingsKeys,
   useUserSettingsStore,
 } from "../../../../stores/userSettingsStore";
@@ -206,7 +206,7 @@ export default function InterfaceTab() {
 
   async function saveChanges(e) {
     e.preventDefault();
-    await saveUserSettings();
+    await persistUserSettings();
     setIsChanged(false);
   }
 

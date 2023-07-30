@@ -83,7 +83,7 @@ async function fetchUserSettings(abortController) {
   }
 }
 
-async function saveUserSettings(abortController) {
+async function persistUserSettings(abortController) {
   const authenticationEnabled = getAppSettingsStore(
     appSettingsKeys.AuthenticationEnabled
   );
@@ -112,5 +112,5 @@ export {
   setUserSettingsStore,
   useUserSettingsStore,
   fetchUserSettings,
-  saveUserSettings,
+  persistUserSettings,
 };
