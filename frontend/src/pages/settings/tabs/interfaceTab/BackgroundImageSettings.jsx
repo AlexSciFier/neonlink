@@ -2,7 +2,10 @@ import { CheckIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import Modal from "../../../../components/Modal";
-import { userSettingsKeys, useUserSettingsStore } from "../../../../stores/userSettingsStore";
+import {
+  userSettingsKeys,
+  useUserSettingsStore,
+} from "../../../../stores/userSettingsStore";
 import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
 import {
   deleteJSON,
@@ -11,10 +14,13 @@ import {
   postJSON,
 } from "../../../../helpers/fetch";
 import { fixBgUrl } from "../../../../helpers/url";
+import ImageFileInput from "../../../../components/ImageFileInput";
 const ENDPOINT = "/api/backgrounds";
 
 export default function BackgroundImageSettings() {
-  const [ bgUrl, setBgUrl ] = useUserSettingsStore(userSettingsKeys.BackgroundImage);
+  const [bgUrl, setBgUrl] = useUserSettingsStore(
+    userSettingsKeys.BackgroundImage
+  );
 
   const [images, setImages] = useState([]);
   const [selectedId, setSelectedId] = useState();
@@ -23,8 +29,8 @@ export default function BackgroundImageSettings() {
   const [error, setError] = useState();
   const [show, setShow] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const [isFile, setIsFile] = useState(false);
-  const [isUrl, setIsUrl] = useState(false);
+  const [url, setUrl] = useState("");
+  const [file, setFile] = useState();
 
   useEffect(() => {
     let image = images.filter((image) => image.url === bgUrl);
@@ -45,18 +51,16 @@ export default function BackgroundImageSettings() {
     };
   }, []);
 
-  async function handleAdd(e) {
-    e.preventDefault();
+  async function handleAdd() {
     setIsLoading(true);
     setError();
     try {
-      let url = e.target["add-bgimage-url"].value;
-      let file = e.target["add-bgimage-file"].files[0];
       if (url) {
         let res = await postJSON(ENDPOINT, { url });
         setIsLoading(false);
         if (res.ok) {
-          e.target["add-bgimage-url"].value = "";
+          setBgUrl("");
+          setFile(undefined);
           let resBody = await res.json();
           setImages((prev) => [...prev, { id: resBody.id, url: resBody.url }]);
           setShow(false);
@@ -107,36 +111,41 @@ export default function BackgroundImageSettings() {
         <Modal show={show} onClose={() => setShow(false)}>
           <Modal.Header closeButton>Add image</Modal.Header>
           <Modal.Body>
-            <form className="flex flex-col gap-2" onSubmit={handleAdd}>
+            <div className="flex flex-col gap-2">
               <input
                 type={"url"}
                 name="add-bgimage-url"
                 placeholder={"Image url"}
-                disabled={isFile}
+                disabled={file}
+                value={url}
                 onChange={(e) => {
-                  setError(false);
+                  setError();
                   setIsLoading(false);
-                  setIsUrl(e.target.value !== "");
+                  setUrl(e.target.value);
                 }}
                 className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white disabled:bg-neutral-100"
               />
-              <input
-                type={"file"}
-                accept="image/*"
-                name="add-bgimage-file"
-                placeholder={"Image file"}
-                disabled={isUrl}
-                onChange={(e) => {
-                  setError(false);
+              <ImageFileInput
+                onChange={(file) => {
+                  setError();
                   setIsLoading(false);
-                  setIsFile(e.target.files[0] !== undefined);
+                  setFile(file);
                 }}
-                className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 bg-transparent dark:text-white"
+                file={file}
+                setFile={setFile}
+                disabled={url}
+                id="add-bgimage-file"
+                name="add-bgimage-file"
               />
-              <button disabled={isLoading} className={BUTTON_BASE_CLASS}>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={BUTTON_BASE_CLASS}
+                onClick={handleAdd}
+              >
                 Add
               </button>
-            </form>
+            </div>
             {error && <div className="text-red-500">{error}</div>}
           </Modal.Body>
         </Modal>
