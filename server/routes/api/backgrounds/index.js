@@ -43,10 +43,10 @@ export default async function (fastify, opts) {
             required: ["url"],
             properties: {
               url: { type: "string" },
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     },
     async function (request, reply) {
       const { url } = request.body;
@@ -55,8 +55,14 @@ export default async function (fastify, opts) {
       let res = getBackgroundByUrl(url, user.userId);
       if (res === false) throw reply.notAcceptable("Already exist");
 
-      let imgRes = await axios.get(url, { method: "GET", responseType: "stream" });
-      if (imgRes.status !== 200) throw reply.notFound("Cannot download image from this url. " + imgRes.statusText);
+      let imgRes = await axios.get(url, {
+        method: "GET",
+        responseType: "stream",
+      });
+      if (imgRes.status !== 200)
+        throw reply.notFound(
+          "Cannot download image from this url. " + imgRes.statusText
+        );
 
       res = await addBackground(path.basename(url), imgRes.data, user.id);
       if (res === false) throw reply.notAcceptable("Background already exist.");
@@ -71,13 +77,24 @@ export default async function (fastify, opts) {
       schema: {
         consumes: ["multipart/form-data"],
       },
+      bodyLimit: parseInt(process.env.FILE_SIZE_LIMIT, 10) || 15 * 1024 * 1024,
       preHandler: requireSession(true, true, false),
     },
     async function (request, reply) {
-      const file = await request.file();
+      const file = await request.file({
+        limits: { fileSize: request.routeOptions.bodyLimit },
+      });
+
       const user = appContext.request.get(appRequestsKeys.Session);
 
       let res = await addBackground(file.filename, file.file, user.id);
+
+      if (file.file.truncated) {
+        let fileLimit = request.routeOptions.bodyLimit / 1024 / 1024;
+        throw new fastify.multipartErrors.FilesLimitError(
+          `(${fileLimit.toFixed(2)} Mb per file)`
+        );
+      }
 
       if (res === false) throw reply.notAcceptable("Background already exist.");
 

@@ -10,7 +10,6 @@ try {
   // Initialize Fastify
   const app = Fastify({
     logger: { level: process.env.FASTIFY_LOG_LEVEL || "info" },
-    bodyLimit: 5242880,
   });
 
   // Load all plugins

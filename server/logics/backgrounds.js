@@ -10,12 +10,16 @@ export async function addBackground(fileName, sourceStream, userId) {
     return false;
 
   await saveFileStream(backgroundsPath, fileName, sourceStream);
+  if (sourceStream.truncated) {
+    return false;
+  }
   try {
     let lastRow = appContext.stores.backgrounds.addItem(fileUrl, userId);
     return { id: lastRow, url: fileUrl };
   } catch (error) {
     await deleteFile(backgroundsPath, fileName);
-    throw error;
+    console.error(error);
+    return false;
   }
 }
 

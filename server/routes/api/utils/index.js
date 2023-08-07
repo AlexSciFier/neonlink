@@ -20,6 +20,8 @@ export default async function (fastify, opts) {
           },
         },
       },
+      bodyLimit:
+        parseInt(process.env.URL_PASRER_SIZE_LIMIT, 10) || 15 * 1024 * 1024,
     },
     async function (request, reply) {
       let { url } = request.body;
