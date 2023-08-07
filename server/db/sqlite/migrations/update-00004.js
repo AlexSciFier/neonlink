@@ -3,6 +3,7 @@ import { dataColumnExists } from "../common.js";
 export default async function (db) {
   if (dataColumnExists(db, "users", "usergroup")) {
     db.prepare("ALTER TABLE users RENAME COLUMN usergroup TO isAdmin").run();
+    db.prepare("UPDATE users SET isAdmin = 1").run();
   }
 
   if (dataColumnExists(db, "userSettings", "uuid")) {
