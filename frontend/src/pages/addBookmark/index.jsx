@@ -202,12 +202,12 @@ export default function AddPage() {
             name={"categoryId"}
             onChange={inputHandler}
           >
-            <option className="text-black" value={0}>
+            <option className="dark:text-white dark:bg-gray-900" value={0}>
               None
             </option>
             {categories.map((category) => (
               <option
-                className="text-black"
+                className="dark:text-white dark:bg-gray-900"
                 key={category.id}
                 value={category.id}
               >

@@ -151,7 +151,11 @@ export default function InterfaceTab() {
               onChange={(e) => setColumns(e.target.value)}
             >
               {[...Array(Number.parseInt(6))].map((i, idx) => (
-                <option className="dark:text-black" key={idx} value={idx + 1}>
+                <option
+                  className="dark:text-white dark:bg-gray-900"
+                  key={idx}
+                  value={idx + 1}
+                >
                   {idx + 1}
                 </option>
               ))}
