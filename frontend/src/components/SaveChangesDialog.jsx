@@ -10,7 +10,10 @@ export default function SaveChangesDialog({ saveChanges, undoChanges }) {
       </button>
       <button
         onClick={(e) => undoChanges(e)}
-        className={BUTTON_BASE_CLASS + "bg-transparent border border-cyan-500"}
+        className={
+          BUTTON_BASE_CLASS +
+          "bg-transparent border !text-black dark:!text-white border-cyan-500"
+        }
       >
         Undo
       </button>
