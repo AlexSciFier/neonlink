@@ -3,10 +3,11 @@ export default class TagsStore {
     this.db = sqliteInstance;
   }
 
-  addItem(name) {
-    const insertQuery = `INSERT INTO tags (name) VALUES(?)`;
-    return this.db.prepare(insertQuery).run(name.toLocaleLowerCase())
-      .lastInsertRowid;
+  addItem(name, userId) {
+    const insertQuery = `INSERT INTO tags (name,userId) VALUES(:name,:userId)`;
+    return this.db
+      .prepare(insertQuery)
+      .run({ name: name.toLocaleLowerCase(), userId }).lastInsertRowid;
   }
 
   deleteItem(id) {
@@ -14,26 +15,32 @@ export default class TagsStore {
     return this.db.prepare(deleteQuery).run(id).changes > 0;
   }
 
-  existsItemByName(name) {
-    const selectQuery = `SELECT COUNT(*) AS count FROM tags WHERE name = ?`;
-    const result = this.db.prepare(selectQuery).get(name);
+  existsItemByName(name, userId) {
+    const selectQuery = `SELECT COUNT(*) AS count FROM tags WHERE name = :name AND userId = :userId`;
+    const result = this.db.prepare(selectQuery).get({ name, userId });
     return result && result.count > 0;
   }
 
-  getAll(name) {
+  getAll(name, userId) {
     let selectQuery = `SELECT 
         id, name 
       FROM tags`;
 
-    const selectParams = {};
+    const selectParams = { userId };
+    const conditions = [];
+    conditions.push("tags.userId = :userId");
 
     if (name) {
-      selectQuery += ` WHERE tags.name LIKE :name`;
+      conditions.push("tags.name LIKE :name");
       selectParams.name = `%${name}%`;
     }
 
+    selectQuery += ` WHERE ${conditions.join(" AND ")}`;
+
     selectQuery += ` GROUP BY tags.id
       ORDER BY tags.name`;
+
+    console.log(selectQuery, selectParams);
 
     return this.db.prepare(selectQuery).all(selectParams);
   }

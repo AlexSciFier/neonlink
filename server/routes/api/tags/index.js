@@ -1,5 +1,6 @@
 import { requireSession } from "../../../logics/handlers.js";
 import { appContext } from "../../../contexts/appContext.js";
+import { appRequestsKeys } from "../../../contexts/appRequests.js";
 
 const postOptions = {
   preHandler: requireSession(true, true, false),
@@ -11,7 +12,7 @@ const postOptions = {
         name: { type: "string" },
       },
     },
-  }
+  },
 };
 
 /**
@@ -25,7 +26,8 @@ export default async function (fastify, opts) {
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { q } = request.query;
-      return appContext.stores.tags.getAll(q);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      return appContext.stores.tags.getAll(q, user.userId);
     }
   );
 
@@ -41,10 +43,11 @@ export default async function (fastify, opts) {
   fastify.post("/", postOptions, async function (request, reply) {
     let { name } = request.body;
     if (name === "") throw new Error("name cannot be empty");
-    if (appContext.stores.tags.existsItemByName(name))
+    const user = appContext.request.get(appRequestsKeys.Session);
+    if (appContext.stores.tags.existsItemByName(name, user.userId))
       throw new Error("tag name already in use.");
 
-    let id = appContext.stores.tags.addItem(name);
+    let id = appContext.stores.tags.addItem(name, user.userId);
     reply.statusCode = 201;
     return { id, name };
   });

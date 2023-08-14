@@ -3,14 +3,15 @@ export default class BookmarksStore {
     this.db = sqliteInstance;
   }
 
-  addItem(url, title, desc, icon, categoryId, tags) {
-    const insertQuery = `INSERT INTO bookmarks (url,title,desc,icon,search,categoryId) 
-      VALUES(:url,:title,:desc,:icon,:search,:categoryId)`;
+  addItem(url, title, desc, icon, categoryId, tags, userId) {
+    const insertQuery = `INSERT INTO bookmarks (url,title,desc,icon,search,categoryId,userId) 
+      VALUES(:url,:title,:desc,:icon,:search,:categoryId,:userId)`;
     const insertParams = {
       url,
       title,
       desc,
       icon,
+      userId,
       search: (url + title + desc).toLocaleLowerCase(),
       categoryId,
     };
@@ -38,11 +39,11 @@ export default class BookmarksStore {
   }
 
   deleteItem(id) {
-    const deleteQuery = `DELETE FROM bookmarks WHERE id = ?`;
+    const deleteQuery = `DELETE FROM bookmarks WHERE id = :id`;
     return this.db.prepare(deleteQuery).run(id).changes > 0;
   }
 
-  getAll(search = undefined, tag = undefined, category = undefined) {
+  getAll(userId, search = undefined, tag = undefined, category = undefined) {
     let selectQuery = `SELECT 
         bookmarks.id,
         url,
@@ -58,9 +59,12 @@ export default class BookmarksStore {
           category !== undefined
             ? "LEFT JOIN category ON category.id = bookmarks.categoryId"
             : ""
-        }`;
+        }
+        WHERE userId = :userId`;
 
-    const selectParams = {};
+    const selectParams = {
+      userId,
+    };
 
     if (search || tag || category) {
       const conditions = [];
@@ -93,6 +97,7 @@ export default class BookmarksStore {
   }
 
   getPage(
+    userId,
     limit = 10,
     offset = 0,
     search = undefined,
@@ -118,7 +123,7 @@ export default class BookmarksStore {
             : ""
         }`;
 
-    const countParams = {};
+    const countParams = { userId };
 
     let selectQuery = `SELECT 
         bookmarks.id,
@@ -137,11 +142,13 @@ export default class BookmarksStore {
             : ""
         }`;
 
-    const selectParams = { limit, offset };
+    const selectParams = { userId, search, limit, offset };
+
+    const conditions = [];
+
+    conditions.push("bookmarks.userId = :userId");
 
     if (search || tag || category) {
-      const conditions = [];
-
       if (search) {
         conditions.push("bookmarks.search LIKE :search");
         countParams.search = `%${search}%`;
@@ -157,10 +164,10 @@ export default class BookmarksStore {
         countParams.category = category;
         selectParams.category = category;
       }
-
-      countQuery += ` WHERE ${conditions.join(" AND ")}`;
-      selectQuery += ` WHERE ${conditions.join(" AND ")}`;
     }
+
+    countQuery += ` WHERE ${conditions.join(" AND ")}`;
+    selectQuery += ` WHERE ${conditions.join(" AND ")}`;
 
     selectQuery += ` GROUP BY bookmarks.id
       ORDER BY bookmarks.created DESC
@@ -180,24 +187,26 @@ export default class BookmarksStore {
     return { bookmarks, currentPage, lastPage };
   }
 
-  getByCategoryId(categoryId) {
+  getByCategoryId(userId, categoryId) {
     let selectQuery = `SELECT 
         id, url, title, desc, bookmarks.categoryId, created, bookmarkPosition.position
       FROM bookmarks
         LEFT JOIN bookmarkPosition ON bookmarks.id = bookmarkPosition.bookmarkId
       WHERE
         bookmarks.categoryId = :categoryId
+        AND
+        bookmarks.userId = :userId
       ORDER BY bookmarkPosition.position`;
 
     return this.db
       .prepare(selectQuery)
-      .all({ categoryId })
+      .all({ categoryId, userId })
       .map((bookmark) => {
         return { ...bookmark, tags: bookmark.tags?.split(",") };
       });
   }
 
-  getItemById(id) {
+  getItemById(userId, id) {
     const selectQuery = `SELECT 
         bookmarks.id,
         url,
@@ -209,24 +218,25 @@ export default class BookmarksStore {
       FROM bookmarks 
         LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
         LEFT JOIN tags ON bookmarksTags.tagId = tags.id
-      WHERE bookmarks.id = ?
+      WHERE bookmarks.id = :id
+      AND bookmarks.userId = :userId
       GROUP BY bookmarks.id`;
 
-    return this.db.prepare(selectQuery).get(id);
+    return this.db.prepare(selectQuery).get({ id, userId });
   }
 
-  getItemByUrl(url) {
-    const selectQuery = `SELECT * FROM bookmarks WHERE url = ?`;
-    return this.db.prepare(selectQuery).get(url);
+  getItemByUrl(userId, url) {
+    const selectQuery = `SELECT * FROM bookmarks WHERE url = :url AND userId = :userId`;
+    return this.db.prepare(selectQuery).get({ url, userId });
   }
 
   getIconByBookmarkId(id) {
-    const selectQuery = `SELECT icon FROM bookmarks WHERE bookmarks.id = ?`;
-    return this.db.prepare(selectQuery).get(id).icon;
+    const selectQuery = `SELECT icon FROM bookmarks WHERE bookmarks.id = :id`;
+    return this.db.prepare(selectQuery).get({ id }).icon;
   }
 
   updateItem(id, url, title, desc, icon, categoryId, tags) {
-    let tagsRelationsDeleteQuery = `DELETE FROM bookmarksTags WHERE bookmarkId = ?`;
+    let tagsRelationsDeleteQuery = `DELETE FROM bookmarksTags WHERE bookmarkId = :id`;
     this.db.prepare(tagsRelationsDeleteQuery).run(id);
 
     if (tags) {

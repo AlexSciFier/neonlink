@@ -1,5 +1,9 @@
 import { requireSession } from "../../../../logics/handlers.js";
-import { createUser, isPasswordValid, updatePassword } from "../../../../logics/users.js";
+import {
+  createUser,
+  isPasswordValid,
+  updatePassword,
+} from "../../../../logics/users.js";
 import { appContext } from "../../../../contexts/appContext.js";
 
 export default async function (fastify, opts) {
@@ -17,7 +21,7 @@ export default async function (fastify, opts) {
             isAdmin: { type: "boolean" },
           },
         },
-      }
+      },
     },
     function (request) {
       let { username, password } = request.body;
@@ -47,15 +51,15 @@ export default async function (fastify, opts) {
     async function (request) {
       const { username, currentPassword, newPassword } = request.body;
       const user = appContext.stores.users.getItemByUsername(username);
-      
+
       if (user === undefined) {
         throw fastify.httpErrors.notFound("Username not found");
       } else {
-        let isValid = await isPasswordValid(user.id, currentPassword);
+        let isValid = await isPasswordValid(user.userId, currentPassword);
         if (isValid === false) {
           throw fastify.httpErrors.forbidden("Password is incorrect");
         } else {
-          updatePassword(user.id, newPassword);
+          updatePassword(user.userId, newPassword);
           return true;
         }
       }
@@ -71,5 +75,4 @@ export default async function (fastify, opts) {
       else throw fastify.httpErrors.notFound("User with this id is not found");
     }
   );
-
 }

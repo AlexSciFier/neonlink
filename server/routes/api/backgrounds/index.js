@@ -18,7 +18,7 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       const user = appContext.request.get(appRequestsKeys.Session);
 
-      return getAllBackgrounds(user.id);
+      return getAllBackgrounds(user.userId);
     }
   );
 
@@ -28,7 +28,7 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       const { id } = request.params;
       const user = appContext.request.get(appRequestsKeys.Session);
-      return getBackgroundById(id, user.id);
+      return getBackgroundById(id, user.userId);
     }
   );
 
@@ -64,7 +64,7 @@ export default async function (fastify, opts) {
           "Cannot download image from this url. " + imgRes.statusText
         );
 
-      res = await addBackground(path.basename(url), imgRes.data, user.id);
+      res = await addBackground(path.basename(url), imgRes.data, user.userId);
       if (res === false) throw reply.notAcceptable("Background already exist.");
 
       return res;
@@ -87,7 +87,7 @@ export default async function (fastify, opts) {
 
       const user = appContext.request.get(appRequestsKeys.Session);
 
-      let res = await addBackground(file.filename, file.file, user.id);
+      let res = await addBackground(file.filename, file.file, user.userId);
 
       if (file.file.truncated) {
         let fileLimit = request.routeOptions.bodyLimit / 1024 / 1024;
@@ -109,7 +109,7 @@ export default async function (fastify, opts) {
       const { id } = request.params;
       const user = appContext.request.get(appRequestsKeys.Session);
 
-      if (!deleteBackground(id, user.Id))
+      if (!deleteBackground(id, user.userId))
         throw reply.notAcceptable("Background doesn't exist.");
     }
   );

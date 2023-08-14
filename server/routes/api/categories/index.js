@@ -1,5 +1,6 @@
 import { requireSession } from "../../../logics/handlers.js";
 import { appContext } from "../../../contexts/appContext.js";
+import { appRequestsKeys } from "../../../contexts/appRequests.js";
 
 /**
  *
@@ -11,7 +12,8 @@ export default async function (fastify, opts) {
     "/",
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
-      return appContext.stores.categories.getAll();
+      const user = appContext.request.get(appRequestsKeys.Session);
+      return appContext.stores.categories.getAll(user.userId);
     }
   );
 
@@ -46,6 +48,7 @@ export default async function (fastify, opts) {
       let { name, color, position } = request.body;
 
       let existingCategory = appContext.stores.categories.getItemByName(name);
+      const user = appContext.request.get(appRequestsKeys.Session);
 
       if (existingCategory) {
         return appContext.stores.categories.updateItem(
@@ -56,7 +59,7 @@ export default async function (fastify, opts) {
         );
       }
       reply.statusCode = 201;
-      return appContext.stores.categories.addItem(name, color, position);
+      return appContext.stores.categories.addItem(name, color, user.userId);
     }
   );
 

@@ -1,18 +1,32 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { Link } from "react-router-dom";
 import Logo from "../../components/Logo";
 import { BUTTON_BASE_CLASS } from "../../helpers/baseDesign";
 import { postJSON } from "../../helpers/fetch";
 import { useEffect } from "react";
-import { appSettingsKeys, useAppSettingsStore } from "../../stores/appSettingsStore";
-import { fetchCurrentUser, userCurrentKeys, useUserCurrentStore } from "../../stores/userCurrentStore";
+import {
+  appSettingsKeys,
+  useAppSettingsStore,
+} from "../../stores/appSettingsStore";
+import {
+  fetchCurrentUser,
+  userCurrentKeys,
+  useUserCurrentStore,
+} from "../../stores/userCurrentStore";
+import { fetchUserSettings } from "../../stores/userSettingsStore";
 
 export default function LoginPage() {
-
-  const [ authenticationEnabled, ] = useAppSettingsStore(appSettingsKeys.AuthenticationEnabled);
-  const [ registrationEnabled, ] = useAppSettingsStore(appSettingsKeys.RegistrationEnabled);
-  const [ forceRegistration, ] = useAppSettingsStore(appSettingsKeys.ForceRegistration);
-  const [ authenticated, ] = useUserCurrentStore(userCurrentKeys.Authenticated); 
+  const [authenticationEnabled] = useAppSettingsStore(
+    appSettingsKeys.AuthenticationEnabled
+  );
+  const [registrationEnabled] = useAppSettingsStore(
+    appSettingsKeys.RegistrationEnabled
+  );
+  const [forceRegistration] = useAppSettingsStore(
+    appSettingsKeys.ForceRegistration
+  );
+  const [authenticated] = useUserCurrentStore(userCurrentKeys.Authenticated);
 
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
@@ -22,8 +36,9 @@ export default function LoginPage() {
   const navigate = useNavigate();
   useEffect(() => {
     if (forceRegistration) navigate("/registration");
-    if (authenticated === true || authenticationEnabled === false) navigate("/");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (authenticated === true || authenticationEnabled === false)
+      navigate("/");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated, forceRegistration, authenticationEnabled]);
 
   const handleLoginSubmit = async (e) => {
@@ -38,9 +53,10 @@ export default function LoginPage() {
       let res = await postJSON("/api/users/login", { username, password });
       if (res.ok) {
         await fetchCurrentUser();
+        await fetchUserSettings();
         navigate("/");
       } else {
-        setError(res.json());
+        setError(await res.json());
       }
     } catch (err) {
       setError({ message: err.message });
@@ -49,7 +65,13 @@ export default function LoginPage() {
 
   function RegisterLink() {
     return (
-      <a href="void" onClick={ (e) => navigate('/register') }>Clich here to register.</a>);
+      <Link
+        to={"/register"}
+        className="text-cyan-500 hover:text-cyan-400 hover:underline"
+      >
+        Sign up
+      </Link>
+    );
   }
 
   return (
@@ -77,7 +99,7 @@ export default function LoginPage() {
           >
             Login
           </button>
-          {registrationEnabled ? RegisterLink() : null }
+          {registrationEnabled ? <RegisterLink /> : null}
         </form>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { imgUrlToBase64 } from "../../../helpers/images.js";
 import { netscape } from "../../../helpers/netscape.js";
 import { requireSession } from "../../../logics/handlers.js";
 import { appContext } from "../../../contexts/appContext.js";
+import { appRequestsKeys } from "../../../contexts/appRequests.js";
 
 /**
  *
@@ -20,7 +21,15 @@ export default async function (fastify, opts) {
       let tag = query.get("tag") ?? undefined;
       let category = query.get("category") ?? undefined;
 
-      return appContext.stores.bookmarks.getPage(limit, offset, q, tag, category);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      return appContext.stores.bookmarks.getPage(
+        user.userId,
+        limit,
+        offset,
+        q,
+        tag,
+        category
+      );
     }
   );
 
@@ -75,7 +84,11 @@ export default async function (fastify, opts) {
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      let bookmarks = appContext.stores.bookmarks.getByCategoryId(id);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      let bookmarks = appContext.stores.bookmarks.getByCategoryId(
+        user.userId,
+        id
+      );
       if (bookmarks) return bookmarks;
       throw fastify.httpErrors.notFound(
         `bookmarks with category id ${id} not found`
@@ -118,7 +131,16 @@ export default async function (fastify, opts) {
         );
       }
       reply.statusCode = 201;
-      return appContext.stores.bookmarks.addItem(url, title, desc, icon, categoryId, tags);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      return appContext.stores.bookmarks.addItem(
+        url,
+        title,
+        desc,
+        icon,
+        categoryId,
+        tags,
+        user.userId
+      );
     }
   );
 
@@ -150,7 +172,16 @@ export default async function (fastify, opts) {
           );
         let existingBookmark = appContext.stores.bookmarks.getItemByUrl(url);
         if (existingBookmark) return;
-        appContext.stores.bookmarks.addItem(url, title, "", icon, undefined, []);
+        const user = appContext.request.get(appRequestsKeys.Session);
+        appContext.stores.bookmarks.addItem(
+          url,
+          title,
+          "",
+          icon,
+          undefined,
+          [],
+          user.userId
+        );
         reply.statusCode = 201;
       });
       return true;
@@ -233,7 +264,8 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let { items, categoryId } = request.body;
-      if (appContext.stores.bookmarks.updatePositions(items, categoryId)) return true;
+      if (appContext.stores.bookmarks.updatePositions(items, categoryId))
+        return true;
       return { items, categoryId };
     }
   );
