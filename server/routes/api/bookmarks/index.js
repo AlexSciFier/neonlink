@@ -38,7 +38,11 @@ export default async function (fastify, opts) {
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      let foundBookmark = appContext.stores.bookmarks.getItemById(id);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      let foundBookmark = appContext.stores.bookmarks.getItemById(
+        user.userId,
+        id
+      );
       if (foundBookmark) return foundBookmark;
       throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
     }
