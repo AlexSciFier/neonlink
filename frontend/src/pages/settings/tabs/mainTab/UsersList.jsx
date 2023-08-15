@@ -1,17 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { PlusIcon } from "@heroicons/react/24/outline";
-import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
-import {
-  deleteJSON,
-  getJSON,
-  postJSON,
-  putJSON,
-} from "../../../../helpers/fetch";
+import { notify } from "../../../../components/Notification";
+import { deleteJSON, getJSON, putJSON } from "../../../../helpers/fetch";
 import UserItem from "./UserItem";
-import Notification from "../../../../components/Notification/Notification";
-import NotificationManager, {
-  notify,
-} from "../../../../components/Notification";
 
 export default function UsersList() {
   const [users, setUsers] = useState([]);
