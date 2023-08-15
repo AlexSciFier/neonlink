@@ -29,7 +29,11 @@ export async function deleteBackground(id, userId) {
 
   let imageName = basename(backgroundImage[0].url);
   if (appContext.stores.backgrounds.deleteItem(id, userId) > 0) {
-    await deleteFile(backgroundsPath, imageName);
+    try {
+      await deleteFile(backgroundsPath, imageName);
+    } catch (error) {
+      console.error(error);
+    }
     return true;
   } else {
     return false;

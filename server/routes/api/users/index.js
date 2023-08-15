@@ -5,6 +5,7 @@ import {
   loginUser,
   logoutUser,
   setSessionCookie,
+  updateIsAdmin,
   updatePassword,
 } from "../../../logics/users.js";
 import { appContext } from "../../../contexts/appContext.js";
@@ -24,6 +25,68 @@ const settingsFields = {
 
 export default async function (fastify, opts) {
   fastify.get(
+    "/",
+    {
+      preHandler: requireSession(false, true, true),
+      schema: {
+        response: {
+          200: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                id: { type: "number" },
+                username: { type: "string" },
+                isAdmin: { type: "boolean" },
+              },
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      return appContext.stores.users.getAll();
+    }
+  );
+
+  fastify.put(
+    "/:id",
+    {
+      preHandler: requireSession(false, true, true),
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              id: { type: "number" },
+              username: { type: "string" },
+              isAdmin: { type: "boolean" },
+            },
+          },
+        },
+        body: {
+          type: "object",
+          properties: {
+            password: { type: "string" },
+            isAdmin: { type: "boolean" },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      let { password, isAdmin } = request.body;
+      let { id } = request.params;
+      if (password) {
+        updatePassword(id, password);
+      }
+
+      updateIsAdmin(id, isAdmin);
+
+      return appContext.stores.users.getItem(id);
+    }
+  );
+
+  fastify.get(
     "/me",
     {
       schema: {
@@ -41,9 +104,6 @@ export default async function (fastify, opts) {
       },
     },
     async (request, reply) => {
-      const authEnabled = appContext.settings.get(
-        appSettingsKeys.AuthenticationEnabled
-      );
       const session = appContext.request.get(appRequestsKeys.Session);
       return {
         authenticated: session.authenticated,
@@ -117,11 +177,14 @@ export default async function (fastify, opts) {
   );
 
   fastify.delete(
-    "/",
-    { preHandler: requireSession(false, true, false) },
+    "/:id",
+    { preHandler: requireSession(false, true, true) },
     async function (request, reply) {
+      let { id } = request.params;
       const session = appContext.request.get(appRequestsKeys.Session);
-      if (appContext.stores.users.deleteUser(session.sessionId)) {
+      if (session.userId === parseInt(id, 10))
+        throw fastify.httpErrors.badRequest("You can't delete yourself");
+      if (appContext.stores.users.deleteItem(id)) {
         appContext.hasAnyUser = appContext.stores.users.countItems() > 0;
         appContext.hasAdminUser =
           appContext.hasAnyUser && appContext.stores.users.countAdmins() > 0;

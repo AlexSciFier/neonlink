@@ -33,6 +33,11 @@ export default class UsersStore {
     return this.db.prepare(deleteQuery).run(id).changes > 0;
   }
 
+  getAll() {
+    const selectQuery = `SELECT * FROM users`;
+    return this.db.prepare(selectQuery).all();
+  }
+
   getItem(id) {
     const selectQuery = `SELECT * FROM users WHERE id = ?`;
     return this.db.prepare(selectQuery).get(id);

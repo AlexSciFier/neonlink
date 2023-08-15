@@ -40,7 +40,7 @@ export default class BookmarksStore {
 
   deleteItem(id) {
     const deleteQuery = `DELETE FROM bookmarks WHERE id = :id`;
-    return this.db.prepare(deleteQuery).run(id).changes > 0;
+    return this.db.prepare(deleteQuery).run({ id }).changes > 0;
   }
 
   getAll(userId, search = undefined, tag = undefined, category = undefined) {
@@ -237,7 +237,7 @@ export default class BookmarksStore {
 
   updateItem(id, url, title, desc, icon, categoryId, tags) {
     let tagsRelationsDeleteQuery = `DELETE FROM bookmarksTags WHERE bookmarkId = :id`;
-    this.db.prepare(tagsRelationsDeleteQuery).run(id);
+    this.db.prepare(tagsRelationsDeleteQuery).run({ id });
 
     if (tags) {
       let tagsSelectQuery = `SELECT id FROM tags WHERE name IN (${new Array(
