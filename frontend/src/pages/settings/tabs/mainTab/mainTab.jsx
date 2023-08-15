@@ -5,13 +5,28 @@ import ChangePassword from "./ChangePassword";
 import ExportBookmarks from "./ExportBookmarks";
 import ImportBookmark from "./ImportBookmark";
 import UseAuthentication from "./UseAuthentication";
+import UsersList from "./UsersList";
+import {
+  useUserCurrentStore,
+  userCurrentKeys,
+} from "../../../../stores/userCurrentStore";
 
 export default function MainTab() {
+  const [isAdmin] = useUserCurrentStore(userCurrentKeys.IsAdmin);
   return (
     <div className="flex flex-col gap-3">
+      {isAdmin && (
+        <>
+          <InputGroup title={"App"}>
+            <UseAuthentication />
+          </InputGroup>
+          <InputGroup title={"Users"}>
+            <UsersList />
+          </InputGroup>
+        </>
+      )}
       <InputGroup title={"Account"}>
         <ChangePassword />
-        <UseAuthentication />
       </InputGroup>
       <InputGroup title={"Import"}>
         <ImportBookmark />

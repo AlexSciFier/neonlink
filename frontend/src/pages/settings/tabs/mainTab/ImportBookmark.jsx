@@ -5,6 +5,7 @@ import { useState } from "react";
 import { getJSON, postFormData, postJSON } from "../../../../helpers/fetch";
 import { useEffect } from "react";
 import BookmarkList from "./BookmarkList";
+import { notify } from "../../../../components/Notification";
 
 export default function ImportBookmark() {
   const [file, setFile] = useState();
@@ -18,6 +19,10 @@ export default function ImportBookmark() {
   useEffect(() => {
     setIsEmptyFile(file?.name === undefined);
   }, [file]);
+
+  useEffect(() => {
+    if (error) notify("Error", error || "", "error");
+  }, [error]);
 
   async function handleSubmit(e) {
     e.preventDefault();
