@@ -15,6 +15,7 @@ import {
 } from "../../../../helpers/fetch";
 import { fixBgUrl } from "../../../../helpers/url";
 import ImageFileInput from "../../../../components/ImageFileInput";
+import { notify } from "../../../../components/Notification";
 const ENDPOINT = "/api/backgrounds";
 
 export default function BackgroundImageSettings() {
@@ -50,6 +51,10 @@ export default function BackgroundImageSettings() {
       ac.abort();
     };
   }, []);
+
+  useEffect(() => {
+    if (error) notify("Error", error || "", "error");
+  }, [error]);
 
   async function handleAdd() {
     setIsLoading(true);

@@ -7,6 +7,7 @@ import TagInput from "./components/TagInput";
 import { useCategoriesList } from "../../context/categoriesList";
 import Page from "../../components/Page";
 import { BUTTON_BASE_CLASS } from "../../helpers/baseDesign";
+import { notify } from "../../components/Notification";
 
 function LoadCircle() {
   return (
@@ -52,6 +53,10 @@ export default function AddPage() {
   const [urlError, setUrlError] = useState();
 
   const urlRef = useRef(null);
+
+  useEffect(() => {
+    if (error) notify("Error", error?.message || "Cannot add url", "error");
+  }, [error]);
 
   let { categories, fetchCategories } = useCategoriesList();
 
@@ -104,6 +109,7 @@ export default function AddPage() {
       setIsLoading(false);
     } else {
       console.error("error", res.statusText, res.status);
+      notify("Error", res.statusText, "error");
       setIsLoading(false);
     }
   }
