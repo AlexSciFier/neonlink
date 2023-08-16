@@ -77,7 +77,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col justify-center w-full h-full">
       <div className="flex justify-center">
-        <form className="border flex flex-col items-center lg:w-1/4 w-4/5 px-6 py-4 rounded-xl space-y-3 bg-white dark:bg-black/30 dark:backdrop-blur-xl dark:border-0">
+        <form className="border flex flex-col items-center w-11/12 max-w-lg px-6 py-4 rounded-xl space-y-3 bg-white dark:bg-black/30 dark:backdrop-blur-xl dark:border-0">
           <Logo />
           <input
             className="w-full rounded border focus:outline-none focus:ring-cyan-600 focus:ring px-4 py-2 mx-2 bg-transparent dark:text-white"
