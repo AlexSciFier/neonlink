@@ -3,15 +3,15 @@ export default class CategoriesStore {
     this.db = sqliteInstance;
   }
 
-  addItem(name, color) {
+  addItem(name, color, userId) {
     const selectPositionsQuery = `SELECT * FROM categoryPosition ORDER BY position DESC LIMIT 1`;
     let lastPosition =
       this.db.prepare(selectPositionsQuery).get()?.position || 0;
 
-    const insertQuery = `INSERT INTO category (name, color) VALUES(:name,:color)`;
+    const insertQuery = `INSERT INTO category (name, color, userId) VALUES(:name,:color,:userId)`;
     const categoryId = this.db
       .prepare(insertQuery)
-      .run({ name, color }).lastInsertRowid;
+      .run({ name, color, userId }).lastInsertRowid;
 
     const insertPositionQuery = `INSERT INTO categoryPosition (categoryId, position) VALUES(:categoryId,:position)`;
     this.db
@@ -21,13 +21,14 @@ export default class CategoriesStore {
     return categoryId;
   }
 
-  getAll() {
+  getAll(userId) {
     const selectQuery = `SELECT 
         id, name, color, position FROM category 
       INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id
+      WHERE userId = :userId
       ORDER BY position ASC`;
 
-    return this.db.prepare(selectQuery).all();
+    return this.db.prepare(selectQuery).all({ userId });
   }
 
   getItemById(id) {
@@ -37,18 +38,19 @@ export default class CategoriesStore {
       WHERE 
         categoryId = :id
       ORDER BY position ASC`;
-    return this.db.prepare(selectQuery).get(id);
+    return this.db.prepare(selectQuery).get({ id });
   }
 
-  getItemByName(name) {
+  getItemByName(name, userId) {
     const selectQuery = `SELECT 
         id, name, color, position FROM category 
       INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id
       WHERE 
         name = :name
+        AND userId = :userId
       ORDER BY position ASC`;
 
-    return this.db.prepare(selectQuery).get({ name });
+    return this.db.prepare(selectQuery).get({ name, userId });
   }
 
   deleteItem(id) {

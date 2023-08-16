@@ -1,7 +1,8 @@
 import { imgUrlToBase64 } from "../../../helpers/images.js";
 import { netscape } from "../../../helpers/netscape.js";
-import { requestForbidden } from "../../../logics/handlers.js";
-import { stores } from "../../../db/stores.js";
+import { requireSession } from "../../../logics/handlers.js";
+import { appContext } from "../../../contexts/appContext.js";
+import { appRequestsKeys } from "../../../contexts/appRequests.js";
 
 /**
  *
@@ -11,7 +12,7 @@ import { stores } from "../../../db/stores.js";
 export default async function (fastify, opts) {
   fastify.get(
     "/",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let query = new URLSearchParams(request.query);
       let offset = query.get("offset") ?? undefined;
@@ -20,16 +21,28 @@ export default async function (fastify, opts) {
       let tag = query.get("tag") ?? undefined;
       let category = query.get("category") ?? undefined;
 
-      return stores.bookmarks.getPage(limit, offset, q, tag, category);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      return appContext.stores.bookmarks.getPage(
+        user.userId,
+        limit,
+        offset,
+        q,
+        tag,
+        category
+      );
     }
   );
 
   fastify.get(
     "/:id",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      let foundBookmark = stores.bookmarks.getItemById(id);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      let foundBookmark = appContext.stores.bookmarks.getItemById(
+        user.userId,
+        id
+      );
       if (foundBookmark) return foundBookmark;
       throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
     }
@@ -37,10 +50,10 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/:id/icon",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      let icon = stores.bookmarks.getIconByBookmarkId(id);
+      let icon = appContext.stores.bookmarks.getIconByBookmarkId(id);
       if (icon) {
         let type = icon.split(";")[0].split(":")[1];
         reply
@@ -56,9 +69,9 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/export",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
-      let bookmarks = stores.bookmarks.getAll();
+      let bookmarks = appContext.stores.bookmarks.getAll();
       let maped = {};
       for (const key in bookmarks) {
         if (bookmarks.hasOwnProperty(key)) {
@@ -72,10 +85,14 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/category/:id",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      let bookmarks = stores.bookmarks.getByCategoryId(id);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      let bookmarks = appContext.stores.bookmarks.getByCategoryId(
+        user.userId,
+        id
+      );
       if (bookmarks) return bookmarks;
       throw fastify.httpErrors.notFound(
         `bookmarks with category id ${id} not found`
@@ -86,7 +103,7 @@ export default async function (fastify, opts) {
   fastify.post(
     "/",
     {
-      preHandler: requestForbidden,
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "object",
@@ -111,20 +128,30 @@ export default async function (fastify, opts) {
 
       if (icon !== "") icon = await imgUrlToBase64(icon);
 
-      let existingBookmark = stores.bookmarks.getItemByUrl(url);
+      let existingBookmark = appContext.stores.bookmarks.getItemByUrl(url);
       if (existingBookmark) {
         throw fastify.httpErrors.badRequest(
           "Bookmark with this url is already exist"
         );
       }
       reply.statusCode = 201;
-      return stores.bookmarks.addItem(url, title, desc, icon, categoryId, tags);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      return appContext.stores.bookmarks.addItem(
+        url,
+        title,
+        desc,
+        icon,
+        categoryId,
+        tags,
+        user.userId
+      );
     }
   );
 
   fastify.post(
     "/addArray",
     {
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "array",
@@ -147,9 +174,18 @@ export default async function (fastify, opts) {
           throw fastify.httpErrors.notAcceptable(
             `url shoud not be empty ${title}`
           );
-        let existingBookmark = stores.bookmarks.getItemByUrl(url);
+        let existingBookmark = appContext.stores.bookmarks.getItemByUrl(url);
         if (existingBookmark) return;
-        stores.bookmarks.addItem(url, title, "", icon, undefined, []);
+        const user = appContext.request.get(appRequestsKeys.Session);
+        appContext.stores.bookmarks.addItem(
+          url,
+          title,
+          "",
+          icon,
+          undefined,
+          [],
+          user.userId
+        );
         reply.statusCode = 201;
       });
       return true;
@@ -159,7 +195,7 @@ export default async function (fastify, opts) {
   fastify.put(
     "/:id",
     {
-      preHandler: requestForbidden,
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "object",
@@ -181,7 +217,7 @@ export default async function (fastify, opts) {
       if (url === "") throw new Error("Url shoud not be empty string");
       if (icon && icon.startsWith("http")) icon = await imgUrlToBase64(icon);
       if (
-        stores.bookmarks.updateItem(
+        appContext.stores.bookmarks.updateItem(
           id,
           url,
           title,
@@ -198,10 +234,10 @@ export default async function (fastify, opts) {
 
   fastify.delete(
     "/:id",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      if (stores.bookmarks.deleteItem(id)) return true;
+      if (appContext.stores.bookmarks.deleteItem(id)) return true;
       else throw fastify.httpErrors.notFound();
     }
   );
@@ -209,7 +245,7 @@ export default async function (fastify, opts) {
   fastify.put(
     "/changePositions",
     {
-      preHandler: requestForbidden,
+      preHandler: requireSession(true, true, false),
       schema: {
         body: {
           type: "object",
@@ -232,7 +268,8 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let { items, categoryId } = request.body;
-      if (stores.bookmarks.updatePositions(items, categoryId)) return true;
+      if (appContext.stores.bookmarks.updatePositions(items, categoryId))
+        return true;
       return { items, categoryId };
     }
   );

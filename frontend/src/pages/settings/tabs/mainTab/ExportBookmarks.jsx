@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
 import { getJSON } from "../../../../helpers/fetch";
+import { notify } from "../../../../components/Notification";
 
 export default function ExportBookmarks() {
   const [isLoading, setIsLoading] = useState(false);
@@ -25,6 +26,11 @@ export default function ExportBookmarks() {
       setIsLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (error) notify("Error", error || "", "error");
+  }, [error]);
+
   return (
     <div>
       <button

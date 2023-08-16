@@ -3,13 +3,13 @@ import React from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCategoriesList } from "../../../context/categoriesList";
-import { useInterfaceSettings } from "../../../context/interfaceSettingsContext";
+import { useUserSettingsStore, userSettingsKeys } from "../../../stores/userSettingsStore";
 import Group from "../components/group";
 
 export default function GroupList() {
   let { categories, isLoading, fetchCategories, abort } = useCategoriesList();
 
-  const {columns} = useInterfaceSettings()
+  const [ columns ] = useUserSettingsStore(userSettingsKeys.Columns);
 
   useEffect(() => {
     fetchCategories();

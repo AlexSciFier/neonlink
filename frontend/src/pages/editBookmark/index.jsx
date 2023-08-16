@@ -6,6 +6,7 @@ import { useCategoriesList } from "../../context/categoriesList";
 import TagInput from "../addBookmark/components/TagInput";
 import { BUTTON_BASE_CLASS } from "../../helpers/baseDesign";
 import IconInput from "./iconInput";
+import { notify } from "../../components/Notification";
 
 function LoadCircle() {
   return (
@@ -68,6 +69,10 @@ export default function EditBookmark() {
     }
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    if (error) notify("Error", error?.message || "Cannot edit url", "error");
+  }, [error]);
 
   useEffect(() => {
     fetchCategories();

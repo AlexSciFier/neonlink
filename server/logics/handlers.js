@@ -1,33 +1,77 @@
-import { loadUserWithSettingsByUUID } from "./users.js";
-import { stores } from "../db/stores.js";
+import { appContext } from "../contexts/appContext.js";
+import { appRequestsKeys } from "../contexts/appRequests.js";
+import { appSettingsKeys } from "../contexts/appSettings.js";
+import {
+  generateSessionId,
+  loadSystemUser,
+  setSessionCookie,
+} from "./users.js";
+import { addDays } from "../helpers/dates.js";
 
-export async function requestForbidden(request, reply) {
-  try {
-    const noLogin = stores.appSettings.getNologin();
-    if (noLogin) {
-      return;
-    }
-    let SSID = request.cookies.SSID;
-
-    if (SSID) {
-      let user = await loadUserWithSettingsByUUID(SSID);
-      if (user === undefined) {
-        throw reply.notFound("User not found");
+export async function requestContextHandler(request, reply) {
+  let user = loadSystemUser();
+  let sessionId = request.cookies.SSID;
+  if (
+    appContext.settings.get(appSettingsKeys.AuthenticationEnabled) &&
+    sessionId
+  ) {
+    const session = appContext.stores.userSessions.getItem(sessionId);
+    if (session) {
+      user = appContext.stores.users.getItem(session.userId);
+      // Session token renewal after a day
+      if (addDays(new Date(session.created), 1) < new Date()) {
+        sessionId = generateSessionId();
+        appContext.stores.userSessions.deleteItem(session.Id);
+        appContext.stores.userSessions.addItem(sessionId, user.id);
+        setSessionCookie(reply, sessionId);
       }
-    } else {
-      throw reply.unauthorized("You must login to use this method");
     }
-  } catch (err) {
-    console.error(err);
-    throw reply.unauthorized("You must login to use this method");
   }
+
+  appContext.request.set(appRequestsKeys.Session, {
+    authenticated: user.id != 0,
+    sessionId: sessionId,
+    userId: user.id,
+    userName: user.username,
+    isAdmin: user.isAdmin ? true : false,
+  });
 }
 
-export async function requestForbiddenUser(request, reply) {
-  if (await stores.users.checkWhetherTableIsEmpty())
-    throw reply.notFound("No registered users");
-  let { SSID } = request.cookies;
-  let user = await loadUserWithSettingsByUUID(SSID);
-  if (user === undefined)
-    throw reply.unauthorized("You must login to use this method");
+export function requireSession(
+  allowAuthenticationDisabled,
+  requireAuthenticatedUser,
+  requireAuthenticatedAdmin
+) {
+  return async (request, reply) => {
+    const authenticationEnabled = appContext.settings.get(
+      appSettingsKeys.AuthenticationEnabled
+    );
+    if (!allowAuthenticationDisabled && !authenticationEnabled)
+      throw reply.unauthorized("Authentication must be enabled.");
+    else if (authenticationEnabled) {
+      if (!appContext.hasAnyUser) throw reply.notFound("No user is registred.");
+      if (!appContext.hasAdminUser)
+        throw reply.notFound("No admin user is registred.");
+      const session = appContext.request.get(appRequestsKeys.Session);
+      if (requireAuthenticatedUser && !session.authenticated)
+        throw reply.unauthorized("Authenticated user required.");
+      if (requireAuthenticatedAdmin && !session.isAdmin)
+        throw reply.unauthorized("Authenticated admin required.");
+    }
+  };
+}
+
+export function requireVisitor(allowAuthenticationDisabled) {
+  return async (request, reply) => {
+    const authenticationEnabled = appContext.settings.get(
+      appSettingsKeys.AuthenticationEnabled
+    );
+    if (!allowAuthenticationDisabled && !authenticationEnabled)
+      throw reply.unauthorized("Authentication must be enabled.");
+    else if (authenticationEnabled) {
+      const session = appContext.request.get(appRequestsKeys.Session);
+      if (session.authenticated)
+        throw reply.unauthorized("Authenticated user disallowed.");
+    }
+  };
 }

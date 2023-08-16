@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { postJSON } from "../../helpers/fetch";
 import { useNavigate } from "react-router-dom";
-import { useIsloggedIn } from "../../context/isLoggedIn";
 import Logo from "../../components/Logo";
 import { BUTTON_BASE_CLASS } from "../../helpers/baseDesign";
+import {
+  appSettingsKeys,
+  useAppSettingsStore,
+  fetchAppSettings,
+} from "../../stores/appSettingsStore";
+import {
+  userCurrentKeys,
+  useUserCurrentStore,
+} from "../../stores/userCurrentStore";
 
 export default function RegisterPage() {
-  let { needRegistration, setNeedRegistration } = useIsloggedIn();
+  const [registrationEnabled] = useAppSettingsStore(
+    appSettingsKeys.RegistrationEnabled
+  );
+  const [authenticated] = useUserCurrentStore(userCurrentKeys.Authenticated);
+
   const [formData, setFormData] = useState({
     login: "",
     password: "",
@@ -18,8 +30,9 @@ export default function RegisterPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (needRegistration === false) navigate("/");
-  }, []);
+    if (authenticated === true || registrationEnabled === false) navigate("/");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticated, registrationEnabled]);
 
   useEffect(() => {
     setIsFormValid(
@@ -38,7 +51,7 @@ export default function RegisterPage() {
         password: formData.password,
       });
       if (res.ok) {
-        setNeedRegistration(false);
+        await fetchAppSettings();
         navigate("/login");
       } else {
         let json = await res.json();
@@ -53,7 +66,7 @@ export default function RegisterPage() {
 
   return (
     <div className="flex w-screen h-screen justify-center items-center p-4 ">
-      <div className="flex flex-col gap-3 items-center lg:w-1/4 w-4/5 px-6 py-4 rounded-xl bg-white dark:bg-black/30 dark:backdrop-blur-xl dark:border-0">
+      <div className="flex flex-col gap-3 items-center w-11/12 max-w-lg px-6 py-4 rounded-xl bg-white dark:bg-black/30 dark:backdrop-blur-xl dark:border-0">
         <Logo />
         <h2 className="text-2xl font-light dark:text-white">
           Register new user

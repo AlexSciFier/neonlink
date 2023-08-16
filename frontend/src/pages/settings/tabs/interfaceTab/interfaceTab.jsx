@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import InputGroup from "../../components/inputGroup";
 import SwitchButton from "../../components/SwitchButton";
-import { useInterfaceSettings } from "../../../../context/interfaceSettingsContext";
+import {
+  fetchUserSettings,
+  persistUserSettings,
+  userSettingsKeys,
+  useUserSettingsStore,
+} from "../../../../stores/userSettingsStore";
 import {
   CARD_HEADER_STYLE,
   CARD_VERTICAL_ALIGMENT,
@@ -14,34 +19,37 @@ import {
   LightBulbIcon,
   MoonIcon,
   PhotoIcon,
-  ArrowPathIcon,
   ChevronUpDownIcon,
   ViewColumnsIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
 import BackgroundImageSettings from "./BackgroundImageSettings";
+import { useThemeContext } from "../../../../components/ThemeContext";
+import SaveChangesDialog from "../../../../components/SaveChangesDialog";
 
 export default function InterfaceTab() {
-  const {
-    theme,
-    setTheme,
-    useImageAsBg,
-    cardHeaderStyle,
-    openLinkInNewTab,
-    useNeonShadow,
-    cardVerticalAligment,
-    columns,
-    maxItemsInList,
-    syncSettings,
-    setUseImageAsBg,
-    setCardHeaderStyle,
-    setOpenLinkInNewTab,
-    setUseNeonShadow,
-    setCardVerticalAligment,
-    setColumns,
-    setMaxItemsInList,
-    setSyncSettings,
-  } = useInterfaceSettings();
+  const [useImageAsBg, setUseImageAsBg] = useUserSettingsStore(
+    userSettingsKeys.UseBackgroundgImage
+  );
+  const [cardHeaderStyle, setCardHeaderStyle] = useUserSettingsStore(
+    userSettingsKeys.CardHeaderStyle
+  );
+  const [openLinkInNewTab, setOpenLinkInNewTab] = useUserSettingsStore(
+    userSettingsKeys.OpenLinkInNewTab
+  );
+  const [useNeonShadow, setUseNeonShadow] = useUserSettingsStore(
+    userSettingsKeys.UseNeonShadows
+  );
+  const [cardVerticalAligment, setCardVerticalAligment] = useUserSettingsStore(
+    userSettingsKeys.CardVerticalAligment
+  );
+  const [columns, setColumns] = useUserSettingsStore(userSettingsKeys.Columns);
+  const [maxItemsInList, setMaxItemsInList] = useUserSettingsStore(
+    userSettingsKeys.MaxItemsInLinks
+  );
+  const { theme, setTheme } = useThemeContext();
+
+  const [isChanged, setIsChanged] = useState(false);
 
   function changeTheme(e) {
     let isChecked = e.target.checked;
@@ -53,25 +61,6 @@ export default function InterfaceTab() {
   }
 
   const settings = [
-    {
-      title: "Main",
-      items: [
-        {
-          title: "Sync settings",
-          description: "Sync settings across all devices",
-          icon:<ArrowPathIcon/>,
-          input: (
-            <SwitchButton
-              id={"sync-settings"}
-              name={"sync-settings"}
-              text={""}
-              checked={syncSettings}
-              onChange={(e) => setSyncSettings(e.target.checked)}
-            />
-          ),
-        },
-      ],
-    },
     {
       title: "Appearance",
       items: [
@@ -162,7 +151,11 @@ export default function InterfaceTab() {
               onChange={(e) => setColumns(e.target.value)}
             >
               {[...Array(Number.parseInt(6))].map((i, idx) => (
-                <option className="dark:text-black" key={idx} value={idx + 1}>
+                <option
+                  className="dark:text-white dark:bg-gray-900"
+                  key={idx}
+                  value={idx + 1}
+                >
                   {idx + 1}
                 </option>
               ))}
@@ -215,8 +208,20 @@ export default function InterfaceTab() {
     },
   ];
 
+  async function saveChanges(e) {
+    e.preventDefault();
+    await persistUserSettings();
+    setIsChanged(false);
+  }
+
+  async function undoChanges(e) {
+    e.preventDefault();
+    await fetchUserSettings();
+    setIsChanged(false);
+  }
+
   return (
-    <div className="space-y-6">
+    <form onChange={() => setIsChanged(true)} className="space-y-6">
       {settings.map((setting) => (
         <InputGroup title={setting.title} key={setting.title}>
           {setting.items.map((item) => (
@@ -231,6 +236,12 @@ export default function InterfaceTab() {
           ))}
         </InputGroup>
       ))}
-    </div>
+      {isChanged && (
+        <SaveChangesDialog
+          saveChanges={saveChanges}
+          undoChanges={undoChanges}
+        />
+      )}
+    </form>
   );
 }

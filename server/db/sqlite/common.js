@@ -1,12 +1,24 @@
-export function columnExists(db, tableName, columnName) {
-  let columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
-  return columns.map((col) => col.name).includes(columnName);
+export function databaseIsEmpty(db) {
+  const selectQuery =
+    "SELECT count(*) as count FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'";
+  return db.prepare(selectQuery).get().count == 0;
 }
 
-export function getTableCount(db, tableName) {
+export function dataColumnExists(db, tableName, columnName) {
+  const selectQuery = `PRAGMA table_info(${tableName})`;
   return db
-    .prepare(
-      "SELECT count(*) as count FROM sqlite_master WHERE type=? AND name=?"
-    )
-    .get("table", tableName).count;
+    .prepare(selectQuery)
+    .all()
+    .map((col) => col.name)
+    .includes(columnName);
+}
+
+export function dataTableExists(db, tableName) {
+  return dataTypeExists(db, "table", tableName);
+}
+
+function dataTypeExists(db, dataType, dataName) {
+  const selectQuery =
+    "SELECT count(*) as count FROM sqlite_master WHERE type=? AND name=?";
+  return (db.prepare(selectQuery).get(dataType, dataName).count || 0) > 0;
 }

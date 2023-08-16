@@ -1,6 +1,8 @@
-import React from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router";
+import React, { useEffect } from "react";
+import { Route, Routes, useLocation, useNavigate } from "react-router";
 import NavBar from "./NavBar";
+import { useUserCurrentStore, userCurrentKeys } from "../stores/userCurrentStore";
+import { appSettingsKeys, useAppSettingsStore } from "../stores/appSettingsStore";
 
 const Dashboard = React.lazy(() => import("../pages/dashboard"));
 const NotFound = React.lazy(() => import("../pages/notFound"));
@@ -17,11 +19,19 @@ const routes = [
   { path: "/links", element: <LinksPage /> },
 ];
 
-export default function PrivateWrapper({ profile }) {
+export default function PrivateWrapper() {
+  const [ authenticationEnabled, ] = useAppSettingsStore(appSettingsKeys.AuthenticationEnabled);
+  const [ forceRegistration, ] = useAppSettingsStore(appSettingsKeys.ForceRegistration);
+  const [ authenticated, ] = useUserCurrentStore(userCurrentKeys.Authenticated); 
   const { pathname } = useLocation();
-  if (profile === undefined) {
-    return <Navigate to="/login" />;
-  }
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (forceRegistration) navigate("/register");
+    else if (authenticationEnabled && !authenticated) navigate("/login");
+    else navigate("/");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticated, authenticationEnabled, forceRegistration]);
 
   return (
     <>

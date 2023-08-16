@@ -1,7 +1,7 @@
 import sqlite from "better-sqlite3";
 import fs from "../../helpers/fileSystem.js";
 
-import { getTableCount } from "./common.js";
+import { databaseIsEmpty, dataTableExists } from "./common.js";
 
 const migrationFilesFullPath = fs.joinPath(
   fs.extractDirectory(fs.convertToPath(import.meta.url)),
@@ -11,18 +11,16 @@ const updateFileRegex = new RegExp("^update-([0-9]{5})$");
 
 export function setDatabaseVersion(db, version) {
   console.log("Updating version number to " + version.toString() + "...");
-  return db
-    .prepare(
-      "INSERT INTO migrations(name, version) VALUES('database', ?) ON CONFLICT(name) DO UPDATE SET version=?"
-    )
-    .run(version, version);
+  const updateQuery = "INSERT INTO migrations(name, version) VALUES('database', ?) ON CONFLICT(name) DO UPDATE SET version=?"
+  return db.prepare(updateQuery).run(version, version);
 }
 
 export function getDatabaseVersion(db) {
+  if (!dataTableExists(db, "migrations")) return 0;
   let res = db
     .prepare("SELECT version FROM migrations WHERE name='database'")
     .get();
-  return res === undefined ? 0 : res.version;
+  return res.version;
 }
 
 async function getMigrationFiles(version) {
@@ -59,8 +57,10 @@ async function applyMigrationFile(db, filename) {
   ) {
     console.log(`Attempt to apply ${fileData.filename}...`);
 
-    const migrationPlugin = await import(fs.convertToUrl(filePath));
-    migrationPlugin.default(db);
+    const { default: migrationPlugin } = await import(
+      fs.convertToUrl(filePath)
+    );
+    await migrationPlugin(db);
 
     if (fileData.filename === "initial") {
       const migrationFiles = await getMigrationFiles(0);
@@ -80,9 +80,9 @@ async function applyMigrationFile(db, filename) {
 
 export default class SqliteManager {
   constructor(options) {
-    let file = options.path || "./data/bookmarks.sqlite";
-    let opts = options.betterSqlite3options || {};
-    fs.ensureDirectoryExistsSync(fs.extractDirectory(fs.resolvePath(file)));
+    let file = fs.joinPath(options.dataPath, "bookmarks.sqlite");
+    let opts = options.settings || {};
+
     this.db = new sqlite(file, opts);
   }
 
@@ -101,8 +101,7 @@ export default class SqliteManager {
 
     console.log("Starting migrations...");
 
-    var migrationTablesCount = getTableCount(this.db, "migrations");
-    if (migrationTablesCount == 0) {
+    if (databaseIsEmpty(this.db)) {
       console.log("Applying initial database script...");
       if (!(await applyMigrationFile(this.db, "initial.js")))
         throw new Error("Migration Failed");

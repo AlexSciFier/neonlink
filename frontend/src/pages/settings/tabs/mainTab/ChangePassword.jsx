@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useIsloggedIn } from "../../../../context/isLoggedIn";
 import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
+import { userCurrentKeys, useUserCurrentStore, changePassword } from "../../../../stores/userCurrentStore";
 
 function PasswordBox({ id, name, placeholder, onChange, isValid = true }) {
   return (
@@ -25,7 +25,8 @@ function PasswordBox({ id, name, placeholder, onChange, isValid = true }) {
 }
 
 export default function ChangePassword() {
-  const { profile, changePassword } = useIsloggedIn();
+  const [ username, ] = useUserCurrentStore(userCurrentKeys.Username); 
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -34,6 +35,7 @@ export default function ChangePassword() {
 
   useEffect(() => {
     validatePassword();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [confirmPassword, newPassword]);
 
   function validatePassword() {
@@ -50,7 +52,7 @@ export default function ChangePassword() {
   }
   return (
     <div className="flex flex-col gap-2 items-start py-3">
-      <div className="text-xl">{profile.username}</div>
+      <div className="text-xl">{username}</div>
       <div className="flex flex-col gap-2">
         <PasswordBox
           placeholder={"Current password"}

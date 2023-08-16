@@ -1,10 +1,12 @@
 import closeWithGrace from "close-with-grace";
 import fp from "fastify-plugin";
+import { appContext } from "../contexts/appContext.js";
 
 function initializeHooks(fastify, closeListeners) {
   fastify.addHook("onReady", async () => {
-    // TODO: Add initialization logic here
-    // For exemple: Create default user if it does not exist.
+    // Check if initialized with users
+    appContext.hasAnyUser = appContext.stores.users.countItems() > 0;
+    appContext.hasAdminUser = appContext.hasAnyUser && appContext.stores.users.countAdmins() > 0;
     console.log("Application initialized.");
   });
 
@@ -37,7 +39,7 @@ export default fp(
   },
   {
     fastify: "4.x",
-    name: "lifecycle-plugin",
-    dependencies: ["database-plugin", "host-plugin"], // we make sure the hooks are the last ones.
+    name: "neonlink-lifecycle",
+    dependencies: ["neonlink-config", "neonlink-database"] // we make sure the hooks are the last ones.
   }
 );

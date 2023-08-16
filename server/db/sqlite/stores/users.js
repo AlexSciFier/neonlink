@@ -4,11 +4,28 @@ export default class UsersStore {
   }
 
   addItem(username, hashedPassword, isAdmin) {
-    const insertQuery = `INSERT INTO users (username, passwordhash, salt, usergroup) VALUES (?,?,?,?)`;
+    const insertQuery = `INSERT INTO users (username, passwordhash, salt, isAdmin) VALUES (?,?,?,?)`;
     let result = this.db
       .prepare(insertQuery)
       .run(username, hashedPassword.hash, hashedPassword.salt, Number(isAdmin));
     return { username, id: result.lastInsertRowid };
+  }
+
+  countAdmins() {
+    const selectQuery = `SELECT COUNT(*) AS count FROM users WHERE isAdmin != 0`;
+    const res = this.db.prepare(selectQuery).get();
+    return res.count;
+  }
+
+  countItems() {
+    const selectQuery = `SELECT COUNT(*) AS count FROM users`;
+    const res = this.db.prepare(selectQuery).get();
+    return res.count;
+  }
+
+  checkWhetherUserExists(username) {
+    const selectQuery = `SELECT COUNT(*) AS count FROM users WHERE username = ?`;
+    return this.db.prepare(selectQuery).get(username).count > 0;
   }
 
   deleteItem(id) {
@@ -16,14 +33,9 @@ export default class UsersStore {
     return this.db.prepare(deleteQuery).run(id).changes > 0;
   }
 
-  checkWhetherUserExists(username) {
-    const selectQuery = `SELECT * FROM users WHERE username = ?`;
-    return this.db.prepare(selectQuery).get(username);
-  }
-
-  checkWhetherTableIsEmpty() {
-    const selectQuery = `SELECT COUNT(*) AS count FROM users`;
-    return this.db.prepare(selectQuery).get().count === 0;
+  getAll() {
+    const selectQuery = `SELECT * FROM users`;
+    return this.db.prepare(selectQuery).all();
   }
 
   getItem(id) {
@@ -36,27 +48,20 @@ export default class UsersStore {
     return this.db.prepare(selectQuery).get(username);
   }
 
-  updatePassword(username, hashedPassword) {
-    const updateQuery = `UPDATE users SET passwordHash=:passwordHash, salt=:salt WHERE username=:username`;
+  updateIsAdmin(id, isAdmin) {
+    const updateQuery = `UPDATE users SET isAdmin=:isAdmin WHERE id=:id`;
     this.db.prepare(updateQuery).run({
-      username,
-      passwordHash: hashedPassword.hash,
-      salt: hashedPassword.salt,
+      id,
+      isAdmin: Number(isAdmin),
     });
   }
 
-  addUUID(username, uuid) {
-    const updateQuery = `UPDATE users SET uuid=:uuid WHERE username=:username`;
-    return this.db.prepare(updateQuery).run({ username, uuid }).changes;
-  }
-
-  getNologinUser() {
-    return this.db
-      .prepare("SELECT * FROM users WHERE usergroup=0 LIMIT 1")
-      .get();
-  }
-
-  getItemByUUID(uuid) {
-    return this.db.prepare("SELECT * FROM users WHERE uuid=?").get(uuid);
+  updatePassword(userId, hashedPassword) {
+    const updateQuery = `UPDATE users SET passwordHash=:passwordHash, salt=:salt WHERE id=:id`;
+    this.db.prepare(updateQuery).run({
+      id: userId,
+      passwordHash: hashedPassword.hash,
+      salt: hashedPassword.salt,
+    });
   }
 }

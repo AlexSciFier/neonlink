@@ -1,7 +1,9 @@
-import { requestForbidden } from "../../../logics/handlers.js";
-import { stores } from "../../../db/stores.js";
+import { requireSession } from "../../../logics/handlers.js";
+import { appContext } from "../../../contexts/appContext.js";
+import { appRequestsKeys } from "../../../contexts/appRequests.js";
 
 const postOptions = {
+  preHandler: requireSession(true, true, false),
   schema: {
     body: {
       type: "object",
@@ -11,7 +13,6 @@ const postOptions = {
       },
     },
   },
-  preHandler: requestForbidden,
 };
 
 /**
@@ -22,29 +23,31 @@ const postOptions = {
 export default async function (fastify, opts) {
   fastify.get(
     "/",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { q } = request.query;
-      return stores.tags.getAll(q);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      return appContext.stores.tags.getAll(q, user.userId);
     }
   );
 
   fastify.get(
     "/:id",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      return stores.tags.getItemById(id);
+      return appContext.stores.tags.getItemById(id);
     }
   );
 
   fastify.post("/", postOptions, async function (request, reply) {
     let { name } = request.body;
     if (name === "") throw new Error("name cannot be empty");
-    if (stores.tags.existsItemByName(name))
+    const user = appContext.request.get(appRequestsKeys.Session);
+    if (appContext.stores.tags.existsItemByName(name, user.userId))
       throw new Error("tag name already in use.");
 
-    let id = stores.tags.addItem(name);
+    let id = appContext.stores.tags.addItem(name, user.userId);
     reply.statusCode = 201;
     return { id, name };
   });
@@ -53,19 +56,19 @@ export default async function (fastify, opts) {
     let { id } = request.params;
     let { name } = request.body;
     if (name === "") throw new Error("name cannot be empty");
-    let tag = stores.tags.getItemById(id);
+    let tag = appContext.stores.tags.getItemById(id);
     if (tag === undefined)
       throw fastify.httpErrors.notFound("tag with this id doesnt exist");
-    stores.tags.updateItem(id, name);
+    appContext.stores.tags.updateItem(id, name);
     return { id, name };
   });
 
   fastify.delete(
     "/:id",
-    { preHandler: requestForbidden },
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      let status = stores.bookmarks.deleteBookmarkById(id);
+      let status = appContext.stores.bookmarks.deleteBookmarkById(id);
       if (status) return true;
       throw new Error("cannot delete");
     }

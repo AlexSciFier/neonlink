@@ -12,13 +12,23 @@ export const rootPath = joinPath(
 );
 
 export async function checkWhetherPathIsExistingDirectory(path) {
-  const stat = await fs.promises.stat(path);
-  return stat?.isDirectory() === true;
+  try {
+    const stat = await fs.promises.stat(path);
+    return stat?.isDirectory() === true;
+  }
+  catch (error) {
+    return false;
+  }
 }
 
 export async function checkWhetherPathIsExistingFile(path) {
-  const stat = await fs.promises.stat(path);
-  return stat?.isFile() === true;
+  try {
+    const stat = await fs.promises.stat(path);
+    return stat?.isFile() === true;
+  } 
+  catch (error) {
+    return false;
+  }
 }
 
 export function convertToPath(url) {
@@ -91,6 +101,10 @@ export async function listItemsFromDirectory(path, filter) {
   return await fs.promises.readdir(path);
 }
 
+export async function readFileContent(filePath) {
+  return await fs.promises.readFile(filePath, 'utf8');
+}
+
 export async function saveFileStream(directory, fileName, sourceStream) {
   let destinationPath = join(directory, fileName);
 
@@ -107,8 +121,8 @@ export async function saveFileStream(directory, fileName, sourceStream) {
 export async function saveFileContent(directory, fileName, content) {
   let destinationPath = join(directory, fileName);
 
-  await ensureDirectoryExists(destinationPath);
-  await fs.promises.writeFile(destinationPath, data);
+  await ensureDirectoryExists(directory);
+  await fs.promises.writeFile(destinationPath, content);
 }
 
 export async function deleteFile(directory, fileName) {
@@ -127,6 +141,7 @@ export default {
   joinPath,
   listItemsFromDirectory,
   parsePath,
+  readFileContent,
   relativeToExecution,
   relativeToPath,
   resolvePath,

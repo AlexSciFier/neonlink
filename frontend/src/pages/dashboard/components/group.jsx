@@ -1,14 +1,22 @@
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
-import { useInterfaceSettings } from "../../../context/interfaceSettingsContext";
 import { pickColorBasedOnBgColor } from "../../../helpers/color";
 import { getJSON } from "../../../helpers/fetch";
 import LazyIcon from "../../../components/LazyIcon";
+import {
+  useUserSettingsStore,
+  userSettingsKeys,
+} from "../../../stores/userSettingsStore";
 
 export default function Group({ category }) {
-  const { useImageAsBg, cardHeaderStyle, useNeonShadow } =
-    useInterfaceSettings();
+  const [useImageAsBg] = useUserSettingsStore(
+    userSettingsKeys.UseBackgroundgImage
+  );
+  const [cardHeaderStyle] = useUserSettingsStore(
+    userSettingsKeys.CardHeaderStyle
+  );
+  const [useNeonShadow] = useUserSettingsStore(userSettingsKeys.UseNeonShadows);
   const [bookmarks, setBookmarks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -73,7 +81,7 @@ export default function Group({ category }) {
         ) : (
           bookmarks.map((bookmark) => (
             <a
-              className="dark:hover:bg-white/10 hover:bg-black/10 px-4 py-2 rounded flex space-x-3"
+              className="dark:hover:bg-white/10 hover:bg-black/10 px-4 py-2 rounded flex items-center space-x-3"
               key={bookmark.id}
               href={bookmark.url}
               target="_blank"
