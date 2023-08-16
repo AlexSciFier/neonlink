@@ -1,4 +1,4 @@
-FROM node:alpine AS ui-build
+FROM --platform=$BUILDPLATFORM node:alpine AS ui-build
 WORKDIR /app/client
 
 ENV PATH /app/client/node_modules/.bin:$PATH
@@ -13,7 +13,7 @@ RUN npm ci --omit=dev
 COPY ./frontend .
 RUN npm run build
 
-FROM node:alpine AS srv-build
+FROM --platform=$BUILDPLATFORM node:alpine AS srv-build
 WORKDIR /app/server
 
 ARG NODE_ENV=production
