@@ -19,7 +19,8 @@ export default async function (db) {
       search TEXT,
       icon TEXT,
       categoryId INEGER,
-      created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      userId INTEGER
     )`,
 
     `CREATE TABLE IF NOT EXISTS bookmarkPosition (
@@ -38,7 +39,8 @@ export default async function (db) {
     `CREATE TABLE IF NOT EXISTS category (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT,
-      color TEXT
+      color TEXT,
+      userId INTEGER
     )`,
 
     `CREATE TABLE IF NOT EXISTS categoryPosition (
@@ -48,7 +50,8 @@ export default async function (db) {
 
     `CREATE TABLE IF NOT EXISTS tags (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT
+      name TEXT,
+      userId INTEGER
     )`,
 
     `CREATE TABLE IF NOT EXISTS users (
