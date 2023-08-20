@@ -7,7 +7,7 @@ import {
   deleteBackground,
   getAllBackgrounds,
   getBackgroundById,
-  getBackgroundByUrl,
+  isBackgroundExist,
 } from "../../../logics/backgrounds.js";
 import { requireSession } from "../../../logics/handlers.js";
 
@@ -52,8 +52,8 @@ export default async function (fastify, opts) {
       const { url } = request.body;
       const user = appContext.request.get(appRequestsKeys.Session);
 
-      let res = getBackgroundByUrl(url, user.userId);
-      if (res === false) throw reply.notAcceptable("Already exist");
+      let res = isBackgroundExist(url, user.userId);
+      if (res) throw reply.notAcceptable("Already exist");
 
       let imgRes = await axios.get(url, {
         method: "GET",
