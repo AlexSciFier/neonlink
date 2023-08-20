@@ -79,6 +79,8 @@ export default function BackgroundImageSettings() {
           let resBody = await res.json();
           setImages((prev) => [...prev, { id: resBody.id, url: resBody.url }]);
           setShow(false);
+          setFile(undefined);
+          setUrl(undefined);
         } else {
           setError((await res.json())?.message);
         }
@@ -184,19 +186,21 @@ export default function BackgroundImageSettings() {
             key={image.id}
             className="flex relative justify-center items-center"
           >
-            <img
-              width={20}
-              height={20}
-              onClick={() => {
-                handleSelect(image);
-              }}
-              className={`rounded w-20 h-20 object-cover object-center cursor-pointer ${
-                selectedId === image.id ? "border-2 border-cyan-500" : ""
-              }`}
-              alt={`bg-img-${image.id}`}
-              src={fixBgUrl(image.url)}
-            />
-
+            <label>
+              <img
+                width={20}
+                height={20}
+                onClick={() => {
+                  handleSelect(image);
+                }}
+                className={`rounded w-20 h-20 object-cover object-center cursor-pointer ${
+                  selectedId === image.id ? "border-2 border-cyan-500" : ""
+                }`}
+                alt={`bg-img-${image.id}`}
+                src={fixBgUrl(image?.thumbs?.small || image.url)}
+              />
+              <input className="hidden" type="radio" name={userSettingsKeys.BackgroundImage}></input>
+            </label>
             {selectedId === image.id && (
               <div className="w-6 h-6 rounded-full bg-cyan-500 absolute cursor-pointer">
                 <CheckIcon className="text-white p-1" />
