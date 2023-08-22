@@ -31,6 +31,9 @@ COPY --chown=node ./server ./
 COPY --chown=node --from=srv-build /app/server ./
 COPY --chown=node --from=ui-build /app/client/build ./public
 
+RUN mkdir ./data
+RUN mkdir ./public/static/media/background
+
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 ENV PORT=3333
