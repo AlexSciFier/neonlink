@@ -16,8 +16,14 @@ export default class TagsStore {
   }
 
   existsItemByName(name, userId) {
-    const selectQuery = `SELECT COUNT(*) AS count FROM tags WHERE name = :name AND userId = :userId`;
-    const result = this.db.prepare(selectQuery).get({ name, userId });
+    let selectQuery = `SELECT COUNT(*) AS count FROM tags WHERE name = :name`;
+    let selectParams = { name };
+    if (userId) {
+      selectQuery += ` AND (userId IN (:userId, 0) OR userId IS NULL) `;
+      selectParams.userId = userId;
+    }
+
+    const result = this.db.prepare(selectQuery).get(selectParams);
     return result && result.count > 0;
   }
 
@@ -26,21 +32,24 @@ export default class TagsStore {
         id, name 
       FROM tags`;
 
-    const selectParams = { userId };
-    const conditions = [];
-    conditions.push("tags.userId = :userId");
+    let selectParams = {};
+    let conditions = [];
+    if (userId) {
+      conditions.push("(tags.userId IN (:userId, 0) OR tags.userId IS NULL)");
+      selectParams.userId = userId;
+    }
 
     if (name) {
       conditions.push("tags.name LIKE :name");
       selectParams.name = `%${name}%`;
     }
 
-    selectQuery += ` WHERE ${conditions.join(" AND ")}`;
+    if (conditions.length > 0) {
+      selectQuery += ` WHERE ${conditions.join(" AND ")}`;
+    }
 
     selectQuery += ` GROUP BY tags.id
       ORDER BY tags.name`;
-
-    console.log(selectQuery, selectParams);
 
     return this.db.prepare(selectQuery).all(selectParams);
   }
