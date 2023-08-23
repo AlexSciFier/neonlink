@@ -2,11 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { notify } from "../../../../components/Notification";
 import { deleteJSON, getJSON, putJSON } from "../../../../helpers/fetch";
 import UserItem from "./UserItem";
+import { appSettingsKeys, useAppSettingsStore } from "../../../../stores/appSettingsStore";
 
 export default function UsersList() {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(undefined);
+  const [authenticationEnabled] = useAppSettingsStore(
+    appSettingsKeys.AuthenticationEnabled
+  );
 
   const abortController = useRef(null);
 
@@ -74,10 +78,18 @@ export default function UsersList() {
   }, []);
 
   useEffect(() => {
-    if (isError) notify("Error", isError?.message || "", "error");
-  }, [isError]);
+    if (isError && authenticationEnabled) {
+      notify(
+        "Error",
+        "Can't get list of users. " + isError?.message || "",
+        "error"
+      );
+    }
+  }, [isError, authenticationEnabled]);
 
   if (isLoading) return <div>Loading...</div>;
+
+  if (users.length === 0) return <div>No users</div>;
 
   return (
     <ul className="border rounded px-4 py-2 flex flex-col gap-1">

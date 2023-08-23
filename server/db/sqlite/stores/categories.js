@@ -22,13 +22,17 @@ export default class CategoriesStore {
   }
 
   getAll(userId) {
-    const selectQuery = `SELECT 
+    let selectQuery = `SELECT 
         id, name, color, position FROM category 
-      INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id
-      WHERE userId = :userId
-      ORDER BY position ASC`;
+      INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id`
+    let selectParams = {}
+      if(userId){
+        selectQuery += ` WHERE (userId IN (:userId, 0) OR userId IS NULL) `
+        selectParams.userId = userId
+      }
+      selectQuery += ` ORDER BY position ASC`;
 
-    return this.db.prepare(selectQuery).all({ userId });
+    return this.db.prepare(selectQuery).all(selectParams);
   }
 
   getItemById(id) {
@@ -42,15 +46,21 @@ export default class CategoriesStore {
   }
 
   getItemByName(name, userId) {
-    const selectQuery = `SELECT 
+    let selectQuery = `SELECT 
         id, name, color, position FROM category 
       INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id
-      WHERE 
-        name = :name
-        AND userId = :userId
-      ORDER BY position ASC`;
-
-    return this.db.prepare(selectQuery).get({ name, userId });
+ 
+      `;
+    let selectParams = {name}
+    let conditions = []
+    conditions.push("name = :name")
+    if(userId){
+      conditions.push("(userId IN (:userId, 0) OR userId IS NULL)")
+      selectParams.userId = userId
+    }
+    selectQuery += ` WHERE ${conditions.join(" AND ")} `
+    selectQuery += `ORDER BY position ASC`
+    return this.db.prepare(selectQuery).get(selectParams);
   }
 
   deleteItem(id) {

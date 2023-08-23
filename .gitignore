@@ -1,6 +1,5 @@
 node_modules
 server/data
-server/db
 data
 background
 .vscode

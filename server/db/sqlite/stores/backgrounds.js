@@ -9,22 +9,43 @@ export default class BackgroundsStore {
   }
 
   deleteItem(id, userId) {
-    const deleteQuery = `DELETE FROM backgrounds WHERE id=:id AND (userId=:userId OR userId IS NULL)`;
-    return this.db.prepare(deleteQuery).run({ id, userId }).changes;
+    const deleteQuery = `DELETE FROM backgrounds WHERE id=:id`;
+    let deleteParams = {id};
+    if (userId) {
+      deleteQuery += " AND (userId IN (:userId, 0) OR userId IS NULL)";
+      deleteParams += { userId };
+    }
+    return this.db.prepare(deleteQuery).run(deleteParams).changes;
   }
 
   getAll(userId) {
-    const selectQuery = `SELECT * FROM backgrounds WHERE userId=:userId OR userId IS NULL`;
-    return this.db.prepare(selectQuery).all({ userId });
+    let selectQuery = `SELECT * FROM backgrounds`;
+    let selectParams = {};
+    if (userId) {
+      selectQuery += " WHERE userId IN (:userId, 0) OR userId IS NULL";
+      selectParams += { userId };
+    }
+
+    return this.db.prepare(selectQuery).all(selectParams);
   }
 
   getItemById(id, userId) {
-    const selectQuery = `SELECT * FROM backgrounds WHERE id=:id AND (userId=:userId OR userId IS NULL)`;
-    return this.db.prepare(selectQuery).all({ id, userId });
+    let selectQuery = `SELECT * FROM backgrounds WHERE id=:id`;
+    let selectParams = {id};
+    if (userId) {
+      selectQuery += " AND (userId IN (:userId, 0) OR userId IS NULL)";
+      selectParams += { userId };
+    }
+    return this.db.prepare(selectQuery).all(selectParams);
   }
 
   getItemByUrl(url, userId) {
-    const selectQuery = `SELECT * FROM backgrounds WHERE url=:url AND (userId=:userId OR userId IS NULL)`;
-    return this.db.prepare(selectQuery).all({ url, userId });
+    let selectQuery = `SELECT * FROM backgrounds WHERE url=:url`;
+    let selectParams = {url};
+    if (userId) {
+      selectQuery += " AND (userId IN (:userId, 0) OR userId IS NULL)";
+      selectParams += { userId };
+    }
+    return this.db.prepare(selectQuery).all(selectParams);
   }
 }
