@@ -61,11 +61,11 @@ export default class BookmarksStore {
             : ""
         }`;
 
-    const selectParams = {
+    let selectParams = {
       userId,
     };
 
-    const conditions = [];
+    let conditions = [];
 
     if (search || tag || category) {
       if (search) {
@@ -127,7 +127,7 @@ export default class BookmarksStore {
             : ""
         }`;
 
-    const countParams = { userId };
+    let countParams = { userId };
 
     let selectQuery = `SELECT 
         bookmarks.id,
@@ -146,9 +146,9 @@ export default class BookmarksStore {
             : ""
         }`;
 
-    const selectParams = { userId, search, limit, offset };
+    let selectParams = { userId, search, limit, offset };
 
-    const conditions = [];
+    let conditions = [];
 
     if (userId) {
       conditions.push("(bookmarks.userId IN (:userId, 0) OR bookmarks.userId IS NULL)");
@@ -247,7 +247,7 @@ export default class BookmarksStore {
   }
 
   getItemByUrl(userId, url) {
-    const selectQuery = `SELECT * FROM bookmarks WHERE url = :url`;
+    let selectQuery = `SELECT * FROM bookmarks WHERE url = :url`;
     let selectParams = {url}
     if(userId){
       selectQuery += " AND (userId IN (:userId, 0) OR userId IS NULL)"
