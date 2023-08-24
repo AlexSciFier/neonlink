@@ -17,11 +17,11 @@ const userSettingsKeys = {
 
 const userSettingsInitialState = {
   theme: getPreferedScheme(),
-  maxItemsInLinks: 50,
+  maxItemsInLinks: 25,
   openLinkInNewTab: true,
   useBgImage: false,
   bgUrl: "",
-  columns: 20,
+  columns: 3,
   cardHeaderStyle: "default",
   useNeonShadows: false,
   cardVerticalAligment: "top",
