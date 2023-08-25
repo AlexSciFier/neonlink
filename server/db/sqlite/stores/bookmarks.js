@@ -87,7 +87,8 @@ export default class BookmarksStore {
       selectParams.userId = userId;
     }
 
-    selectQuery += ` WHERE ${conditions.join(" AND ")}`;
+    if (conditions.length > 0)
+      selectQuery += ` WHERE ${conditions.join(" AND ")}`;
 
     selectQuery += ` GROUP BY bookmarks.id
       ORDER BY bookmarks.created DESC`;
@@ -151,7 +152,9 @@ export default class BookmarksStore {
     let conditions = [];
 
     if (userId) {
-      conditions.push("(bookmarks.userId IN (:userId, 0) OR bookmarks.userId IS NULL)");
+      conditions.push(
+        "(bookmarks.userId IN (:userId, 0) OR bookmarks.userId IS NULL)"
+      );
       countParams.userId = userId;
       selectParams.userId = userId;
     }
@@ -203,15 +206,20 @@ export default class BookmarksStore {
       FROM bookmarks
         LEFT JOIN bookmarkPosition ON bookmarks.id = bookmarkPosition.bookmarkId
       `;
-    let selectParams = { categoryId, userId }
+    let selectParams = { categoryId, userId };
 
-    let conditions = []
-    conditions.push("bookmarks.categoryId = :categoryId")
-    if(userId){
-      conditions.push("(bookmarks.userId IN (:userId, 0) OR bookmarks.userId IS NULL)")
+    let conditions = [];
+    conditions.push("bookmarks.categoryId = :categoryId");
+    if (userId) {
+      conditions.push(
+        "(bookmarks.userId IN (:userId, 0) OR bookmarks.userId IS NULL)"
+      );
     }
-    selectQuery += `WHERE ${conditions.join(" AND ")} `
-    selectQuery += "ORDER BY bookmarkPosition.position"
+    
+    if (conditions.length > 0)
+      selectQuery += `WHERE ${conditions.join(" AND ")} `;
+
+    selectQuery += "ORDER BY bookmarkPosition.position";
 
     return this.db
       .prepare(selectQuery)
@@ -234,24 +242,29 @@ export default class BookmarksStore {
         LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id 
         LEFT JOIN tags ON bookmarksTags.tagId = tags.id
       `;
-    let selectParams = {id}
-    let conditions = ["bookmarks.id = :id"]
-    conditions.push()
-    if(userId){
-      conditions.push("(bookmarks.userId IN (:userId, 0) OR bookmarks.userId IS NULL)")
-      selectParams.userId = userId
+    let selectParams = { id };
+    let conditions = ["bookmarks.id = :id"];
+    conditions.push();
+    if (userId) {
+      conditions.push(
+        "(bookmarks.userId IN (:userId, 0) OR bookmarks.userId IS NULL)"
+      );
+      selectParams.userId = userId;
     }
-    selectQuery += `WHERE ${conditions.join(" AND ")} `
-    selectQuery += `GROUP BY bookmarks.id`
+
+    if (conditions.length > 0)
+      selectQuery += `WHERE ${conditions.join(" AND ")} `;
+
+    selectQuery += `GROUP BY bookmarks.id`;
     return this.db.prepare(selectQuery).get(selectParams);
   }
 
   getItemByUrl(userId, url) {
     let selectQuery = `SELECT * FROM bookmarks WHERE url = :url`;
-    let selectParams = {url}
-    if(userId){
-      selectQuery += " AND (userId IN (:userId, 0) OR userId IS NULL)"
-      selectParams.userId = userId
+    let selectParams = { url };
+    if (userId) {
+      selectQuery += " AND (userId IN (:userId, 0) OR userId IS NULL)";
+      selectParams.userId = userId;
     }
     return this.db.prepare(selectQuery).get(selectParams);
   }

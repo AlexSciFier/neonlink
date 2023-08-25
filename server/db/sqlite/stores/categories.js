@@ -24,13 +24,13 @@ export default class CategoriesStore {
   getAll(userId) {
     let selectQuery = `SELECT 
         id, name, color, position FROM category 
-      INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id`
-    let selectParams = {}
-      if(userId){
-        selectQuery += ` WHERE (userId IN (:userId, 0) OR userId IS NULL) `
-        selectParams.userId = userId
-      }
-      selectQuery += ` ORDER BY position ASC`;
+      INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id`;
+    let selectParams = {};
+    if (userId) {
+      selectQuery += ` WHERE (userId IN (:userId, 0) OR userId IS NULL) `;
+      selectParams.userId = userId;
+    }
+    selectQuery += ` ORDER BY position ASC`;
 
     return this.db.prepare(selectQuery).all(selectParams);
   }
@@ -51,15 +51,18 @@ export default class CategoriesStore {
       INNER JOIN categoryPosition ON categoryPosition.categoryId = category.id
  
       `;
-    let selectParams = {name}
-    let conditions = []
-    conditions.push("name = :name")
-    if(userId){
-      conditions.push("(userId IN (:userId, 0) OR userId IS NULL)")
-      selectParams.userId = userId
+    let selectParams = { name };
+    let conditions = [];
+    conditions.push("name = :name");
+    if (userId) {
+      conditions.push("(userId IN (:userId, 0) OR userId IS NULL)");
+      selectParams.userId = userId;
     }
-    selectQuery += ` WHERE ${conditions.join(" AND ")} `
-    selectQuery += `ORDER BY position ASC`
+    
+    if (conditions.length > 0)
+      selectQuery += ` WHERE ${conditions.join(" AND ")} `;
+    
+    selectQuery += `ORDER BY position ASC`;
     return this.db.prepare(selectQuery).get(selectParams);
   }
 

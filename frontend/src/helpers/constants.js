@@ -1,5 +1,5 @@
 export const APP_NAME = "NeonLink";
-export const VERSION = "1.4.6";
+export const VERSION = "1.4.7";
 export const DEF_MAX_ITEMS = 20;
 export const DEF_COLUMNS = 3;
 export const CARD_HEADER_STYLE = [
