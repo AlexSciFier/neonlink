@@ -10,14 +10,14 @@ export default function AboutTab() {
   useEffect(() => {
     async function fetchVersion() {
       let res = await fetch(
-        "https://raw.githubusercontent.com/AlexSciFier/neonlink/master/frontend/src/helpers/constants.js"
+        "https://api.github.com/repos/alexscifier/neonlink/releases/latest"
       );
       if (res.ok === false) return;
 
-      let body = await res.text();
-      let newVersionString = body.match(/VERSION = "(.+)"/)[1];
-      let newVersion = parseInt(newVersionString.replace(/\./g, ""), 10);
-      let oldVersion = parseInt(VERSION.replace(/\./g, ""), 10);
+      let body = await res.json();
+      let newVersionString = body.tag_name;
+      let newVersion = parseInt(newVersionString.replace(/\D/g, ""), 10);
+      let oldVersion = parseInt(VERSION.replace(/\D/g, ""), 10);
       if (newVersion > oldVersion) setUpdateVersion(newVersionString);
     }
     fetchVersion();
