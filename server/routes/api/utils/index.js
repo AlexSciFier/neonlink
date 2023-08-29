@@ -36,10 +36,10 @@ export default async function (fastify, opts) {
         return { title: "", desc: "", icon: "" };
       }
       let contentType = res.headers["content-type"];
-      let matches = contentType.match(/charset=(.+)/);
+      let matches = contentType.match(/charset=\s*"?(.[^\"]+)"?$/gim);
       let encoding = matches?.[1] || "utf-8";
       let resData = await res.data;
-      let html = new TextDecoder(encoding).decode(resData);
+      let html = new TextDecoder(encoding.toLowerCase()).decode(resData);
       return await parseHtml(html, url);
     }
   );
