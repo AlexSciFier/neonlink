@@ -120,7 +120,7 @@ export default function InterfaceTab() {
       items: [
         {
           title: "Use image as background",
-          description: "Use image url as background of dashboad",
+          description: "Use image url as background of dashboard",
           icon: <PhotoIcon />,
           input: (
             <SwitchButton
