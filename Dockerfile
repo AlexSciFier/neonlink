@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:alpine AS ui-build
+FROM --platform=$BUILDPLATFORM node:lts-slim AS ui-build
 WORKDIR /app/client
 
 ENV PATH /app/client/node_modules/.bin:$PATH
@@ -13,7 +13,10 @@ RUN npm ci --omit=dev
 COPY ./frontend .
 RUN npm run build
 
-FROM --platform=$BUILDPLATFORM node:alpine AS srv-build
+FROM --platform=$TARGETPLATFORM node:lts-slim AS srv-build
+
+RUN apt-get update && apt-get install python3 make build-essential -y
+
 WORKDIR /app/server
 
 ARG NODE_ENV=production
@@ -24,7 +27,7 @@ COPY ./server/package*.json ./
 
 RUN npm ci --omit=dev
 
-FROM node:alpine
+FROM --platform=$TARGETPLATFORM node:lts-slim
 USER node
 WORKDIR /app
 COPY --chown=node ./server ./
