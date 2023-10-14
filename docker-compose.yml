@@ -9,6 +9,9 @@ services:
       - ./background:/app/public/static/media/background
     environment:
       - FASTIFY_PLUGIN_TIMEOUT=10000 # Set to 0 if ERR_AVVIO_PLUGIN_TIMEOUT error occurs.
+      - UID=1000
+      - GID=1000
+      - UMASK=22
     restart: unless-stopped
     ports:
       - "80:3333"
