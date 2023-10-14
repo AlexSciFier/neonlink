@@ -10,6 +10,7 @@ try {
   // Initialize Fastify
   const app = Fastify({
     logger: { level: process.env.FASTIFY_LOG_LEVEL || "info" },
+    pluginTimeout: process.env.FASTIFY_PLUGIN_TIMEOUT || 10000
   });
 
   // Load all plugins

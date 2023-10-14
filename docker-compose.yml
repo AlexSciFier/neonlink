@@ -7,6 +7,8 @@ services:
     volumes:
       - ./data:/app/data
       - ./background:/app/public/static/media/background
+    environment:
+      - FASTIFY_PLUGIN_TIMEOUT=10000 # Set to 0 if ERR_AVVIO_PLUGIN_TIMEOUT error occurs.
     restart: unless-stopped
     ports:
       - "80:3333"
