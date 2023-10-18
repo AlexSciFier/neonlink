@@ -28,7 +28,9 @@ COPY ./server/package*.json ./
 RUN npm ci --omit=dev
 
 FROM --platform=$TARGETPLATFORM node:lts-slim
-USER node
+
+RUN apt-get update && apt-get install -y gosu
+
 WORKDIR /app
 COPY ./docker-entrypoint.sh ./
 COPY --chown=node ./server ./

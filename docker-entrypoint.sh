@@ -12,7 +12,7 @@ if [ `id -u` -eq 0 ] && [ `id -g` -eq 0 ]; then
     echo "Changing ownership to ${UID}:${GID}"
     chown -R "${UID}":"${GID}" ./data ./public/static/media/background
     echo "Running Neonlink as user ${UID}:${GID}"
-    su-exec "${UID}":"${GID}" node server.js
+    gosu "${UID}":"${GID}" node server.js
 else
     echo "User set by docker; running Neonlink as `id -u`:`id -g`"
     node server.js
