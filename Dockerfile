@@ -29,9 +29,9 @@ RUN npm ci --omit=dev
 
 FROM --platform=$TARGETPLATFORM node:lts-slim
 
-RUN apt-get update && apt-get install -y gosu
-
 WORKDIR /app
+USER node
+
 COPY ./docker-entrypoint.sh ./
 COPY --chown=node ./server ./
 COPY --chown=node --from=srv-build /app/server ./
@@ -46,11 +46,4 @@ ENV FASTIFY_ADDRESS=0.0.0.0
 ENV FASTIFY_LOG_LEVEL=error
 ENV FASTIFY_PLUGIN_TIMEOUT=${FASTIFY_PLUGIN_TIMEOUT}
 
-ENV UID=1000
-ENV GID=1000
-ENV UMASK=022
-
-RUN sed -i 's/\r$//g' docker-entrypoint.sh && \
-    chmod +x docker-entrypoint.sh
-
-CMD [ "./docker-entrypoint.sh" ]
+CMD [ "node", "server.js" ]
