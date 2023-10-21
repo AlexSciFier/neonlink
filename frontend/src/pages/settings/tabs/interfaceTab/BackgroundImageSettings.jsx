@@ -16,6 +16,7 @@ import {
 import { fixBgUrl } from "../../../../helpers/url";
 import ImageFileInput from "../../../../components/ImageFileInput";
 import { notify } from "../../../../components/Notification";
+import Image from "../../../../components/Image";
 const ENDPOINT = "/api/backgrounds";
 
 export default function BackgroundImageSettings() {
@@ -187,19 +188,23 @@ export default function BackgroundImageSettings() {
             className="flex relative justify-center items-center"
           >
             <label>
-              <img
-                width={20}
-                height={20}
+              <Image
+                src={image.url}
+                alt={`bg-img-${image.id}`}
+                width={80}
+                height={80}
                 onClick={() => {
                   handleSelect(image);
                 }}
                 className={`rounded w-20 h-20 object-cover object-center cursor-pointer ${
                   selectedId === image.id ? "border-2 border-cyan-500" : ""
                 }`}
-                alt={`bg-img-${image.id}`}
-                src={fixBgUrl(image?.thumbs?.small || image.url)}
               />
-              <input className="hidden" type="radio" name={userSettingsKeys.BackgroundImage}></input>
+              <input
+                className="hidden"
+                type="radio"
+                name={userSettingsKeys.BackgroundImage}
+              ></input>
             </label>
             {selectedId === image.id && (
               <div className="w-6 h-6 rounded-full bg-cyan-500 absolute cursor-pointer">
