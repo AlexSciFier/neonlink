@@ -17,6 +17,9 @@ export default function Group({ category }) {
     userSettingsKeys.CardHeaderStyle
   );
   const [useNeonShadow] = useUserSettingsStore(userSettingsKeys.UseNeonShadows);
+  const [openLinkInNewTab] = useUserSettingsStore(
+    userSettingsKeys.OpenLinkInNewTab
+  );
   const [bookmarks, setBookmarks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -84,7 +87,7 @@ export default function Group({ category }) {
               className="dark:hover:bg-white/10 hover:bg-black/10 px-4 py-2 rounded flex items-center space-x-3"
               key={bookmark.id}
               href={bookmark.url}
-              target="_blank"
+              target={openLinkInNewTab ? "_blank" : "_self"}
               rel="noopener noreferrer"
             >
               <div className="flex-none relative">
