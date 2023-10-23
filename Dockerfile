@@ -38,7 +38,7 @@ COPY --chown=node --from=srv-build /app/server ./
 COPY --chown=node --from=ui-build /app/client/build ./public
 
 ARG NODE_ENV=production
-ARG FASTIFY_PLUGIN_TIMEOUT=10000
+ARG FASTIFY_PLUGIN_TIMEOUT=120000
 ENV NODE_ENV=${NODE_ENV}
 ENV PORT=3333
 ENV FASTIFY_BODY_LIMIT=5242880
