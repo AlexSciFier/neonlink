@@ -32,7 +32,6 @@ FROM --platform=$TARGETPLATFORM node:lts-slim
 WORKDIR /app
 USER node
 
-COPY ./docker-entrypoint.sh ./
 COPY --chown=node ./server ./
 COPY --chown=node --from=srv-build /app/server ./
 COPY --chown=node --from=ui-build /app/client/build ./public
