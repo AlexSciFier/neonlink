@@ -17,25 +17,24 @@
   "license": "ISC",
   "dependencies": {
     "@fastify/autoload": "^5.7.1",
-    "@fastify/cookie": "^8.3.0",
+    "@fastify/cookie": "^9.2.0",
     "@fastify/cors": "^8.3.0",
-    "@fastify/multipart": "^7.7.0",
+    "@fastify/multipart": "^8.0.0",
     "@fastify/request-context": "^5.0.0",
     "@fastify/sensible": "^5.2.0",
     "@fastify/static": "^6.10.2",
     "axios": "^1.4.0",
-    "better-sqlite3": "^8.4.0",
+    "better-sqlite3": "^9.2.0",
     "close-with-grace": "^1.2.0",
     "dotenv": "^16.0.3",
     "fastify": "^4.19.1",
     "fastify-plugin": "^4.5.0",
     "fastify-session": "^5.2.1",
     "node-html-parser": "^6.1.5",
-    "sharp": "^0.32.5",
+    "sharp": "^0.33.0",
     "webpack": "^5.88.1"
   },
   "devDependencies": {
-    "prettier": "^3.0.0",
-    "tap": "^16.3.0"
+    "prettier": "^3.0.0"
   }
 }
