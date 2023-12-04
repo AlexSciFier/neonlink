@@ -3,13 +3,9 @@ WORKDIR /app/client
 
 ENV PATH /app/client/node_modules/.bin:$PATH
 
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-ENV NPM_CONFIG_LOGLEVEL=warn
-
 COPY ./frontend/package*.json ./
 
-RUN npm ci --omit=dev
+RUN npm ci
 COPY ./frontend .
 RUN npm run build
 
@@ -44,5 +40,7 @@ ENV FASTIFY_BODY_LIMIT=5242880
 ENV FASTIFY_ADDRESS=0.0.0.0
 ENV FASTIFY_LOG_LEVEL=error
 ENV FASTIFY_PLUGIN_TIMEOUT=${FASTIFY_PLUGIN_TIMEOUT}
+
+EXPOSE 3333
 
 CMD [ "node", "server.js" ]
