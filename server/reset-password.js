@@ -32,7 +32,7 @@ function resetPassword(username, password) {
     return;
   }
 
-  updatePassword(user.id, password);
+  updatePassword(user, password);
   console.log("Password changed!");
 }
 
