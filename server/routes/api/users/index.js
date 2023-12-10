@@ -153,9 +153,8 @@ export default async function (fastify, opts) {
       schema: {
         body: {
           type: "object",
-          required: ["username", "currentPassword", "newPassword"],
+          required: ["currentPassword", "newPassword"],
           properties: {
-            username: { type: "string" },
             currentPassword: { type: "string" },
             newPassword: { type: "string" },
           },
