@@ -10,6 +10,6 @@ services:
       - ./background:/app/public/static/media/background
     restart: unless-stopped
     environment:
-      - FASTIFY_PLUGIN_TIMEOUT: 120000 # optional: change to 0 if AVV_ERR_READY TIMEOUT error is occured
+      FASTIFY_PLUGIN_TIMEOUT: 120000 # optional: change to 0 if AVV_ERR_READY TIMEOUT error is occured
     ports:
       - "80:3333"
