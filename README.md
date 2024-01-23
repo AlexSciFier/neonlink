@@ -64,26 +64,38 @@ For Windows development, it is recommended to use git bash.
 ### Setup
 
 ```sh
-#clone project
+# Clone project
 git clone https://github.com/AlexSciFier/neonlink.git
 cd neonlink
 
-# run once to install dependencies
+# Install fastify-cli
+npm install fastify-cli --global
+
+# Run once to install dependencies
 npm run dev-init
 
-#run dev server
+# Run dev server
 npm run dev-start
 ```
 
 ## Build
 
+Neonlink uses multiarch build. That means you need to use [buildx](https://docs.docker.com/engine/reference/commandline/buildx_build/). Or you can use [BuildKit](https://docs.docker.com/build/buildkit/) to build image for one platform.
 To build your own docker container run in root folder
 
+### Build multiarch image
 ```sh
-# build for amd64 architecture
-docker build --platform linux/amd64 --tag alexscifier/neonlink:latest .
-# build for ARM v7 architecture (Raspberry Pi)
-docker build --platform linux/arm/v7 --tag alexscifier/neonlink:latest-armv7 .
+docker buildx build --platform linux/arm/v7,linux/amd64 --push --tag alexscifier/neonlink:latest .
+```
+
+### Build for one platform
+```sh
+# Linux shell
+DOCKER_BUILDKIT=1 docker build --tag alexscifier/neonlink:latest .
+```
+```sh
+# Windows PowerShell
+$env:DOCKER_BUILDKIT=1; docker build -t alexscifier/neonlink .
 ```
 
 ## Screenshots
