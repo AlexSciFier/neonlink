@@ -109,7 +109,9 @@ export default function AddPage() {
       setIsLoading(false);
     } else {
       console.error("error", res.statusText, res.status);
-      notify("Error", res.statusText, "error");
+      let body = await res.json();
+      let reason = body.message;
+      notify("Error", reason, "error");
       setIsLoading(false);
     }
   }
@@ -143,7 +145,9 @@ export default function AddPage() {
   };
 
   const autocompleteUrl = () => {
-    if (!/^https?:\/\//i.test(url) && url !== "") {
+    try {
+      new URL(url);
+    } catch (error) {
       setUrl("https://" + url);
     }
   };
