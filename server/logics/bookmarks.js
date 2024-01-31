@@ -10,6 +10,13 @@ export async function requestHeadFromUrl(url) {
   let res;
   const controller = new AbortController();
 
+  let endpointUrl = new URL(url);
+  if (endpointUrl.protocol !== "http:" && endpointUrl.protocol !== "https:") {
+    return new Promise((resolve, reject) => {
+      reject(new Error(`Unsupported protocol ${endpointUrl.protocol}`));
+    });
+  }
+
   try {
     res = await axios.get(url, {
       responseType: "stream",
@@ -22,12 +29,12 @@ export async function requestHeadFromUrl(url) {
       },
     });
   } catch (error) {
-    console.error(url, error.message);
+    console.error(`Get Head tag from ${url}`, error.message);
     res = error.response;
   }
 
-  let contentType = res.headers["content-type"];
-  let matches = contentType.match(/charset=\s*"?(.[^\"]+)"?$/i);
+  let contentType = res?.headers["content-type"];
+  let matches = contentType?.match(/charset=\s*"?(.[^\"]+)"?$/i);
   let encoding = matches?.[1] || "utf-8";
 
   let stream = res.data;
@@ -70,21 +77,25 @@ export async function batchUpdateLinks() {
   console.log("Starting batch update all links");
 
   bookmarks.forEach(async (bookmark) => {
-    let headHtml = requestHeadFromUrl(bookmark.url);
-    let urlInfo = await parseHtml(headHtml, bookmark.url);
-    let icon = await imgUrlToBase64(urlInfo.icon);
-    let updated = appContext.stores.bookmarks.updateItem(
-      bookmark.id,
-      bookmark.url,
-      urlInfo.title || bookmark.title,
-      urlInfo.desc || bookmark.desc,
-      icon,
-      bookmark.categoryId,
-      bookmark.tags
-    );
-    updated
-      ? console.log(`${bookmark.url} updated!`)
-      : console.error(`${bookmark.url} not updated!`);
+    try {
+      let headHtml = await requestHeadFromUrl(bookmark.url);
+      let urlInfo = parseHtml(headHtml, bookmark.url);
+      let icon = await imgUrlToBase64(urlInfo.icon);
+      let updated = appContext.stores.bookmarks.updateItem(
+        bookmark.id,
+        bookmark.url,
+        urlInfo.title || bookmark.title,
+        urlInfo.desc || bookmark.desc,
+        icon,
+        bookmark.categoryId,
+        bookmark.tags
+      );
+      updated
+        ? console.log(`${bookmark.url} updated!`)
+        : console.error(`${bookmark.url} not updated!`);
+    } catch (err) {
+      console.error(`${bookmark.url} - ${err.message}`);
+    }
   });
   return true;
 }
