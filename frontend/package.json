@@ -1,6 +1,6 @@
 {
   "name": "neonlink-frontend",
-  "version": "1.4.13",
+  "version": "1.4.15",
   "private": true,
   "type": "module",
   "dependencies": {
