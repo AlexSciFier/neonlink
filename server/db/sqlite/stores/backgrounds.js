@@ -9,7 +9,7 @@ export default class BackgroundsStore {
   }
 
   deleteItem(id, userId) {
-    const deleteQuery = `DELETE FROM backgrounds WHERE id=:id`;
+    let deleteQuery = `DELETE FROM backgrounds WHERE id=:id`;
     let deleteParams = { id };
     if (userId) {
       deleteQuery += " AND (userId IN (:userId, 0) OR userId IS NULL)";
