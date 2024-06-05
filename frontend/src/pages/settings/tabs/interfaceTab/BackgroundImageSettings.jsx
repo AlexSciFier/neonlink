@@ -57,6 +57,10 @@ export default function BackgroundImageSettings() {
     if (error) notify("Error", error || "", "error");
   }, [error]);
 
+  useEffect(() => {
+    if (images.length === 1) handleSelect(images[0]);
+  }, [images]);
+
   async function handleAdd() {
     setIsLoading(true);
     setError();
@@ -74,6 +78,10 @@ export default function BackgroundImageSettings() {
           setError((await res.json())?.message);
         }
       } else {
+        if (file === undefined) {
+          setError("No image selected");
+          return;
+        }
         let res = await postFormData("/api/backgrounds/add", { file });
         setIsLoading(false);
         if (res.ok) {
@@ -147,7 +155,7 @@ export default function BackgroundImageSettings() {
               />
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || file === undefined}
                 className={BUTTON_BASE_CLASS}
                 onClick={handleAdd}
               >
