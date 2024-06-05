@@ -32,6 +32,16 @@ export default async function (fastify, opts) {
   );
 
   fastify.get(
+    "/active",
+    { preHandler: requireSession(true, true, false) },
+    async function (request, reply) {
+      let { q } = request.query;
+      const user = appContext.request.get(appRequestsKeys.Session);
+      return appContext.stores.tags.getAll(q, user.userId, true);
+    }
+  );
+
+  fastify.get(
     "/:id",
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {

@@ -17,7 +17,7 @@ export function TagsListProvider({ children }) {
     setError(undefined);
     setIsLoading(true);
     abortController.current = new AbortController();
-    let res = await getJSON(`/api/tags`, abortController.current.signal);
+    let res = await getJSON(`/api/tags/active`, abortController.current.signal);
     if (res.ok) {
       setTags(await res.json());
     } else {

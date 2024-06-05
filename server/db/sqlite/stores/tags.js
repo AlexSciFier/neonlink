@@ -27,9 +27,9 @@ export default class TagsStore {
     return result && result.count > 0;
   }
 
-  getAll(name, userId) {
+  getAll(name, userId, onlyActive = false) {
     let selectQuery = `SELECT 
-        id, name 
+        tags.id, tags.name 
       FROM tags`;
 
     let selectParams = {};
@@ -44,6 +44,10 @@ export default class TagsStore {
       selectParams.name = `%${name}%`;
     }
 
+    if (onlyActive) {
+      selectQuery += ` RIGHT JOIN bookmarksTags ON tags.id = bookmarksTags.tagId`;
+    }
+
     if (conditions.length > 0) {
       selectQuery += ` WHERE ${conditions.join(" AND ")}`;
     }
@@ -51,6 +55,7 @@ export default class TagsStore {
     selectQuery += ` GROUP BY tags.id
       ORDER BY tags.name`;
 
+    console.log(selectQuery);
     return this.db.prepare(selectQuery).all(selectParams);
   }
 
