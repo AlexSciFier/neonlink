@@ -4,8 +4,16 @@ export default class BookmarksStore {
   }
 
   addItem(url, title, desc, icon, categoryId, tags, userId) {
-    const insertQuery = `INSERT INTO bookmarks (url,title,desc,icon,search,categoryId,userId) 
-      VALUES(:url,:title,:desc,:icon,:search,:categoryId,:userId)`;
+    const inParams = [];
+    inParams.push("url");
+    if (title) inParams.push("title");
+    if (desc) inParams.push("desc");
+    if (icon) inParams.push("icon");
+    if (categoryId) inParams.push("categoryId");
+    if (userId) inParams.push("userId");
+
+    const insertQuery = `INSERT INTO bookmarks (${inParams.join(",")}) 
+      VALUES(${inParams.map((param) => `:${param}`).join(",")})`;
     const insertParams = {
       url,
       title,
@@ -215,7 +223,7 @@ export default class BookmarksStore {
         "(bookmarks.userId IN (:userId, 0) OR bookmarks.userId IS NULL)"
       );
     }
-    
+
     if (conditions.length > 0)
       selectQuery += `WHERE ${conditions.join(" AND ")} `;
 
@@ -296,12 +304,16 @@ export default class BookmarksStore {
       transaction(tagsIds);
     }
 
+    let columns = [];
+    if (url) columns.push("url = coalesce(:url,url)");
+    if (title) columns.push("title = coalesce(:title,title)");
+    if (desc) columns.push("desc = coalesce(:desc,desc)");
+    if (icon) columns.push("icon = coalesce(:icon,icon)");
+    if (categoryId)
+      columns.push("categoryId = coalesce(:categoryId,categoryId)");
+
     let updateQuery = `UPDATE bookmarks SET 
-        url = coalesce(:url,url), 
-        title = coalesce(:title,title),
-        desc = coalesce(:desc,desc),
-        icon = coalesce(:icon,icon),
-        categoryId = coalesce(:categoryId,categoryId)
+        ${columns.join(",")}
       WHERE id = :id`;
 
     return (

@@ -58,28 +58,18 @@ export default class CategoriesStore {
       conditions.push("(userId IN (:userId, 0) OR userId IS NULL)");
       selectParams.userId = userId;
     }
-    
+
     if (conditions.length > 0)
       selectQuery += ` WHERE ${conditions.join(" AND ")} `;
-    
+
     selectQuery += `ORDER BY position ASC`;
     return this.db.prepare(selectQuery).get(selectParams);
   }
 
   deleteItem(id) {
-    const statements = [
-      "DELETE FROM category WHERE id = :categoryId",
-      "DELETE FROM categoryPosition WHERE categoryId = :categoryId",
-    ].map((sql) => this.db.prepare(sql));
-
-    const deleteTransaction = this.db.transaction((data) => {
-      for (const stmt of statements) {
-        stmt.run(data);
-      }
-    });
-
-    deleteTransaction({ categoryId: id });
-
+    this.db
+      .prepare("DELETE FROM category WHERE id = :categoryId")
+      .run({ categoryId: id });
     return true;
   }
 

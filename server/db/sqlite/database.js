@@ -11,7 +11,8 @@ const updateFileRegex = new RegExp("^update-([0-9]{5})$");
 
 export function setDatabaseVersion(db, version) {
   console.log("Updating version number to " + version.toString() + "...");
-  const updateQuery = "INSERT INTO migrations(name, version) VALUES('database', ?) ON CONFLICT(name) DO UPDATE SET version=?"
+  const updateQuery =
+    "INSERT INTO migrations(name, version) VALUES('database', ?) ON CONFLICT(name) DO UPDATE SET version=?";
   return db.prepare(updateQuery).run(version, version);
 }
 
@@ -84,6 +85,7 @@ export default class SqliteManager {
     let opts = options.settings || {};
 
     this.db = new sqlite(file, opts);
+    this.db.prepare("PRAGMA foreign_keys = ON;").run();
   }
 
   close() {

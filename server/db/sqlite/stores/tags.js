@@ -55,7 +55,6 @@ export default class TagsStore {
     selectQuery += ` GROUP BY tags.id
       ORDER BY tags.name`;
 
-    console.log(selectQuery);
     return this.db.prepare(selectQuery).all(selectParams);
   }
 
