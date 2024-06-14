@@ -45,7 +45,7 @@ export default class TagsStore {
     }
 
     if (onlyActive) {
-      selectQuery += ` RIGHT JOIN bookmarksTags ON tags.id = bookmarksTags.tagId`;
+      selectQuery += ` INNER JOIN bookmarksTags ON tags.id = bookmarksTags.tagId`;
     }
 
     if (conditions.length > 0) {
