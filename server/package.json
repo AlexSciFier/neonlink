@@ -23,7 +23,7 @@
     "@fastify/request-context": "^5.0.0",
     "@fastify/sensible": "^5.2.0",
     "@fastify/static": "^6.10.2",
-    "axios": "^1.4.0",
+    "axios": "^1.7.4",
     "better-sqlite3": "^9.2.0",
     "close-with-grace": "^1.2.0",
     "dotenv": "^16.0.3",
