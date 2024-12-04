@@ -50,7 +50,6 @@ export default function AddPage() {
   const [url, setUrl] = useState("");
   const [complete, setComplete] = useState(false);
   const [error, setError] = useState();
-  const [urlError, setUrlError] = useState();
 
   const urlRef = useRef(null);
 
@@ -91,8 +90,8 @@ export default function AddPage() {
   };
 
   async function fetchUrl() {
-    setUrlError(undefined);
     if (url === "") return;
+    if (!url.startsWith("http")) return;
 
     setIsLoading(true);
     let res;
@@ -108,10 +107,9 @@ export default function AddPage() {
       setFormData({ ...formData, ...(await res.json()), tags: formData.tags });
       setIsLoading(false);
     } else {
-      console.error("error", res.statusText, res.status);
       let body = await res.json();
       let reason = body.message;
-      notify("Error", reason, "error");
+      console.error(reason);
       setIsLoading(false);
     }
   }
@@ -148,14 +146,12 @@ export default function AddPage() {
     try {
       new URL(url);
     } catch (error) {
-      setUrl("https://" + url);
+      if (url !== "" && !url.startsWith("http")) setUrl("https://" + url);
     }
   };
 
   function isButtonDisabled() {
-    return error || urlError || sending || isLoading || url === ""
-      ? true
-      : false;
+    return error || sending || isLoading || url === "" ? true : false;
   }
 
   if (complete) {
@@ -226,9 +222,7 @@ export default function AddPage() {
             ))}
           </select>
           <div className="flex justify-between">
-            <div className="text-red-600">
-              {error?.message || urlError || ""}
-            </div>
+            <div className="text-red-600">{error?.message || ""}</div>
             <button
               className={BUTTON_BASE_CLASS + "flex gap-2 items-center"}
               type="submit"
