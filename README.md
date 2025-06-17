@@ -84,15 +84,18 @@ Neonlink uses multiarch build. That means you need to use [buildx](https://docs.
 To build your own docker container run in root folder
 
 ### Build multiarch image
+
 ```sh
 docker buildx build --platform linux/arm/v7,linux/amd64 --push --tag alexscifier/neonlink:latest .
 ```
 
 ### Build for one platform
+
 ```sh
 # Linux shell
 DOCKER_BUILDKIT=1 docker build --tag alexscifier/neonlink:latest .
 ```
+
 ```sh
 # Windows PowerShell
 $env:DOCKER_BUILDKIT=1; docker build -t alexscifier/neonlink .
@@ -103,3 +106,15 @@ $env:DOCKER_BUILDKIT=1; docker build -t alexscifier/neonlink .
 ![Dashboard](https://raw.githubusercontent.com/AlexSciFier/neonlink/master/docs/Dashboard.png)
 ![Links dark](https://raw.githubusercontent.com/AlexSciFier/neonlink/master/docs/Links%20dark.png)
 ![Links light](https://raw.githubusercontent.com/AlexSciFier/neonlink/master/docs/Links%20light.png)
+
+## Favicon download
+
+When you're adding a link it's favicon is automatically downloaded.
+
+But for some rare cases where the favicon couldn't be downloaded automatically you can manually paste a link to desired favicon in link editing menu
+
+![](assets/20250302_233945_image.png)
+
+in most cases website favicon location is https://websitedomain/favicon.ico
+
+but if the favicon is not there, then you can use website inspect tool (F12) and then search (ctrl+F) Elements menu for favicon keyword. This will lead you to URL where the favicon is stored
