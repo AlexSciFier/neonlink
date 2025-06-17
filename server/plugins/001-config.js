@@ -2,7 +2,10 @@ import FastifyAutoLoad from "@fastify/autoload";
 import FastifyCookie from "@fastify/cookie";
 import FastifyCors from "@fastify/cors";
 import FastifyMultipart from "@fastify/multipart";
-import { fastifyRequestContext, requestContext } from "@fastify/request-context";
+import {
+  fastifyRequestContext,
+  requestContext,
+} from "@fastify/request-context";
 import FastifySensible from "@fastify/sensible";
 import FastifyStatic from "@fastify/static";
 
@@ -38,17 +41,17 @@ export async function initializeConfig() {
 function initializeFastify(fastify, opts) {
   // Handle some plugins
   fastify.register(FastifySensible, {
-    errorHandler: false
+    errorHandler: false,
   });
   fastify.register(FastifyCors, {
     origin: true,
     credentials: true,
-    methods: ["PUT", "OPTIONS", "POST", "DELETE"]
+    methods: ["PUT", "OPTIONS", "POST", "DELETE"],
   });
 
   fastify.register(FastifyMultipart, {});
   fastify.register(FastifyCookie, {
-    secret: appContext.secrets.get(appSecretsKeys.Cookie)
+    secret: appContext.secrets.get(appSecretsKeys.Cookie),
   });
   fastify.register(fastifyRequestContext);
 
@@ -56,12 +59,12 @@ function initializeFastify(fastify, opts) {
   // define your routes in one of these
   fastify.register(FastifyAutoLoad, {
     dir: fs.joinPath(fs.rootPath, "./routes"),
-    options: Object.assign({}, opts)
+    options: Object.assign({}, opts),
   });
 
   // This allows us to handle static files
   fastify.register(FastifyStatic, {
-    root: fs.joinPath(fs.rootPath, "./public")
+    root: fs.joinPath(fs.rootPath, "./public"),
   });
 
   // This allows us to handle Error 404
@@ -71,26 +74,28 @@ function initializeFastify(fastify, opts) {
 }
 
 function initializeHooks(fastify) {
-  fastify.addHook('onRequest', async (req, reply) => {
+  fastify.addHook("onRequest", async (req, reply) => {
     await requestContextHandler(req, reply);
   });
 }
 
 function initializeRequests() {
-    // Handle request contexts
-    appContext.request = requestContext;
+  // Handle request contexts
+  appContext.request = requestContext;
 }
 
-export default fp(async function (fastify, opts) {
-  
-  await initializeConfig();
+export default fp(
+  async function (fastify, opts) {
+    await initializeConfig();
 
-  initializeFastify(fastify, opts);
-  initializeHooks(fastify);
-  initializeRequests();
+    initializeFastify(fastify, opts);
+    initializeHooks(fastify);
+    initializeRequests();
 
-  console.log("Config plugin initialization completed.");
-}, {
-  fastify: "4.x",
-  name: "neonlink-config"
-});
+    console.log("Config plugin initialization completed.");
+  },
+  {
+    fastify: "5.x",
+    name: "neonlink-config",
+  }
+);

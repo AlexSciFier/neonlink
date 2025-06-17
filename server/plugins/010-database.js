@@ -35,11 +35,7 @@ async function initializeStores(databaseType, databaseManager) {
     databaseManager.db,
     "categories"
   );
-  stores.tags = await initializeStore(
-    databaseType, 
-    databaseManager.db, 
-    "tags"
-  );
+  stores.tags = await initializeStore(databaseType, databaseManager.db, "tags");
   stores.users = await initializeStore(
     databaseType,
     databaseManager.db,
@@ -73,8 +69,14 @@ function initializeHooks(fastify, databaseManager) {
 export async function initializeDatabase() {
   const dataPath = fs.resolvePath("./data");
   await fs.ensureDirectoryExists(dataPath);
-  const databaseConfig = Object.assign(appContext.secrets.get(appSecretsKeys.Database), { dataPath });
-  const databaseManager = await initializeDatabaseManager(databaseConfig.type, databaseConfig);
+  const databaseConfig = Object.assign(
+    appContext.secrets.get(appSecretsKeys.Database),
+    { dataPath }
+  );
+  const databaseManager = await initializeDatabaseManager(
+    databaseConfig.type,
+    databaseConfig
+  );
 
   try {
     await initializeStores(databaseConfig.type, databaseManager);
@@ -85,15 +87,16 @@ export async function initializeDatabase() {
   return databaseManager;
 }
 
-export default fp(async function (fastify, opts) {
+export default fp(
+  async function (fastify, opts) {
     const databaseManager = await initializeDatabase();
     initializeHooks(fastify, databaseManager);
 
     console.log("Database plugin initialization completed.");
   },
   {
-    fastify: "4.x",
+    fastify: "5.x",
     name: "neonlink-database",
-    dependencies: ["neonlink-config"]
+    dependencies: ["neonlink-config"],
   }
 );

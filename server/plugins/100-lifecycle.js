@@ -6,7 +6,8 @@ function initializeHooks(fastify, closeListeners) {
   fastify.addHook("onReady", async () => {
     // Check if initialized with users
     appContext.hasAnyUser = appContext.stores.users.countItems() > 0;
-    appContext.hasAdminUser = appContext.hasAnyUser && appContext.stores.users.countAdmins() > 0;
+    appContext.hasAdminUser =
+      appContext.hasAnyUser && appContext.stores.users.countAdmins() > 0;
     console.log("Application initialized.");
   });
 
@@ -38,8 +39,8 @@ export default fp(
     next();
   },
   {
-    fastify: "4.x",
+    fastify: "5.x",
     name: "neonlink-lifecycle",
-    dependencies: ["neonlink-config", "neonlink-database"] // we make sure the hooks are the last ones.
+    dependencies: ["neonlink-config", "neonlink-database"], // we make sure the hooks are the last ones.
   }
 );
