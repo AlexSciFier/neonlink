@@ -36,9 +36,9 @@
     ]
   },
   "devDependencies": {
-    "vite": "^5.0.12",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
-    "tailwindcss": "^3.3.5"
+    "tailwindcss": "^3.3.5",
+    "vite": "^8.0.1"
   }
 }
