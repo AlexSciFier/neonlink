@@ -22,7 +22,7 @@
     "@fastify/multipart": "^9.0.3",
     "@fastify/request-context": "^6.2.0",
     "@fastify/sensible": "^6.0.3",
-    "@fastify/static": "^8.2.0",
+    "@fastify/static": "^9.1.3",
     "axios": "^1.10.0",
     "better-sqlite3": "^11.10.0",
     "close-with-grace": "^2.2.0",

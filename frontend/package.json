@@ -1,6 +1,6 @@
 {
   "name": "neonlink-frontend",
-  "version": "1.4.20",
+  "version": "1.4.21",
   "private": true,
   "type": "module",
   "dependencies": {
@@ -16,7 +16,7 @@
     "install": "^0.13.0",
     "lodash": "^4.17.21",
     "node-html-parser": "^6.1.5",
-    "npm": "^10.9.7",
+    "npm": "^11.17.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router": "^6.14.1",
