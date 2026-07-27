@@ -85,9 +85,8 @@ export default function GroupList() {
         <div>
           <div className="text-xl">No groups.</div>
           <div>
-            Add them in{" "}
-            <Link to={"/settings"} className="text-cyan-600 hover:underline">
-              settings
+            <Link to={"/settings#Groups"}>
+              <span className="text-cyan-600 hover:text-cyan-800">Add group</span>
             </Link>
           </div>
         </div>
