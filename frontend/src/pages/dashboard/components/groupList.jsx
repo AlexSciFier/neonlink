@@ -75,6 +75,36 @@ export default function GroupList() {
     }
   };
 
+  const handleReorder = (draggedId, targetId, categoryId) => {
+    setBookmarksByCategory((prev) => {
+      const list = [...(prev[categoryId] ?? [])]
+      const fromIndex = list.findIndex((b) => b.id === draggedId)
+      const toIndex = list.findIndex((b) => b.id === targetId)
+
+      if(fromIndex < 0 || toIndex < 0) return prev;
+
+      const [item] = list.splice(fromIndex, 1)
+      list.splice(toIndex, 0, item)
+
+      return {...prev, [categoryId]: list}
+    })
+  }
+
+  const handleSaveOrder = async (categoryId) => {
+    const list = bookmarksByCategory[categoryId]
+    if(!list) return
+
+    await putJSON(`/api/bookmarks/changePositions`, {
+      categoryId: Number(categoryId),
+      items: list.map((b, idx) => ({
+        id: b.id,
+        position: idx
+      }))
+    })
+
+    resetBookmarksCache()
+  }
+
   if (isLoading) return <div></div>;
   if (categories.length === 0) {
     return (
@@ -105,6 +135,8 @@ export default function GroupList() {
             bookmarks={bookmarksByCategory?.[category.id] ?? []}
             isLoading={bookmarksByCategory === null}
             onBookmarkDrop={handleBookmarkDrop}
+            onReorder={handleReorder}
+            onSaveOrder={handleSaveOrder}
           />
         ))}
         <Link

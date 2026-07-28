@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { pickColorBasedOnBgColor } from "../../../helpers/color";
@@ -9,7 +9,7 @@ import {
   userSettingsKeys,
 } from "../../../stores/userSettingsStore";
 
-export default function Group({ category, bookmarks = [], isLoading = false, onBookmarkDrop }) {
+export default function Group({ category, bookmarks = [], isLoading = false, onBookmarkDrop, onReorder, onSaveOrder }) {
   const [useImageAsBg] = useUserSettingsStore(
     userSettingsKeys.UseBackgroundgImage
   );
@@ -23,6 +23,8 @@ export default function Group({ category, bookmarks = [], isLoading = false, onB
 
   const [isDragOver, setIsDragOver] = useState(false);
 
+  const draggedIdRef = useRef(null);
+
   let opacity = 0.8;
   let shadowOpacity = 0.5;
   let backgroundColor = category.color + opacityIntToHex(opacity);
@@ -35,6 +37,7 @@ export default function Group({ category, bookmarks = [], isLoading = false, onB
 
   const handleDragStart = (e, id) => {
     e.dataTransfer.setData("bookmarkId", id);
+    draggedIdRef.current = id;
   };
 
   const handleDragOver = (e) => {
@@ -100,6 +103,16 @@ export default function Group({ category, bookmarks = [], isLoading = false, onB
               id={bookmark.id}
               className="bookmark group/bookmark"
               onDragStart={(e) => handleDragStart(e, bookmark.id)}
+              onDragEnter={(e) => {
+                e.preventDefault()
+                const draggedId = draggedIdRef.current
+
+                if(draggedId !== bookmark.id){
+                  onReorder(draggedId, bookmark.id, category.id)
+                }
+              }}
+              onDragEnd={() => onSaveOrder(category.id)}
+              onDragOver={handleDragOver}
               draggable
             >
               <div className="dark:hover:bg-white/10 hover:bg-black/10 px-4 py-2 rounded flex items-center space-x-3 relative">
