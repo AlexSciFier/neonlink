@@ -16,15 +16,17 @@ current version before reporting so we can confirm the issue on current code.
 Please do not open a public issue for security vulnerabilities. Public issues are
 visible to everyone and can expose users before a fix is available.
 
-Instead, report privately through one of these channels:
+**The preferred and primary way to report a security vulnerability is through
+GitHub private vulnerability reporting.**
 
-1. **GitHub private vulnerability reporting (preferred).** Go to the repository
-   **Security** tab and choose **Report a vulnerability**. If this option is not
-   visible, a maintainer can enable it under **Settings > Security > Private
-   vulnerability reporting**.
-2. **Direct contact.** If private reporting is not enabled, open a short issue that
-   asks for a private contact and shares no technical details, and a maintainer will
-   follow up.
+1. **GitHub private vulnerability reporting.** Go to the repository
+   **Security** tab and choose **Report a vulnerability**. This keeps the report
+   private and allows maintainers to assess and address the vulnerability
+   securely.
+
+2. **Direct contact (fallback).** If GitHub private vulnerability reporting is
+   not available, open a short issue that asks for a private contact and shares
+   no technical details. A maintainer will follow up with you privately.
 
 ### What to include
 
