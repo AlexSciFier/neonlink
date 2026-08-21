@@ -10,6 +10,7 @@ export default async function (fastify, opts) {
       let { w, h } = request.query;
 
       reply.type("image/webp");
+      reply.header("Cache-Control", "private, max-age=86400");
 
       w = parseInt(w, 10) || undefined;
       h = parseInt(h, 10) || undefined;

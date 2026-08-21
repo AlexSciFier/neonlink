@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { fixBgUrl } from "../helpers/url";
+import { getOrCacheBgImage } from "../helpers/backgroundService";
 
 export default function BackgroundImage({
   children,
@@ -8,22 +9,52 @@ export default function BackgroundImage({
   width,
   height,
 }) {
-  if (src && src.startsWith("/")) {
+  const [resolvedSrc, setResolvedSrc] = useState(null);
+
+  useEffect(() => {
+    if (!src) {
+      setResolvedSrc(null);
+      return;
+    }
+
+    if (!src.startsWith("/")) {
+      setResolvedSrc(fixBgUrl(src));
+      return;
+    }
+
     let filename = src.split("/").pop();
-    src = `/api/image/${filename}`;
+    let apiUrl = `/api/image/${filename}`;
     if (width || height) {
       let params = new URLSearchParams();
-      params.append("w", width);
-      params.append("h", height);
-      src += "?" + params.toString();
+      if (width) params.append("w", width);
+      if (height) params.append("h", height);
+      apiUrl += "?" + params.toString();
     }
-  }
+    apiUrl = fixBgUrl(apiUrl);
+
+    let cancelled = false;
+    let createdBlobUrl = null;
+
+    getOrCacheBgImage(apiUrl).then((url) => {
+      if (cancelled) {
+        if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+        return;
+      }
+      if (url.startsWith("blob:")) createdBlobUrl = url;
+      setResolvedSrc(url);
+    });
+
+    return () => {
+      cancelled = true;
+      if (createdBlobUrl) URL.revokeObjectURL(createdBlobUrl);
+    };
+  }, [src, width, height]);
 
   return (
     <div
       className={className}
       style={{
-        backgroundImage: src && `url(${fixBgUrl(src)})`,
+        backgroundImage: resolvedSrc ? `url(${resolvedSrc})` : undefined,
       }}
     >
       {children}
