@@ -8,17 +8,17 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-
-// Force layout changes to animate in BOTH directions (default skips items
-// returning toward their origin, which makes reordering look one-directional).
-const animateLayoutChanges = (args) =>
-  defaultAnimateLayoutChanges({ ...args, wasDragging: true });
 import { pickColorBasedOnBgColor } from "../../../helpers/color";
 import LazyIcon from "../../../components/LazyIcon";
 import {
   useUserSettingsStore,
   userSettingsKeys,
 } from "../../../stores/userSettingsStore";
+
+// Force layout changes to animate in BOTH directions (default skips items
+// returning toward their origin, which makes reordering look one-directional).
+const animateLayoutChanges = (args) =>
+  defaultAnimateLayoutChanges({ ...args, wasDragging: true });
 
 export default function Group({
   category,
@@ -33,6 +33,9 @@ export default function Group({
     userSettingsKeys.CardHeaderStyle
   );
   const [useNeonShadow] = useUserSettingsStore(userSettingsKeys.UseNeonShadows);
+  const [dashboardEditMode] = useUserSettingsStore(
+    userSettingsKeys.DashboardEditMode
+  );
 
   const {
     attributes,
@@ -46,6 +49,7 @@ export default function Group({
     id: "g" + category.id,
     data: { type: "group" },
     animateLayoutChanges,
+    disabled: !dashboardEditMode,
   });
 
   const style = {
@@ -98,10 +102,10 @@ export default function Group({
         />
       ) : null}
       <div
-        ref={setActivatorNodeRef}
-        {...listeners}
+        ref={dashboardEditMode ? setActivatorNodeRef : undefined}
+        {...(dashboardEditMode ? listeners : {})}
         className={`group/header relative text-2xl font-light py-2 text-center dark:text-white select-none ${
-          isDragging ? "cursor-grabbing" : "cursor-grab"
+          dashboardEditMode ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""
         }`}
         style={
           transparentHeader || borderless
@@ -110,17 +114,19 @@ export default function Group({
         }
       >
         {category.name}
-        <Link
-          to={`/add?categoryId=${category.id}`}
-          draggable={false}
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          title="Add bookmark to this group"
-          aria-label="Add bookmark to this group"
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full opacity-0 group-hover/header:opacity-100 focus:opacity-100 transition-opacity hover:bg-black/10 dark:hover:bg-white/10"
-        >
-          <PlusIcon className="w-6 h-6" />
-        </Link>
+        {dashboardEditMode && (
+          <Link
+            to={`/add?categoryId=${category.id}`}
+            draggable={false}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            title="Add bookmark to this group"
+            aria-label="Add bookmark to this group"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full opacity-0 group-hover/header:opacity-100 focus:opacity-100 transition-opacity hover:bg-black/10 dark:hover:bg-white/10"
+          >
+            <PlusIcon className="w-6 h-6" />
+          </Link>
+        )}
       </div>
       <div className="flex flex-col space-y-1 my-3 mx-3">
         {isLoading ? (
@@ -157,6 +163,9 @@ function SortableBookmark({ bookmark, categoryId }) {
   const [openLinkInNewTab] = useUserSettingsStore(
     userSettingsKeys.OpenLinkInNewTab
   );
+  const [dashboardEditMode] = useUserSettingsStore(
+    userSettingsKeys.DashboardEditMode
+  );
 
   const {
     attributes,
@@ -169,6 +178,7 @@ function SortableBookmark({ bookmark, categoryId }) {
     id: "b" + bookmark.id,
     data: { type: "bookmark", categoryId },
     animateLayoutChanges,
+    disabled: !dashboardEditMode,
   });
 
   const style = {
@@ -181,12 +191,12 @@ function SortableBookmark({ bookmark, categoryId }) {
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
+      {...(dashboardEditMode ? listeners : {})}
       className={`bookmark group/bookmark select-none ${
         isDragging ? "opacity-40" : ""
       }`}
     >
-      <div className="dark:hover:bg-white/10 hover:bg-black/10 px-4 py-2 rounded flex items-center space-x-3 relative cursor-grab active:cursor-grabbing">
+      <div className={`dark:hover:bg-white/10 hover:bg-black/10 px-4 py-2 rounded flex items-center space-x-3 relative ${dashboardEditMode ? "cursor-grab active:cursor-grabbing" : ""}`}>
         <a
           className="flex items-center space-x-3 flex-1 min-w-0"
           href={bookmark.url}
@@ -203,15 +213,17 @@ function SortableBookmark({ bookmark, categoryId }) {
           </div>
           <div className="truncate dark:text-white">{bookmark.title}</div>
         </a>
-        <Link
-          to={`/edit/${bookmark.id}`}
-          draggable={false}
-          onPointerDown={(e) => e.stopPropagation()}
-          className="flex-none opacity-0 group-hover/bookmark:opacity-100 transition-opacity text-gray-400 hover:text-cyan-500 dark:text-gray-500 dark:hover:text-cyan-400"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <PencilSquareIcon className="w-4 h-4" />
-        </Link>
+        {dashboardEditMode && (
+          <Link
+            to={`/edit/${bookmark.id}`}
+            draggable={false}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="flex-none opacity-0 group-hover/bookmark:opacity-100 transition-opacity text-gray-400 hover:text-cyan-500 dark:text-gray-500 dark:hover:text-cyan-400"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <PencilSquareIcon className="w-4 h-4" />
+          </Link>
+        )}
       </div>
     </div>
   );
