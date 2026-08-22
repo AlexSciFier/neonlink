@@ -30,7 +30,8 @@ import LazyIcon from "../../../components/LazyIcon";
 import { putJSON } from "../../../helpers/fetch";
 
 export default function GroupList() {
-  let { categories, isLoading, fetchCategories, abort } = useCategoriesList();
+  let { categories, isLoading, fetchCategories, abort, deleteCategory } =
+    useCategoriesList();
 
   const [columns] = useUserSettingsStore(userSettingsKeys.Columns);
   const [dashboardEditMode, setDashboardEditMode] = useUserSettingsStore(
@@ -334,6 +335,7 @@ export default function GroupList() {
                       ? groupDrop.side
                       : null
                   }
+                  onDelete={() => deleteCategory(category.id)}
                 />
               ))}
             </SortableContext>

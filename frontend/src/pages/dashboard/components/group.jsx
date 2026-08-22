@@ -1,6 +1,10 @@
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { PencilSquareIcon, PlusIcon } from "@heroicons/react/24/outline";
+import {
+  PencilSquareIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import {
   defaultAnimateLayoutChanges,
   SortableContext,
@@ -25,6 +29,7 @@ export default function Group({
   bookmarks = [],
   isLoading = false,
   dropIndicator = null,
+  onDelete = () => {},
 }) {
   const [useImageAsBg] = useUserSettingsStore(
     userSettingsKeys.UseBackgroundgImage
@@ -113,6 +118,24 @@ export default function Group({
             : { backgroundColor, color: foregroundColor }
         }
       >
+        {dashboardEditMode && (
+          <button
+            type="button"
+            draggable={false}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.confirm(`Delete group "${category.name}"?`)) {
+                onDelete();
+              }
+            }}
+            title="Delete group"
+            aria-label="Delete group"
+            className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full opacity-0 group-hover/header:opacity-100 focus:opacity-100 transition-opacity hover:bg-black/10 dark:hover:bg-white/10"
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        )}
         {category.name}
         {dashboardEditMode && (
           <Link
