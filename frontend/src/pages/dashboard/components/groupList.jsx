@@ -30,12 +30,17 @@ import LazyIcon from "../../../components/LazyIcon";
 import { putJSON } from "../../../helpers/fetch";
 
 export default function GroupList() {
-  let { categories, isLoading, fetchCategories, abort } = useCategoriesList();
+  let { categories, isLoading, fetchCategories, abort, deleteCategory } =
+    useCategoriesList();
 
   const [columns] = useUserSettingsStore(userSettingsKeys.Columns);
+  const [dashboardEditMode, setDashboardEditMode] = useUserSettingsStore(
+    userSettingsKeys.DashboardEditMode
+  );
   const [localCats, setLocalCats] = useState([]);
   const [bookmarksByCategory, setBookmarksByCategory] = useState(null);
   const [activeId, setActiveId] = useState(null);
+  const [activeDragRect, setActiveDragRect] = useState(null);
   // { overCatId, side: "left" | "right" } — where a dragged group will land
   const [groupDrop, setGroupDrop] = useState(null);
   const sourceContainerRef = useRef(null);
@@ -97,6 +102,7 @@ export default function GroupList() {
 
   function handleDragStart({ active }) {
     setActiveId(active.id);
+    setActiveDragRect(active.rect.current?.initial ?? null);
     sourceContainerRef.current = findContainer(active.id);
   }
 
@@ -215,6 +221,7 @@ export default function GroupList() {
     const srcCat = crossGroup ? sourceContainer.slice(1) : null;
     const srcList = crossGroup ? bmMap[srcCat] ?? [] : null;
 
+    setActiveDragRect(null);
     setBookmarksByCategory((prev) => ({ ...prev, [finalCat]: finalList }));
 
     if (crossGroup) {
@@ -237,6 +244,7 @@ export default function GroupList() {
 
   function handleDragCancel() {
     setActiveId(null);
+    setActiveDragRect(null);
     setGroupDrop(null);
     sourceContainerRef.current = null;
   }
@@ -275,73 +283,103 @@ export default function GroupList() {
   }
 
   return (
-    <div className="flex justify-center w-full">
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-        onDragCancel={handleDragCancel}
-      >
-        <div
-          className={`grid md:grid-cols-${columns} grid-cols-1 gap-4 justify-items-center md:w-2/3 w-11/12`}
+    <div className="flex flex-col items-center w-full gap-2">
+      <div className="flex md:w-2/3 w-11/12 justify-end">
+        <button
+          onClick={() => setDashboardEditMode(!dashboardEditMode)}
+          title={dashboardEditMode ? "Exit edit mode" : "Edit dashboard"}
+          className="flex items-center gap-2 group"
         >
-          <SortableContext items={groupIds} strategy={rectSortingStrategy}>
-            {localCats.map((category) => (
-              <Group
-                key={category.id}
-                category={category}
-                bookmarks={bookmarksByCategory?.[category.id] ?? []}
-                isLoading={bookmarksByCategory === null}
-                dropIndicator={
-                  groupDrop &&
-                  String(groupDrop.overCatId) === String(category.id)
-                    ? groupDrop.side
-                    : null
-                }
-              />
-            ))}
-          </SortableContext>
-          <Link
-            to={"/settings#Groups"}
-            className="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex flex-col items-center justify-center gap-2 py-8 text-gray-400 dark:text-gray-500 hover:border-cyan-400 hover:text-cyan-400 dark:hover:border-cyan-400 dark:hover:text-cyan-400 transition-colors"
+          <span className="text-sm text-gray-400 dark:text-gray-500 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors">
+            Edit dashboard
+          </span>
+          <span
+            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+              dashboardEditMode
+                ? "bg-cyan-500"
+                : "bg-gray-300 dark:bg-gray-600 group-hover:bg-gray-400 dark:group-hover:bg-gray-500"
+            }`}
           >
-            <SquaresPlusIcon className="w-8 h-8" />
-            <span className="text-sm font-light">Add group</span>
-          </Link>
-        </div>
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                dashboardEditMode ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </span>
+        </button>
+      </div>
 
-        <DragOverlay>
-          {activeBookmark ? (
-            <div className="bookmark">
-              <div className="flex items-center space-x-3 px-4 py-2 rounded shadow-2xl bg-white dark:bg-gray-800 ring-1 ring-black/5 dark:ring-white/10">
-                <div className="flex-none relative">
-                  <LazyIcon
-                    id={activeBookmark.id}
-                    title={activeBookmark.title}
-                    updatedAt={activeBookmark.updated_at}
-                  />
-                </div>
-                <div className="truncate dark:text-white">
-                  {activeBookmark.title}
+      <div className="flex justify-center w-full">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          <div
+            className={`grid md:grid-cols-${columns} grid-cols-1 gap-4 justify-items-center md:w-2/3 w-11/12`}
+          >
+            <SortableContext items={groupIds} strategy={rectSortingStrategy}>
+              {localCats.map((category) => (
+                <Group
+                  key={category.id}
+                  category={category}
+                  bookmarks={bookmarksByCategory?.[category.id] ?? []}
+                  isLoading={bookmarksByCategory === null}
+                  dropIndicator={
+                    groupDrop &&
+                    String(groupDrop.overCatId) === String(category.id)
+                      ? groupDrop.side
+                      : null
+                  }
+                  onDelete={() => deleteCategory(category.id)}
+                />
+              ))}
+            </SortableContext>
+            {dashboardEditMode && (
+              <Link
+                to={"/settings#Groups"}
+                className="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex flex-col items-center justify-center gap-2 py-8 text-gray-400 dark:text-gray-500 hover:border-cyan-400 hover:text-cyan-400 dark:hover:border-cyan-400 dark:hover:text-cyan-400 transition-colors"
+              >
+                <SquaresPlusIcon className="w-8 h-8" />
+                <span className="text-sm font-light">Add group</span>
+              </Link>
+            )}
+          </div>
+
+          <DragOverlay>
+            {activeBookmark ? (
+              <div className="bookmark">
+                <div className="flex items-center space-x-3 px-4 py-2 rounded shadow-2xl bg-white dark:bg-gray-800 ring-1 ring-black/5 dark:ring-white/10">
+                  <div className="flex-none relative">
+                    <LazyIcon
+                      id={activeBookmark.id}
+                      title={activeBookmark.title}
+                      updatedAt={activeBookmark.updated_at}
+                    />
+                  </div>
+                  <div className="truncate dark:text-white">
+                    {activeBookmark.title}
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : activeCategory ? (
-            <div
-              className="rounded-lg px-4 py-2 text-2xl font-light text-center shadow-2xl"
-              style={{
-                backgroundColor: activeCategory.color,
-                color: "#ffffff",
-              }}
-            >
-              {activeCategory.name}
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+            ) : activeCategory ? (
+              <div
+                className="rounded-lg shadow-2xl"
+                style={{
+                  width: activeDragRect?.width,
+                  height: activeDragRect?.height,
+                  backgroundColor: activeCategory.color + "cc",
+                  border: `2px solid ${activeCategory.color}`,
+                }}
+              />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      </div>
     </div>
   );
 }

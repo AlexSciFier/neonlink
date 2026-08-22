@@ -13,6 +13,7 @@ const userSettingsKeys = {
   CardHeaderStyle: "cardHeaderStyle",
   UseNeonShadows: "useNeonShadows",
   CardVerticalAligment: "cardVerticalAligment",
+  DashboardEditMode: "dashboardEditMode",
 };
 
 const userSettingsInitialState = {
@@ -25,6 +26,7 @@ const userSettingsInitialState = {
   cardHeaderStyle: "default",
   useNeonShadows: false,
   cardVerticalAligment: "top",
+  dashboardEditMode: false,
 };
 
 const userSettingsBrowserStorageMap = {
@@ -37,6 +39,7 @@ const userSettingsBrowserStorageMap = {
   useNeonShadow: "useNeonShadow",
   columns: "columns",
   cardVerticalAligment: "card-vertical-aligment",
+  dashboardEditMode: "dashboard-edit-mode",
 };
 
 const [getUserSettingsStore, setUserSettingsStore, useUserSettingsStore] =
