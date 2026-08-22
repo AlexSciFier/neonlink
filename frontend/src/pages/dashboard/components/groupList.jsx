@@ -1,4 +1,4 @@
-import { PencilSquareIcon, SquaresPlusIcon } from "@heroicons/react/24/outline";
+import { SquaresPlusIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -287,13 +287,24 @@ export default function GroupList() {
         <button
           onClick={() => setDashboardEditMode(!dashboardEditMode)}
           title={dashboardEditMode ? "Exit edit mode" : "Edit dashboard"}
-          className={`p-1.5 rounded-full transition-colors ${
-            dashboardEditMode
-              ? "text-cyan-500 bg-cyan-500/10"
-              : "text-gray-400 dark:text-gray-600 hover:text-cyan-500 dark:hover:text-cyan-400"
-          }`}
+          className="flex items-center gap-2 group"
         >
-          <PencilSquareIcon className="w-5 h-5" />
+          <span className="text-sm text-gray-400 dark:text-gray-500 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors">
+            Edit dashboard
+          </span>
+          <span
+            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+              dashboardEditMode
+                ? "bg-cyan-500"
+                : "bg-gray-300 dark:bg-gray-600 group-hover:bg-gray-400 dark:group-hover:bg-gray-500"
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                dashboardEditMode ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </span>
         </button>
       </div>
 
