@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:jod-slim AS ui-build
+FROM --platform=$BUILDPLATFORM node:26-slim AS ui-build
 WORKDIR /app/client
 
 ENV PATH /app/client/node_modules/.bin:$PATH
@@ -9,7 +9,7 @@ RUN npm ci
 COPY ./frontend .
 RUN npm run build
 
-FROM --platform=$TARGETPLATFORM node:jod-slim AS srv-build
+FROM --platform=$TARGETPLATFORM node:26-slim AS srv-build
 
 RUN apt-get update && apt-get install python3 make build-essential -y
 
@@ -23,7 +23,7 @@ COPY ./server/package*.json ./
 
 RUN npm ci --omit=dev
 
-FROM --platform=$TARGETPLATFORM node:jod-slim
+FROM --platform=$TARGETPLATFORM node:26-slim
 
 WORKDIR /app
 USER node
