@@ -5,6 +5,7 @@ import Pagination from "./Pagination";
 import SceletalBokmarkList from "./SceletalBokmarkList";
 import { useSearchParams } from "react-router-dom";
 import { useBookMarkList } from "../../../context/bookmarkList";
+import { parseDate } from "../../../helpers/date";
 import NoBookmarks from "./NoBookmarks";
 import { userSettingsKeys, useUserSettingsStore } from "../../../stores/userSettingsStore";
 
@@ -48,7 +49,7 @@ export default function BookmarksList() {
         <>
           <div className="flex flex-col overflow-hidden">
             {bookmarkList
-              .sort((a, b) => new Date(b.created) - new Date(a.created))
+              .sort((a, b) => parseDate(b.created) - parseDate(a.created))
               .map((bookmark) => (
                 <LinkTemplate bookmark={bookmark} key={bookmark.id} />
               ))}

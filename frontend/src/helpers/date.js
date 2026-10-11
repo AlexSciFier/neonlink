@@ -22,14 +22,22 @@ function timeDifference(current, previous) {
   }
 }
 
+export function parseDate(value) {
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value === "number") return new Date(value);
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value))
+    return new Date(value.replace(" ", "T") + "Z");
+  return new Date(value);
+}
+
 export function prettyfyDate(dateString) {
   let rtf = new Intl.RelativeTimeFormat("en", {
     localeMatcher: "best fit",
     numeric: "auto",
     style: "long",
   });
-  let dateStringUTC = dateString + " UTC";
-  let date = new Date(dateStringUTC);
+  let date = parseDate(dateString);
+  if (!date || isNaN(date.getTime())) return "";
   let diff = timeDifference(Date.now(), date);
   if (diff.format === "years")
     return date.toLocaleString([], {
