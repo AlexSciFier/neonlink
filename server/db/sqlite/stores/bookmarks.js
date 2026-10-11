@@ -281,7 +281,7 @@ export default class BookmarksStore {
         "WHERE (bookmarks.userId IN (:userId, 0) OR bookmarks.userId IS NULL) ";
     }
 
-    selectQuery += "GROUP BY bookmarks.id ORDER BY bookmarkPosition.position";
+    selectQuery += "GROUP BY bookmarks.id ORDER BY updated_at DESC, bookmarkPosition.position";
 
     return this.db
       .prepare(selectQuery)
