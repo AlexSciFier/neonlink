@@ -6,6 +6,7 @@ import { getJSON, postFormData, postJSON } from "../../../../helpers/fetch";
 import { useEffect } from "react";
 import BookmarkList from "./BookmarkList";
 import { notify } from "../../../../components/Notification";
+import { resetBookmarksCache } from "../../../../helpers/bookmarkService";
 
 export default function ImportBookmark() {
   const [file, setFile] = useState();
@@ -52,6 +53,7 @@ export default function ImportBookmark() {
       }))
     );
     if (res.ok) {
+      resetBookmarksCache()
       await getJSON("/api/utils/updatelinks");
       navigate("/links");
     } else {

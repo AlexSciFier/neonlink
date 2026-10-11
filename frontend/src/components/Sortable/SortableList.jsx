@@ -76,7 +76,7 @@ export default function SortableList({ items, onDragEnd }) {
           {itemsState.map((item) => (
             <SortableItem key={item.id} item={item}>
               <div className="relative flex-none">
-                <LazyIcon id={item.id} />
+                <LazyIcon id={item.id} updatedAt={item.updated_at} />
               </div>
               <div className="truncate flex-1">{item.title}</div>
             </SortableItem>
@@ -87,7 +87,7 @@ export default function SortableList({ items, onDragEnd }) {
         {activeItem ? (
           <SortableItem item={activeItem} isActive={true}>
             <div className="relative flex-none">
-              <LazyIcon id={activeItem.id} />
+              <LazyIcon id={activeItem.id} updatedAt={activeItem.updated_at} />
             </div>
             <div className="truncate flex-1">{activeItem.title}</div>
           </SortableItem>

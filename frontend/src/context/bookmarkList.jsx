@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useRef, useState } from "react";
-import { deleteJSON, getJSON, putJSON } from "../helpers/fetch";
+import { deleteJSON, putJSON } from "../helpers/fetch";
 import {
   useUserSettingsStore,
   userSettingsKeys,
 } from "../stores/userSettingsStore";
+import { getAllBookmarksWithCache, resetBookmarksCache } from "../helpers/bookmarkService";
 
 const BookMarkList = createContext();
 
@@ -27,37 +28,52 @@ export function BookMarkListProvider({ children }) {
     abortController.current.abort();
   }
 
-  async function fetchBookmarks({
-    offset = 0,
-    limit = maxItemsInList,
-    query,
-    tag,
-    category,
-  }) {
+  async function fetchBookmarks({ offset = 0, limit, query, tag, category }) {
     setIsBookmarksLoading(true);
     setErrorBookmarks(undefined);
 
+    abortController.current?.abort();
     abortController.current = new AbortController();
 
-    let searchParams = new URLSearchParams();
-    searchParams.append("offset", offset);
-    searchParams.append("limit", limit);
-    if (query) searchParams.append("q", query);
-    if (tag) searchParams.append("tag", tag);
-    if (category) searchParams.append("category", category);
-    let res = await getJSON(
-      `/api/bookmarks/?${searchParams.toString()}`,
-      abortController.current.signal
-    );
-    if (res.ok) {
-      let json = await res.json();
-      setBookmarkList(json.bookmarks);
-      setCurrentPage(json.currentPage);
-      setLastPage(json.lastPage);
-    } else {
-      setErrorBookmarks(res.json());
+    // Coerce: searchParams pass strings and maxItemsInList may be undefined
+    // on the first render before user settings load.
+    const pageSize = Number(limit) || Number(maxItemsInList) || 10;
+    const start = Number(offset) || 0;
+
+    try {
+      const all = await getAllBookmarksWithCache(abortController.current.signal);
+
+      let filtered = all;
+
+      if (query) {
+        const q = query.toLowerCase();
+        filtered = filtered.filter(
+          (b) =>
+            (b.title && b.title.toLowerCase().includes(q)) ||
+            (b.url && b.url.toLowerCase().includes(q)) ||
+            (b.desc && b.desc.toLowerCase().includes(q))
+        );
+      }
+      if (tag) {
+        filtered = filtered.filter((b) => b.tags?.includes(tag));
+      }
+      if (category) {
+        // /links params carry the category NAME (see CategoryItem.jsx)
+        filtered = filtered.filter((b) => b.categoryName === category);
+      }
+
+      const total = filtered.length;
+      const pageItems = filtered.slice(start, start + pageSize);
+
+      setBookmarkList(pageItems);
+      setCurrentPage(Math.floor(start / pageSize) + 1);
+      setLastPage(Math.max(1, Math.ceil(total / pageSize)));
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+      setErrorBookmarks(error.message);
+    } finally {
+      setIsBookmarksLoading(false);
     }
-    setIsBookmarksLoading(false);
   }
 
   async function deleteBookmark(id) {
@@ -67,6 +83,7 @@ export function BookMarkListProvider({ children }) {
       abortController.current.signal
     );
     if (res.ok) {
+      await resetBookmarksCache()
       setBookmarkList(bookmarkList.filter((item) => item.id !== id));
     } else {
       console.error(await res.json());
@@ -75,11 +92,13 @@ export function BookMarkListProvider({ children }) {
 
   async function changePositions(idPositionPairArray) {
     abortController.current = new AbortController();
-    await putJSON(
+    let res = await putJSON(
       `api/bookmarks/changePositions`,
       idPositionPairArray,
       abortController.current.signal
     );
+
+    if(res.ok) await resetBookmarksCache()
   }
 
   return (

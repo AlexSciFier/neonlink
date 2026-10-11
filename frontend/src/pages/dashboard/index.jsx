@@ -34,7 +34,7 @@ export default function Dashboard() {
 
   return (
     <BackgroundImage
-      className={"h-full flex flex-col bg-cover bg-center"}
+      className={"min-h-full flex flex-col bg-cover bg-top"}
       src={useImageAsBg && bgUrl}
     >
       <NavBar isBgTransparent={useImageAsBg} />

@@ -3,11 +3,13 @@ import debounce from "lodash/debounce";
 import { postJSON } from "../../helpers/fetch";
 import InputBox from "./components/InputBox";
 import { Navigate } from "react-router";
+import { useSearchParams } from "react-router-dom";
 import TagInput from "./components/TagInput";
 import { useCategoriesList } from "../../context/categoriesList";
 import Page from "../../components/Page";
 import { BUTTON_BASE_CLASS } from "../../helpers/baseDesign";
 import { notify } from "../../components/Notification";
+import { resetBookmarksCache } from "../../helpers/bookmarkService";
 
 function LoadCircle() {
   return (
@@ -38,13 +40,16 @@ function LoadCircle() {
 }
 
 export default function AddPage() {
+  const [searchParams] = useSearchParams();
+  const initialCategoryId = Number(searchParams.get("categoryId")) || 0;
+
   const [isLoading, setIsLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     desc: "",
     icon: "",
-    categoryId: 0,
+    categoryId: initialCategoryId,
     tags: [],
   });
   const [url, setUrl] = useState("");
@@ -136,6 +141,7 @@ export default function AddPage() {
 
     if (res.ok) {
       setComplete(true);
+      await resetBookmarksCache()
     } else {
       setError(await res.json());
       setSending(false);
@@ -206,6 +212,7 @@ export default function AddPage() {
             type={""}
             placeholder="Category"
             name={"categoryId"}
+            value={formData.categoryId}
             onChange={inputHandler}
           >
             <option className="dark:text-white dark:bg-gray-900" value={0}>

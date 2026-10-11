@@ -14,6 +14,7 @@ import {
   postJSON,
 } from "../../../../helpers/fetch";
 import { fixBgUrl } from "../../../../helpers/url";
+import { deleteBgFromCache } from "../../../../helpers/backgroundService";
 import ImageFileInput from "../../../../components/ImageFileInput";
 import { notify } from "../../../../components/Notification";
 import Image from "../../../../components/Image";
@@ -111,6 +112,11 @@ export default function BackgroundImageSettings() {
       let res = await deleteJSON(`${ENDPOINT}/${selectedId}`);
       setIsDeleting(false);
       if (res.ok) {
+        const deletedImage = images.find((img) => img.id === selectedId);
+        if (deletedImage) {
+          const filename = deletedImage.url.split("/").pop();
+          deleteBgFromCache(fixBgUrl(`/api/image/${filename}`));
+        }
         setShowDelete(false);
         setImages((prev) => prev.filter((image) => image.id !== selectedId));
         setSelectedId();

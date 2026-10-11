@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router";
 import { postJSON } from "../../helpers/fetch";
 
-export default function IconInput({ url, icon, setIcon }) {
+export default function IconInput({ url, icon, setIcon, updatedAt }) {
   const [defaultIconUrl, setDefaultIconUrl] = useState();
   const { id } = useParams();
   async function fetchIcon() {
@@ -16,15 +16,13 @@ export default function IconInput({ url, icon, setIcon }) {
 
   useEffect(() => {
     if (icon === undefined || icon === "") {
-      setDefaultIconUrl(
-        `${
-          process.env.NODE_ENV === "production" ? "" : "http://localhost:3333"
-        }/api/bookmarks/${id}/icon`
-      );
+      const baseUrl = process.env.NODE_ENV === "production" ? "" : "http://localhost:3333";
+      const version = updatedAt ? new Date(updatedAt).getTime() : "";
+      setDefaultIconUrl(`${baseUrl}/api/bookmarks/${id}/icon?v=${version}`);
     } else {
       setDefaultIconUrl();
     }
-  }, [icon, id]);
+  }, [icon, id, updatedAt]);
 
   return (
     <div className="flex gap-1 items-center w-full bg-transparent rounded border">

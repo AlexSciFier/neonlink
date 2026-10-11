@@ -92,7 +92,7 @@ export default function LinkTemplate({ bookmark }) {
       <div className="flex-auto overflow-hidden flex justify-between items-center text-gray-400">
         <div className="flex flex-auto overflow-hidden gap-3">
           <div className="flex-none relative">
-            <LazyIcon id={bookmark.id} title={bookmark.title} />
+            <LazyIcon id={bookmark.id} title={bookmark.title} updatedAt={bookmark.updated_at} />
           </div>
           <div className="flex-auto truncate">
             <a

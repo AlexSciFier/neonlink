@@ -20,6 +20,7 @@ export default async function (db) {
       icon TEXT,
       categoryId INEGER,
       created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       userId INTEGER
     )`,
 

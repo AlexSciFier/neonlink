@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { imgUrlToBase64 } from "../../../helpers/images.js";
 import { netscape } from "../../../helpers/netscape.js";
 import { requireSession } from "../../../logics/handlers.js";
@@ -34,38 +35,24 @@ export default async function (fastify, opts) {
   );
 
   fastify.get(
-    "/:id",
-    { preHandler: requireSession(true, true, false) },
+    "/meta", 
+    {preHandler: requireSession(true, true, false)},
     async function (request, reply) {
-      let { id } = request.params;
       const user = appContext.request.get(appRequestsKeys.Session);
-      let foundBookmark = appContext.stores.bookmarks.getItemById(
-        user.userId,
-        id
-      );
-      if (foundBookmark) return foundBookmark;
-      throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
+      const meta = appContext.stores.bookmarks.getUsersMeta(user.userId);
+
+      return meta
     }
-  );
+  )
 
   fastify.get(
-    "/:id/icon",
+    "/all",
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
-      let { id } = request.params;
-      let icon = appContext.stores.bookmarks.getIconByBookmarkId(id);
-      if (icon) {
-        let type = icon.split(";")[0].split(":")[1];
-        reply
-          .type(type)
-          .send(
-            Buffer.from(icon.replace(/^data:\w+\/.+;base64,/, ""), "base64")
-          );
-        return;
-      }
-      throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      return appContext.stores.bookmarks.getByUser(user.userId);
     }
-  );
+  )
 
   fastify.get(
     "/export",
@@ -97,6 +84,50 @@ export default async function (fastify, opts) {
       throw fastify.httpErrors.notFound(
         `bookmarks with category id ${id} not found`
       );
+    }
+  );
+
+  fastify.get(
+    "/:id",
+    { preHandler: requireSession(true, true, false) },
+    async function (request, reply) {
+      let { id } = request.params;
+      const user = appContext.request.get(appRequestsKeys.Session);
+      let foundBookmark = appContext.stores.bookmarks.getItemById(
+        user.userId,
+        id
+      );
+      if (foundBookmark) return foundBookmark;
+      throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
+    }
+  );
+
+  fastify.get(
+    "/:id/icon",
+    { preHandler: requireSession(true, true, false) },
+    async function (request, reply) {
+      let { id } = request.params;
+      let icon = appContext.stores.bookmarks.getIconByBookmarkId(id);
+      if (icon) {
+        let type = icon.split(";")[0].split(":")[1];
+        const etag =
+          '"' + crypto.createHash("sha1").update(icon).digest("base64") + '"';
+        // Icons rarely change; let the browser cache them and revalidate via ETag.
+        reply.header("Cache-Control", "private, max-age=86400");
+        reply.header("ETag", etag);
+        if (request.headers["if-none-match"] === etag) {
+          reply.code(304).send();
+          return;
+        }
+        reply
+          .type(type)
+          .header("Cache-Control", "public, max-age=31536000")
+          .send(
+            Buffer.from(icon.replace(/^data:\w+\/.+;base64,/, ""), "base64")
+          );
+        return;
+      }
+      throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
     }
   );
 
@@ -193,6 +224,38 @@ export default async function (fastify, opts) {
   );
 
   fastify.put(
+    "/changePositions",
+    {
+      preHandler: requireSession(true, true, false),
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            categoryId: { type: "number" },
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["id", "position"],
+                properties: {
+                  id: { type: "number" },
+                  position: { type: "number" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    async function (request, reply) {
+      let { items, categoryId } = request.body;
+      if (appContext.stores.bookmarks.updatePositions(items, categoryId))
+        return true;
+      return { items, categoryId };
+    }
+  );
+
+  fastify.put(
     "/:id",
     {
       preHandler: requireSession(true, true, false),
@@ -239,38 +302,6 @@ export default async function (fastify, opts) {
       let { id } = request.params;
       if (appContext.stores.bookmarks.deleteItem(id)) return true;
       else throw fastify.httpErrors.notFound();
-    }
-  );
-
-  fastify.put(
-    "/changePositions",
-    {
-      preHandler: requireSession(true, true, false),
-      schema: {
-        body: {
-          type: "object",
-          properties: {
-            categoryId: { type: "number" },
-            items: {
-              type: "array",
-              items: {
-                type: "object",
-                required: ["id", "position"],
-                properties: {
-                  id: { type: "number" },
-                  position: { type: "number" },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    async function (request, reply) {
-      let { items, categoryId } = request.body;
-      if (appContext.stores.bookmarks.updatePositions(items, categoryId))
-        return true;
-      return { items, categoryId };
     }
   );
 }

@@ -27,5 +27,8 @@
   "homepage": "https://github.com/AlexSciFier/bookmark-app#readme",
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "crypto": "^1.0.1"
   }
 }
