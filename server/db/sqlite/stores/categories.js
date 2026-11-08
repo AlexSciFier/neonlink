@@ -1,3 +1,5 @@
+import { ownerCondition } from "./ownership.js";
+
 export default class CategoriesStore {
   constructor(sqliteInstance) {
     this.db = sqliteInstance;
@@ -66,7 +68,15 @@ export default class CategoriesStore {
     return this.db.prepare(selectQuery).get(selectParams);
   }
 
-  deleteItem(id) {
+  isModifiable(id, scope) {
+    const owner = ownerCondition(scope);
+    return !!this.db
+      .prepare(`SELECT 1 FROM category WHERE id = :id AND ${owner.sql}`)
+      .get({ id, ...owner.params });
+  }
+
+  deleteItem(id, scope) {
+    if (!this.isModifiable(id, scope)) return false;
     const statements = [
       "DELETE FROM category WHERE id = :categoryId",
       "DELETE FROM categoryPosition WHERE categoryId = :categoryId",
@@ -83,16 +93,23 @@ export default class CategoriesStore {
     return true;
   }
 
-  updateItem(id, name, color) {
+  updateItem(id, name, color, scope) {
+    const owner = ownerCondition(scope);
     const updateQuery = `UPDATE category SET 
         name = coalesce(:name,name), 
         color = coalesce(:color,color)
-      WHERE id = :id`;
+      WHERE id = :id AND ${owner.sql}`;
 
-    return this.db.prepare(updateQuery).run({ id, name, color }).changes > 0;
+    return (
+      this.db.prepare(updateQuery).run({ id, name, color, ...owner.params })
+        .changes > 0
+    );
   }
 
-  updatePositions(idPositionPairArray) {
+  updatePositions(idPositionPairArray, scope) {
+    idPositionPairArray = idPositionPairArray.filter((item) =>
+      this.isModifiable(item.id, scope)
+    );
     const insertQuery = `UPDATE categoryPosition SET position = coalesce(:position,position) WHERE categoryId = :id`;
     const insert = this.db.prepare(insertQuery);
 

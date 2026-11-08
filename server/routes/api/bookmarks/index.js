@@ -249,7 +249,10 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let { items, categoryId } = request.body;
-      if (appContext.stores.bookmarks.updatePositions(items, categoryId))
+      const user = appContext.request.get(appRequestsKeys.Session);
+      if (
+        appContext.stores.bookmarks.updatePositions(items, categoryId, user)
+      )
         return true;
       return { items, categoryId };
     }
@@ -278,6 +281,9 @@ export default async function (fastify, opts) {
       let { id } = request.params;
       let { url, title, desc, icon, categoryId, tags } = request.body;
       if (url === "") throw new Error("Url shoud not be empty string");
+      const user = appContext.request.get(appRequestsKeys.Session);
+      if (!appContext.stores.bookmarks.isModifiable(id, user))
+        throw fastify.httpErrors.notFound();
       if (icon && icon.startsWith("http")) icon = await imgUrlToBase64(icon);
       if (
         appContext.stores.bookmarks.updateItem(
@@ -287,7 +293,8 @@ export default async function (fastify, opts) {
           desc,
           icon,
           categoryId,
-          tags
+          tags,
+          user
         )
       )
         return { url, title, desc };
@@ -300,7 +307,8 @@ export default async function (fastify, opts) {
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      if (appContext.stores.bookmarks.deleteItem(id)) return true;
+      const user = appContext.request.get(appRequestsKeys.Session);
+      if (appContext.stores.bookmarks.deleteItem(id, user)) return true;
       else throw fastify.httpErrors.notFound();
     }
   );

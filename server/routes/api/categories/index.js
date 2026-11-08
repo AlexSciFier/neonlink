@@ -47,15 +47,21 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { name, color, position } = request.body;
 
-      let existingCategory = appContext.stores.categories.getItemByName(name);
       const user = appContext.request.get(appRequestsKeys.Session);
+      let existingCategory = appContext.stores.categories.getItemByName(
+        name,
+        user.userId
+      );
 
-      if (existingCategory) {
+      if (
+        existingCategory &&
+        appContext.stores.categories.isModifiable(existingCategory.id, user)
+      ) {
         return appContext.stores.categories.updateItem(
           existingCategory.id,
           name,
           color,
-          position
+          user
         );
       }
       reply.statusCode = 201;
@@ -81,7 +87,8 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let { name, color } = request.body;
-      if (appContext.stores.categories.updateItem(id, name, color))
+      const user = appContext.request.get(appRequestsKeys.Session);
+      if (appContext.stores.categories.updateItem(id, name, color, user))
         return { id, name, color };
       throw fastify.httpErrors.notFound();
     }
@@ -107,7 +114,8 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let array = request.body;
-      if (appContext.stores.categories.updatePositions(array)) return true;
+      const user = appContext.request.get(appRequestsKeys.Session);
+      if (appContext.stores.categories.updatePositions(array, user)) return true;
       throw fastify.httpErrors.notFound();
     }
   );
@@ -117,7 +125,8 @@ export default async function (fastify, opts) {
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      if (appContext.stores.categories.deleteItem(id)) return true;
+      const user = appContext.request.get(appRequestsKeys.Session);
+      if (appContext.stores.categories.deleteItem(id, user)) return true;
       else throw fastify.httpErrors.notFound();
     }
   );

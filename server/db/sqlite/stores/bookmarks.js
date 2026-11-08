@@ -1,5 +1,7 @@
 import crypto from "node:crypto";
 
+import { ownerCondition } from "./ownership.js";
+
 export default class BookmarksStore {
   constructor(sqliteInstance) {
     this.db = sqliteInstance;
@@ -43,9 +45,17 @@ export default class BookmarksStore {
     return bookmarkId;
   }
 
-  deleteItem(id) {
-    const deleteQuery = `DELETE FROM bookmarks WHERE id = :id`;
-    return this.db.prepare(deleteQuery).run({ id }).changes > 0;
+  deleteItem(id, scope) {
+    const owner = ownerCondition(scope);
+    const deleteQuery = `DELETE FROM bookmarks WHERE id = :id AND ${owner.sql}`;
+    return this.db.prepare(deleteQuery).run({ id, ...owner.params }).changes > 0;
+  }
+
+  isModifiable(id, scope) {
+    const owner = ownerCondition(scope);
+    return !!this.db
+      .prepare(`SELECT 1 FROM bookmarks WHERE id = :id AND ${owner.sql}`)
+      .get({ id, ...owner.params });
   }
 
   getAll(userId, search = undefined, tag = undefined, category = undefined) {
@@ -335,7 +345,9 @@ export default class BookmarksStore {
     return this.db.prepare(selectQuery).get({ id }).icon;
   }
 
-  updateItem(id, url, title, desc, icon, categoryId, tags) {
+  updateItem(id, url, title, desc, icon, categoryId, tags, scope) {
+    // Must run before any write: the tag relations are rewritten first.
+    if (!this.isModifiable(id, scope)) return false;
     const now = new Date().toISOString();
     let tagsRelationsDeleteQuery = `DELETE FROM bookmarksTags WHERE bookmarkId = :id`;
     this.db.prepare(tagsRelationsDeleteQuery).run({ id });
@@ -380,7 +392,10 @@ export default class BookmarksStore {
     );
   }
 
-  updatePositions(idPositionPairArray, categoryId) {
+  updatePositions(idPositionPairArray, categoryId, scope) {
+    idPositionPairArray = idPositionPairArray.filter((item) =>
+      this.isModifiable(item.id, scope)
+    );
     let insertOrReplaceQuery = `INSERT OR REPLACE INTO bookmarkPosition (bookmarkId, categoryId, position) VALUES (:bookmarkId, :categoryId, :position)`;
     let insert = this.db.prepare(insertOrReplaceQuery);
     let insertMany = this.db.transaction((items) => {
