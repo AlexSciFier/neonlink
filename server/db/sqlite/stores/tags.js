@@ -1,3 +1,5 @@
+import { ownerCondition, visibleCondition } from "./ownership.js";
+
 export default class TagsStore {
   constructor(sqliteInstance) {
     this.db = sqliteInstance;
@@ -10,9 +12,16 @@ export default class TagsStore {
       .run({ name: name.toLocaleLowerCase(), userId }).lastInsertRowid;
   }
 
-  deleteItem(id) {
-    const deleteQuery = `DELETE FROM tags WHERE id = ?`;
-    return this.db.prepare(deleteQuery).run(id).changes > 0;
+  deleteItem(id, scope) {
+    const owner = ownerCondition(scope);
+    return this.db.transaction(() => {
+      const result = this.db
+        .prepare(`DELETE FROM tags WHERE id = :id AND ${owner.sql}`)
+        .run({ id, ...owner.params });
+      if (result.changes)
+        this.db.prepare("DELETE FROM bookmarksTags WHERE tagId = ?").run(id);
+      return result.changes > 0;
+    })();
   }
 
   existsItemByName(name, userId) {
@@ -58,24 +67,28 @@ export default class TagsStore {
     return this.db.prepare(selectQuery).all(selectParams);
   }
 
-  getItemById(id) {
+  getItemById(id, scope) {
+    const owner = visibleCondition(scope, "tags.userId");
     const selectQuery = `SELECT 
         tags.id AS id, tags.name AS name FROM tags
       INNER JOIN bookmarksTags ON tags.id = bookmarksTags.tagId
       WHERE 
-        tags.id = :id
+        tags.id = :id AND ${owner.sql}
       GROUP BY tags.id`;
-    return this.db.prepare(selectQuery).all({ id });
+    return this.db.prepare(selectQuery).all({ id, ...owner.params });
   }
 
-  updateItem(id, name) {
+  updateItem(id, name, scope) {
+    const owner = ownerCondition(scope);
     const updateQuery = `UPDATE tags SET 
         name = coalesce(:name,name)
-      WHERE id = :id`;
+      WHERE id = :id AND ${owner.sql}`;
 
     return (
-      this.db.prepare(updateQuery).run({ id, name: name.toLocaleLowerCase() })
-        .changes > 0
+      this.db
+        .prepare(updateQuery)
+        .run({ id, name: name.toLocaleLowerCase(), ...owner.params }).changes >
+      0
     );
   }
 }

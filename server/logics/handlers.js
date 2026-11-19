@@ -34,6 +34,9 @@ export async function requestContextHandler(request, reply) {
     userId: user.id,
     userName: user.username,
     isAdmin: user.isAdmin ? true : false,
+    authDisabled: !appContext.settings.get(
+      appSettingsKeys.AuthenticationEnabled
+    ),
   });
 }
 

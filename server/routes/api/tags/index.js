@@ -46,7 +46,8 @@ export default async function (fastify, opts) {
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      return appContext.stores.tags.getItemById(id);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      return appContext.stores.tags.getItemById(id, user);
     }
   );
 
@@ -66,10 +67,9 @@ export default async function (fastify, opts) {
     let { id } = request.params;
     let { name } = request.body;
     if (name === "") throw new Error("name cannot be empty");
-    let tag = appContext.stores.tags.getItemById(id);
-    if (tag === undefined)
+    const user = appContext.request.get(appRequestsKeys.Session);
+    if (!appContext.stores.tags.updateItem(id, name, user))
       throw fastify.httpErrors.notFound("tag with this id doesnt exist");
-    appContext.stores.tags.updateItem(id, name);
     return { id, name };
   });
 
@@ -78,9 +78,10 @@ export default async function (fastify, opts) {
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       let { id } = request.params;
-      let status = appContext.stores.bookmarks.deleteBookmarkById(id);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      let status = appContext.stores.tags.deleteItem(id, user);
       if (status) return true;
-      throw new Error("cannot delete");
+      throw fastify.httpErrors.notFound();
     }
   );
 }

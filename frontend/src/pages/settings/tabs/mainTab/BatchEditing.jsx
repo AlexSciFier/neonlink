@@ -1,14 +1,14 @@
 import React from "react";
 import { useState } from "react";
 import { BUTTON_BASE_CLASS } from "../../../../helpers/baseDesign";
-import { getJSON } from "../../../../helpers/fetch";
+import { postJSON } from "../../../../helpers/fetch";
 
 export default function BatchEditing() {
   const [isLoading, setIsLoading] = useState(false);
   function handleUpdateIconClick() {
     setIsLoading(true);
     async function requestUpdateLinks() {
-      let res = await getJSON("/api/utils/updatelinks");
+      let res = await postJSON("/api/utils/updatelinks", {});
       setIsLoading(false);
       if (res.ok) {
       }

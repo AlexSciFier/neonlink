@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
-import { getJSON, postFormData, postJSON } from "../../../../helpers/fetch";
+import { postFormData, postJSON } from "../../../../helpers/fetch";
 import { useEffect } from "react";
 import BookmarkList from "./BookmarkList";
 import { notify } from "../../../../components/Notification";
@@ -44,21 +44,21 @@ export default function ImportBookmark() {
 
   async function handleImport() {
     let selectedItems = urlList.filter((item) => item.isSelected === true);
-    let res = await postJSON(
-      "/api/bookmarks/addArray",
-      selectedItems.map((item) => ({
+    let items = selectedItems.map((item) => ({
         url: item.href,
         title: item.name,
         icon: item.icon,
-      }))
-    );
-    if (res.ok) {
-      resetBookmarksCache()
-      await getJSON("/api/utils/updatelinks");
-      navigate("/links");
-    } else {
-      setError((await res.json()).message);
+      }));
+    for (let index = 0; index < items.length; index += 500) {
+      const res = await postJSON("/api/bookmarks/addArray", items.slice(index, index + 500));
+      if (!res.ok) {
+        setError((await res.json()).message);
+        return;
+      }
     }
+    resetBookmarksCache();
+    await postJSON("/api/utils/updatelinks", {});
+    navigate("/links");
   }
 
   return (

@@ -1,4 +1,5 @@
 import { ownerCondition } from "./ownership.js";
+import { visibleCondition } from "./ownership.js";
 
 export default class CategoriesStore {
   constructor(sqliteInstance) {
@@ -60,12 +61,29 @@ export default class CategoriesStore {
       conditions.push("(userId IN (:userId, 0) OR userId IS NULL)");
       selectParams.userId = userId;
     }
-    
+
     if (conditions.length > 0)
       selectQuery += ` WHERE ${conditions.join(" AND ")} `;
-    
+
     selectQuery += `ORDER BY position ASC`;
     return this.db.prepare(selectQuery).get(selectParams);
+  }
+
+  getModifiableByName(name, scope) {
+    const owner = ownerCondition(scope);
+    return this.db
+      .prepare(
+        `SELECT id FROM category WHERE name = :name AND ${owner.sql}
+      ORDER BY CASE WHEN userId = :preferredUser THEN 0 ELSE 1 END, id LIMIT 1`
+      )
+      .get({ name, preferredUser: scope.userId, ...owner.params });
+  }
+
+  isVisible(id, scope) {
+    const owner = visibleCondition(scope);
+    return !!this.db
+      .prepare(`SELECT 1 FROM category WHERE id = :id AND ${owner.sql}`)
+      .get({ id, ...owner.params });
   }
 
   isModifiable(id, scope) {
@@ -107,9 +125,17 @@ export default class CategoriesStore {
   }
 
   updatePositions(idPositionPairArray, scope) {
-    idPositionPairArray = idPositionPairArray.filter((item) =>
-      this.isModifiable(item.id, scope)
-    );
+    const owner = ownerCondition(scope);
+    if (!idPositionPairArray.length) return true;
+    const ids = [...new Set(idPositionPairArray.map((item) => item.id))];
+    const placeholders = ids.map((_, i) => `:id${i}`).join(",");
+    const params = Object.fromEntries(ids.map((id, i) => [`id${i}`, id]));
+    const count = this.db
+      .prepare(
+        `SELECT COUNT(*) AS count FROM category WHERE id IN (${placeholders}) AND ${owner.sql}`
+      )
+      .get({ ...params, ...owner.params }).count;
+    if (count !== ids.length) return false;
     const insertQuery = `UPDATE categoryPosition SET position = coalesce(:position,position) WHERE categoryId = :id`;
     const insert = this.db.prepare(insertQuery);
 

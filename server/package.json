@@ -8,6 +8,7 @@
     "test": "test"
   },
   "scripts": {
+    "test": "node --test",
     "start": "node server.js",
     "dev": "fastify start -a \"0.0.0.0\" -w --ignore-watch=\"data public\" --body-limit 5242880 -l info -P app.js",
     "pretty": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\""
@@ -22,7 +23,7 @@
     "@fastify/multipart": "^9.0.3",
     "@fastify/request-context": "^6.2.0",
     "@fastify/sensible": "^6.0.3",
-    "@fastify/static": "^9.1.3",
+    "@fastify/static": "^10.1.12",
     "axios": "^1.10.0",
     "better-sqlite3": "^13.0.3",
     "close-with-grace": "^2.2.0",

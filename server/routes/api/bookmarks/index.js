@@ -5,6 +5,12 @@ import { requireSession } from "../../../logics/handlers.js";
 import { appContext } from "../../../contexts/appContext.js";
 import { appRequestsKeys } from "../../../contexts/appRequests.js";
 
+const idParams = {
+  type: "object",
+  required: ["id"],
+  properties: { id: { type: "integer", minimum: 1 } },
+};
+
 /**
  *
  * @param {import("fastify").FastifyInstance} fastify
@@ -35,15 +41,15 @@ export default async function (fastify, opts) {
   );
 
   fastify.get(
-    "/meta", 
-    {preHandler: requireSession(true, true, false)},
+    "/meta",
+    { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
       const user = appContext.request.get(appRequestsKeys.Session);
       const meta = appContext.stores.bookmarks.getUsersMeta(user.userId);
 
-      return meta
+      return meta;
     }
-  )
+  );
 
   fastify.get(
     "/all",
@@ -52,13 +58,14 @@ export default async function (fastify, opts) {
       const user = appContext.request.get(appRequestsKeys.Session);
       return appContext.stores.bookmarks.getByUser(user.userId);
     }
-  )
+  );
 
   fastify.get(
     "/export",
     { preHandler: requireSession(true, true, false) },
     async function (request, reply) {
-      let bookmarks = appContext.stores.bookmarks.getAll();
+      const user = appContext.request.get(appRequestsKeys.Session);
+      let bookmarks = appContext.stores.bookmarks.getAll(user.userId);
       let maped = {};
       for (const key in bookmarks) {
         if (bookmarks.hasOwnProperty(key)) {
@@ -72,7 +79,10 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/category/:id",
-    { preHandler: requireSession(true, true, false) },
+    {
+      preHandler: requireSession(true, true, false),
+      schema: { params: idParams },
+    },
     async function (request, reply) {
       let { id } = request.params;
       const user = appContext.request.get(appRequestsKeys.Session);
@@ -89,7 +99,10 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/:id",
-    { preHandler: requireSession(true, true, false) },
+    {
+      preHandler: requireSession(true, true, false),
+      schema: { params: idParams },
+    },
     async function (request, reply) {
       let { id } = request.params;
       const user = appContext.request.get(appRequestsKeys.Session);
@@ -104,10 +117,14 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/:id/icon",
-    { preHandler: requireSession(true, true, false) },
+    {
+      preHandler: requireSession(true, true, false),
+      schema: { params: idParams },
+    },
     async function (request, reply) {
       let { id } = request.params;
-      let icon = appContext.stores.bookmarks.getIconByBookmarkId(id);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      let icon = appContext.stores.bookmarks.getIconByBookmarkId(id, user);
       if (icon) {
         let type = icon.split(";")[0].split(":")[1];
         const etag =
@@ -140,8 +157,8 @@ export default async function (fastify, opts) {
           type: "object",
           required: ["url", "title"],
           properties: {
-            url: { type: "string" },
-            title: { type: "string" },
+            url: { type: "string", minLength: 1 },
+            title: { type: "string", minLength: 1 },
             desc: { type: "string" },
             icon: { type: "string" },
             categoryId: { type: "number" },
@@ -157,16 +174,24 @@ export default async function (fastify, opts) {
           "Url and title shoud not be empty string"
         );
 
-      if (icon !== "") icon = await imgUrlToBase64(icon);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      if (
+        categoryId != null &&
+        !appContext.stores.categories.isVisible(categoryId, user)
+      )
+        throw fastify.httpErrors.notFound();
+      if (icon) icon = await imgUrlToBase64(icon);
 
-      let existingBookmark = appContext.stores.bookmarks.getItemByUrl(url);
+      let existingBookmark = appContext.stores.bookmarks.getItemByUrl(
+        user.userId,
+        url
+      );
       if (existingBookmark) {
         throw fastify.httpErrors.badRequest(
           "Bookmark with this url is already exist"
         );
       }
       reply.statusCode = 201;
-      const user = appContext.request.get(appRequestsKeys.Session);
       return appContext.stores.bookmarks.addItem(
         url,
         title,
@@ -174,7 +199,7 @@ export default async function (fastify, opts) {
         icon,
         categoryId,
         tags,
-        user.userId
+        user
       );
     }
   );
@@ -186,6 +211,7 @@ export default async function (fastify, opts) {
       schema: {
         body: {
           type: "array",
+          maxItems: 500,
           items: {
             type: "object",
             required: ["url", "title"],
@@ -205,9 +231,12 @@ export default async function (fastify, opts) {
           throw fastify.httpErrors.notAcceptable(
             `url shoud not be empty ${title}`
           );
-        let existingBookmark = appContext.stores.bookmarks.getItemByUrl(url);
-        if (existingBookmark) return;
         const user = appContext.request.get(appRequestsKeys.Session);
+        let existingBookmark = appContext.stores.bookmarks.getItemByUrl(
+          user.userId,
+          url
+        );
+        if (existingBookmark) return;
         appContext.stores.bookmarks.addItem(
           url,
           title,
@@ -215,7 +244,7 @@ export default async function (fastify, opts) {
           icon,
           undefined,
           [],
-          user.userId
+          user
         );
         reply.statusCode = 201;
       });
@@ -230,16 +259,18 @@ export default async function (fastify, opts) {
       schema: {
         body: {
           type: "object",
+          required: ["items"],
           properties: {
             categoryId: { type: "number" },
             items: {
               type: "array",
+              maxItems: 500,
               items: {
                 type: "object",
                 required: ["id", "position"],
                 properties: {
-                  id: { type: "number" },
-                  position: { type: "number" },
+                  id: { type: "integer", minimum: 1 },
+                  position: { type: "integer", minimum: 0 },
                 },
               },
             },
@@ -250,11 +281,9 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { items, categoryId } = request.body;
       const user = appContext.request.get(appRequestsKeys.Session);
-      if (
-        appContext.stores.bookmarks.updatePositions(items, categoryId, user)
-      )
+      if (appContext.stores.bookmarks.updatePositions(items, categoryId, user))
         return true;
-      return { items, categoryId };
+      throw fastify.httpErrors.notFound();
     }
   );
 
@@ -263,11 +292,23 @@ export default async function (fastify, opts) {
     {
       preHandler: requireSession(true, true, false),
       schema: {
+        params: idParams,
+        response: {
+          200: {
+            type: "object",
+            required: ["url"],
+            properties: {
+              url: { type: "string" },
+              title: { type: "string" },
+              desc: { type: "string" },
+            },
+          },
+        },
         body: {
           type: "object",
           required: ["url"],
           properties: {
-            url: { type: "string" },
+            url: { type: "string", minLength: 1 },
             title: { type: "string" },
             desc: { type: "string" },
             icon: { type: "string" },
@@ -280,7 +321,6 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let { url, title, desc, icon, categoryId, tags } = request.body;
-      if (url === "") throw new Error("Url shoud not be empty string");
       const user = appContext.request.get(appRequestsKeys.Session);
       if (!appContext.stores.bookmarks.isModifiable(id, user))
         throw fastify.httpErrors.notFound();
@@ -304,7 +344,10 @@ export default async function (fastify, opts) {
 
   fastify.delete(
     "/:id",
-    { preHandler: requireSession(true, true, false) },
+    {
+      preHandler: requireSession(true, true, false),
+      schema: { params: idParams },
+    },
     async function (request, reply) {
       let { id } = request.params;
       const user = appContext.request.get(appRequestsKeys.Session);
