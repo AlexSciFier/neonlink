@@ -1,11 +1,15 @@
 import crypto from "node:crypto";
 
+import { ownerCondition, visibleCondition } from "./ownership.js";
+
 export default class BookmarksStore {
   constructor(sqliteInstance) {
     this.db = sqliteInstance;
   }
 
-  addItem(url, title, desc, icon, categoryId, tags, userId) {
+  addItem(url, title, desc, icon, categoryId, tags, scope) {
+    if (!this.categoryVisible(categoryId, scope)) return false;
+    const tagIds = this.visibleTagIds(tags, scope);
     const now = new Date().toISOString();
     const insertQuery = `INSERT INTO bookmarks (url,title,desc,icon,search,categoryId,userId,updated_at) 
       VALUES(:url,:title,:desc,:icon,:search,:categoryId,:userId,:updated_at)`;
@@ -14,7 +18,7 @@ export default class BookmarksStore {
       title,
       desc,
       icon,
-      userId,
+      userId: scope.userId,
       search: (url + title + desc).toLocaleLowerCase(),
       categoryId,
       updated_at: now,
@@ -23,14 +27,7 @@ export default class BookmarksStore {
       .prepare(insertQuery)
       .run(insertParams).lastInsertRowid;
 
-    if (tags && tags.length > 0) {
-      const tagsSelectQuery = `SELECT id FROM tags WHERE name IN (${new Array(
-        tags.length
-      )
-        .fill("?")
-        .join(",")})`;
-      const tagsSelectIds = this.db.prepare(tagsSelectQuery).all(...tags);
-
+    if (tagIds.length > 0) {
       const tagsRelationsQuery = `INSERT INTO bookmarksTags (bookmarkId, tagId) VALUES(:bookmarkId,:tagId)`;
       const tagsRelationsStmt = this.db.prepare(tagsRelationsQuery);
       const transaction = this.db.transaction((ids) => {
@@ -38,14 +35,44 @@ export default class BookmarksStore {
           tagsRelationsStmt.run({ bookmarkId, tagId });
         }
       });
-      transaction(tagsSelectIds);
+      transaction(tagIds);
     }
     return bookmarkId;
   }
 
-  deleteItem(id) {
-    const deleteQuery = `DELETE FROM bookmarks WHERE id = :id`;
-    return this.db.prepare(deleteQuery).run({ id }).changes > 0;
+  categoryVisible(id, scope) {
+    const owner = visibleCondition(scope);
+    if (id == null || id === 0) return true;
+    return !!this.db
+      .prepare(`SELECT 1 FROM category WHERE id = :id AND ${owner.sql}`)
+      .get({ id, ...owner.params });
+  }
+
+  visibleTagIds(tags, scope) {
+    const owner = visibleCondition(scope);
+    if (!tags?.length) return [];
+    const placeholders = tags.map((_, i) => `:tag${i}`).join(",");
+    const params = Object.fromEntries(tags.map((tag, i) => [`tag${i}`, tag]));
+    return this.db
+      .prepare(
+        `SELECT id FROM tags WHERE name IN (${placeholders}) AND ${owner.sql}`
+      )
+      .all({ ...params, ...owner.params });
+  }
+
+  deleteItem(id, scope) {
+    const owner = ownerCondition(scope);
+    const deleteQuery = `DELETE FROM bookmarks WHERE id = :id AND ${owner.sql}`;
+    return (
+      this.db.prepare(deleteQuery).run({ id, ...owner.params }).changes > 0
+    );
+  }
+
+  isModifiable(id, scope) {
+    const owner = ownerCondition(scope);
+    return !!this.db
+      .prepare(`SELECT 1 FROM bookmarks WHERE id = :id AND ${owner.sql}`)
+      .get({ id, ...owner.params });
   }
 
   getAll(userId, search = undefined, tag = undefined, category = undefined) {
@@ -89,7 +116,9 @@ export default class BookmarksStore {
     }
 
     if (userId) {
-      conditions.push("(userId IN (:userId, 0) OR userId IS NULL)");
+      conditions.push(
+        "(bookmarks.userId IN (:userId, 0) OR bookmarks.userId IS NULL)"
+      );
       selectParams.userId = userId;
     }
 
@@ -251,7 +280,8 @@ export default class BookmarksStore {
       );
     }
 
-    if (conditions.length > 0) selectQuery += `WHERE ${conditions.join(" AND ")} `;
+    if (conditions.length > 0)
+      selectQuery += `WHERE ${conditions.join(" AND ")} `;
 
     selectQuery += "ORDER BY bookmarkPosition.position";
 
@@ -271,6 +301,7 @@ export default class BookmarksStore {
       FROM bookmarks
         LEFT JOIN bookmarkPosition ON bookmarks.id = bookmarkPosition.bookmarkId
         LEFT JOIN category ON bookmarks.categoryId = category.id
+          AND (:userId = 0 OR category.userId IN (:userId, 0) OR category.userId IS NULL)
         LEFT JOIN bookmarksTags ON bookmarksTags.bookmarkId = bookmarks.id
         LEFT JOIN tags ON bookmarksTags.tagId = tags.id
       `;
@@ -281,7 +312,8 @@ export default class BookmarksStore {
         "WHERE (bookmarks.userId IN (:userId, 0) OR bookmarks.userId IS NULL) ";
     }
 
-    selectQuery += "GROUP BY bookmarks.id ORDER BY updated_at DESC, bookmarkPosition.position";
+    selectQuery +=
+      "GROUP BY bookmarks.id ORDER BY updated_at DESC, bookmarkPosition.position";
 
     return this.db
       .prepare(selectQuery)
@@ -314,7 +346,8 @@ export default class BookmarksStore {
       selectParams.userId = userId;
     }
 
-    if (conditions.length > 0) selectQuery += `WHERE ${conditions.join(" AND ")} `;
+    if (conditions.length > 0)
+      selectQuery += `WHERE ${conditions.join(" AND ")} `;
 
     selectQuery += `GROUP BY bookmarks.id`;
     return this.db.prepare(selectQuery).get(selectParams);
@@ -330,35 +363,36 @@ export default class BookmarksStore {
     return this.db.prepare(selectQuery).get(selectParams);
   }
 
-  getIconByBookmarkId(id) {
-    const selectQuery = `SELECT icon FROM bookmarks WHERE bookmarks.id = :id`;
-    return this.db.prepare(selectQuery).get({ id }).icon;
+  getIconByBookmarkId(id, scope) {
+    const owner = visibleCondition(scope);
+    const selectQuery = `SELECT icon FROM bookmarks WHERE id = :id AND ${owner.sql}`;
+    return this.db.prepare(selectQuery).get({ id, ...owner.params })?.icon;
   }
 
-  updateItem(id, url, title, desc, icon, categoryId, tags) {
-    const now = new Date().toISOString();
-    let tagsRelationsDeleteQuery = `DELETE FROM bookmarksTags WHERE bookmarkId = :id`;
-    this.db.prepare(tagsRelationsDeleteQuery).run({ id });
+  updateItem(id, url, title, desc, icon, categoryId, tags, scope) {
+    // Must run before any write: the tag relations are rewritten first.
+    if (
+      !this.isModifiable(id, scope) ||
+      !this.categoryVisible(categoryId, scope)
+    )
+      return false;
+    const tagsIds = this.visibleTagIds(tags, scope);
+    return this.db.transaction(() => {
+      const now = new Date().toISOString();
+      if (tags) {
+        let tagsRelationsDeleteQuery = `DELETE FROM bookmarksTags WHERE bookmarkId = :id`;
+        this.db.prepare(tagsRelationsDeleteQuery).run({ id });
+        let tagsRelationsInsertQuery = `INSERT INTO bookmarksTags (bookmarkId, tagId) VALUES(:bookmarkId,:tagId)`;
+        let tagsRelationsInsertStmt = this.db.prepare(tagsRelationsInsertQuery);
+        let transaction = this.db.transaction((ids) => {
+          for (const tagId of ids.map((value) => value.id)) {
+            tagsRelationsInsertStmt.run({ bookmarkId: id, tagId });
+          }
+        });
+        transaction(tagsIds);
+      }
 
-    if (tags) {
-      let tagsSelectQuery = `SELECT id FROM tags WHERE name IN (${new Array(
-        tags.length
-      )
-        .fill("?")
-        .join(",")})`;
-      let tagsIds = this.db.prepare(tagsSelectQuery).all(...tags);
-
-      let tagsRelationsInsertQuery = `INSERT INTO bookmarksTags (bookmarkId, tagId) VALUES(:bookmarkId,:tagId)`;
-      let tagsRelationsInsertStmt = this.db.prepare(tagsRelationsInsertQuery);
-      let transaction = this.db.transaction((ids) => {
-        for (const tagId of ids.map((value) => value.id)) {
-          tagsRelationsInsertStmt.run({ bookmarkId: id, tagId });
-        }
-      });
-      transaction(tagsIds);
-    }
-
-    let updateQuery = `UPDATE bookmarks SET 
+      let updateQuery = `UPDATE bookmarks SET
         url = coalesce(:url,url), 
         title = coalesce(:title,title),
         desc = coalesce(:desc,desc),
@@ -367,20 +401,37 @@ export default class BookmarksStore {
         updated_at = :updated_at
       WHERE id = :id`;
 
-    return (
-      this.db.prepare(updateQuery).run({
-        id,
-        url,
-        title,
-        desc,
-        icon,
-        categoryId,
-        updated_at: now,
-      }).changes > 0
-    );
+      return (
+        this.db.prepare(updateQuery).run({
+          id,
+          url,
+          title,
+          desc,
+          icon,
+          categoryId,
+          updated_at: now,
+        }).changes > 0
+      );
+    })();
   }
 
-  updatePositions(idPositionPairArray, categoryId) {
+  updatePositions(idPositionPairArray, categoryId, scope) {
+    const owner = ownerCondition(scope);
+    if (!this.categoryVisible(categoryId, scope)) return false;
+    if (!idPositionPairArray.length) return true;
+    const ids = [...new Set(idPositionPairArray.map((item) => item.id))];
+    const placeholders = ids.map((_, i) => `:id${i}`).join(",");
+    const params = Object.fromEntries(ids.map((id, i) => [`id${i}`, id]));
+    const count = this.db
+      .prepare(
+        `SELECT COUNT(*) AS count FROM bookmarks WHERE id IN (${placeholders}) AND ${owner.sql} AND categoryId IS :categoryId`
+      )
+      .get({
+        ...params,
+        ...owner.params,
+        categoryId: categoryId ?? null,
+      }).count;
+    if (count !== ids.length) return false;
     let insertOrReplaceQuery = `INSERT OR REPLACE INTO bookmarkPosition (bookmarkId, categoryId, position) VALUES (:bookmarkId, :categoryId, :position)`;
     let insert = this.db.prepare(insertOrReplaceQuery);
     let insertMany = this.db.transaction((items) => {

@@ -37,7 +37,14 @@ export function CategoriesListProvider({ children }) {
     );
     if (res.ok) {
       let id = await res.json();
-      setCategories([...categories, { id, name, color }]);
+      setCategories((current) => {
+        const existing = current.find((category) => category.id === id);
+        return existing
+          ? current.map((category) =>
+              category.id === id ? { ...category, name, color } : category
+            )
+          : [...current, { id, name, color }];
+      });
     } else {
       setError(await res.json());
     }

@@ -1,3 +1,6 @@
+import { ownerCondition } from "./ownership.js";
+import { visibleCondition } from "./ownership.js";
+
 export default class CategoriesStore {
   constructor(sqliteInstance) {
     this.db = sqliteInstance;
@@ -58,15 +61,41 @@ export default class CategoriesStore {
       conditions.push("(userId IN (:userId, 0) OR userId IS NULL)");
       selectParams.userId = userId;
     }
-    
+
     if (conditions.length > 0)
       selectQuery += ` WHERE ${conditions.join(" AND ")} `;
-    
+
     selectQuery += `ORDER BY position ASC`;
     return this.db.prepare(selectQuery).get(selectParams);
   }
 
-  deleteItem(id) {
+  getModifiableByName(name, scope) {
+    const owner = ownerCondition(scope);
+    return this.db
+      .prepare(
+        `SELECT id FROM category WHERE name = :name AND ${owner.sql}
+      ORDER BY CASE WHEN userId = :preferredUser THEN 0 ELSE 1 END, id LIMIT 1`
+      )
+      .get({ name, preferredUser: scope.userId, ...owner.params });
+  }
+
+  isVisible(id, scope) {
+    if (id == null || id === 0) return true;
+    const owner = visibleCondition(scope);
+    return !!this.db
+      .prepare(`SELECT 1 FROM category WHERE id = :id AND ${owner.sql}`)
+      .get({ id, ...owner.params });
+  }
+
+  isModifiable(id, scope) {
+    const owner = ownerCondition(scope);
+    return !!this.db
+      .prepare(`SELECT 1 FROM category WHERE id = :id AND ${owner.sql}`)
+      .get({ id, ...owner.params });
+  }
+
+  deleteItem(id, scope) {
+    if (!this.isModifiable(id, scope)) return false;
     const statements = [
       "DELETE FROM category WHERE id = :categoryId",
       "DELETE FROM categoryPosition WHERE categoryId = :categoryId",
@@ -83,16 +112,31 @@ export default class CategoriesStore {
     return true;
   }
 
-  updateItem(id, name, color) {
+  updateItem(id, name, color, scope) {
+    const owner = ownerCondition(scope);
     const updateQuery = `UPDATE category SET 
         name = coalesce(:name,name), 
         color = coalesce(:color,color)
-      WHERE id = :id`;
+      WHERE id = :id AND ${owner.sql}`;
 
-    return this.db.prepare(updateQuery).run({ id, name, color }).changes > 0;
+    return (
+      this.db.prepare(updateQuery).run({ id, name, color, ...owner.params })
+        .changes > 0
+    );
   }
 
-  updatePositions(idPositionPairArray) {
+  updatePositions(idPositionPairArray, scope) {
+    const owner = ownerCondition(scope);
+    if (!idPositionPairArray.length) return true;
+    const ids = [...new Set(idPositionPairArray.map((item) => item.id))];
+    const placeholders = ids.map((_, i) => `:id${i}`).join(",");
+    const params = Object.fromEntries(ids.map((id, i) => [`id${i}`, id]));
+    const count = this.db
+      .prepare(
+        `SELECT COUNT(*) AS count FROM category WHERE id IN (${placeholders}) AND ${owner.sql}`
+      )
+      .get({ ...params, ...owner.params }).count;
+    if (count !== ids.length) return false;
     const insertQuery = `UPDATE categoryPosition SET position = coalesce(:position,position) WHERE categoryId = :id`;
     const insert = this.db.prepare(insertQuery);
 

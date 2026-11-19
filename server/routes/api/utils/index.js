@@ -3,6 +3,9 @@ import {
   batchUpdateLinks,
   requestHeadFromUrl,
 } from "../../../logics/bookmarks.js";
+import { requireSession } from "../../../logics/handlers.js";
+import { appContext } from "../../../contexts/appContext.js";
+import { appRequestsKeys } from "../../../contexts/appRequests.js";
 
 /**
  *
@@ -46,7 +49,11 @@ export default async function (fastify, opts) {
     }
   );
 
-  fastify.get("/updatelinks", {}, async function (request, reply) {
-    return batchUpdateLinks();
-  });
+  fastify.post(
+    "/updatelinks",
+    { preHandler: requireSession(true, true, false) },
+    async function (request, reply) {
+      return batchUpdateLinks(appContext.request.get(appRequestsKeys.Session));
+    }
+  );
 }

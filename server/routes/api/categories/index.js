@@ -2,6 +2,12 @@ import { requireSession } from "../../../logics/handlers.js";
 import { appContext } from "../../../contexts/appContext.js";
 import { appRequestsKeys } from "../../../contexts/appRequests.js";
 
+const idParams = {
+  type: "object",
+  required: ["id"],
+  properties: { id: { type: "integer", minimum: 1 } },
+};
+
 /**
  *
  * @param {import("fastify").FastifyInstance} fastify
@@ -19,10 +25,16 @@ export default async function (fastify, opts) {
 
   fastify.get(
     "/:id",
-    { preHandler: requireSession(true, true, false) },
+    {
+      preHandler: requireSession(true, true, false),
+      schema: { params: idParams },
+    },
     async function (request, reply) {
       let { id } = request.params;
-      let category = store.categories.getCategoryById(id);
+      const user = appContext.request.get(appRequestsKeys.Session);
+      let category = appContext.stores.categories.isVisible(id, user)
+        ? appContext.stores.categories.getItemById(id)
+        : undefined;
       if (category) return category;
       throw fastify.httpErrors.notFound(`bookmark with id ${id} not found`);
     }
@@ -47,16 +59,23 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { name, color, position } = request.body;
 
-      let existingCategory = appContext.stores.categories.getItemByName(name);
       const user = appContext.request.get(appRequestsKeys.Session);
+      let existingCategory = appContext.stores.categories.getModifiableByName(
+        name,
+        user
+      );
 
-      if (existingCategory) {
-        return appContext.stores.categories.updateItem(
+      if (
+        existingCategory &&
+        appContext.stores.categories.isModifiable(existingCategory.id, user)
+      ) {
+        appContext.stores.categories.updateItem(
           existingCategory.id,
           name,
           color,
-          position
+          user
         );
+        return existingCategory.id;
       }
       reply.statusCode = 201;
       return appContext.stores.categories.addItem(name, color, user.userId);
@@ -68,6 +87,18 @@ export default async function (fastify, opts) {
     {
       preHandler: requireSession(true, true, false),
       schema: {
+        params: idParams,
+        response: {
+          200: {
+            type: "object",
+            required: ["id", "name", "color"],
+            properties: {
+              id: { type: "integer" },
+              name: { type: "string" },
+              color: { type: "string" },
+            },
+          },
+        },
         body: {
           type: "object",
           required: ["name", "color"],
@@ -81,7 +112,8 @@ export default async function (fastify, opts) {
     async function (request, reply) {
       let { id } = request.params;
       let { name, color } = request.body;
-      if (appContext.stores.categories.updateItem(id, name, color))
+      const user = appContext.request.get(appRequestsKeys.Session);
+      if (appContext.stores.categories.updateItem(id, name, color, user))
         return { id, name, color };
       throw fastify.httpErrors.notFound();
     }
@@ -94,12 +126,13 @@ export default async function (fastify, opts) {
       schema: {
         body: {
           type: "array",
+          maxItems: 500,
           items: {
             type: "object",
             required: ["id", "position"],
             properties: {
-              id: { type: "number" },
-              position: { type: "number" },
+              id: { type: "integer", minimum: 1 },
+              position: { type: "integer", minimum: 0 },
             },
           },
         },
@@ -107,17 +140,23 @@ export default async function (fastify, opts) {
     },
     async function (request, reply) {
       let array = request.body;
-      if (appContext.stores.categories.updatePositions(array)) return true;
+      const user = appContext.request.get(appRequestsKeys.Session);
+      if (appContext.stores.categories.updatePositions(array, user))
+        return true;
       throw fastify.httpErrors.notFound();
     }
   );
 
   fastify.delete(
     "/:id",
-    { preHandler: requireSession(true, true, false) },
+    {
+      preHandler: requireSession(true, true, false),
+      schema: { params: idParams },
+    },
     async function (request, reply) {
       let { id } = request.params;
-      if (appContext.stores.categories.deleteItem(id)) return true;
+      const user = appContext.request.get(appRequestsKeys.Session);
+      if (appContext.stores.categories.deleteItem(id, user)) return true;
       else throw fastify.httpErrors.notFound();
     }
   );

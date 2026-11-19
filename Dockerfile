@@ -31,6 +31,10 @@ USER node
 COPY --chown=node ./server ./
 COPY --chown=node --from=srv-build /app/server ./
 COPY --chown=node --from=ui-build /app/client/build ./public
+USER root
+RUN mkdir -p /app/data /app/public/static/media/background \
+    && chown -R node:node /app/data /app/public/static/media/background
+USER node
 
 ARG NODE_ENV=production
 ARG FASTIFY_PLUGIN_TIMEOUT=120000
