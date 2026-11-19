@@ -42,7 +42,7 @@ export default class BookmarksStore {
 
   categoryVisible(id, scope) {
     const owner = visibleCondition(scope);
-    if (id == null) return true;
+    if (id == null || id === 0) return true;
     return !!this.db
       .prepare(`SELECT 1 FROM category WHERE id = :id AND ${owner.sql}`)
       .get({ id, ...owner.params });

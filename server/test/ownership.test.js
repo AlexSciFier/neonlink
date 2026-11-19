@@ -144,6 +144,24 @@ test("ownership and Fastify routes enforce the user boundary", async (t) => {
   );
 
   response = await app.inject({
+    method: "POST",
+    url: "/api/bookmarks",
+    payload: {
+      url: "https://youtube.com/",
+      title: "YouTube",
+      icon: "",
+      categoryId: 0,
+    },
+  });
+  assert.equal(response.statusCode, 201);
+  assert.equal(
+    db
+      .prepare("SELECT categoryId FROM bookmarks WHERE id = ?")
+      .get(response.json()).categoryId,
+    0
+  );
+
+  response = await app.inject({
     method: "PUT",
     url: "/api/categories/changePositions",
     payload: [

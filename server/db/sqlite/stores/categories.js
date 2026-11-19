@@ -80,6 +80,7 @@ export default class CategoriesStore {
   }
 
   isVisible(id, scope) {
+    if (id == null || id === 0) return true;
     const owner = visibleCondition(scope);
     return !!this.db
       .prepare(`SELECT 1 FROM category WHERE id = :id AND ${owner.sql}`)
